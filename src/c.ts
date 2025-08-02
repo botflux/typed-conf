@@ -1,3 +1,4 @@
+import type {Source, SourcesToRecord} from "./sources/source.js";
 
 export type StringSchema = {
   type: "string"
@@ -23,22 +24,6 @@ export type Static<T> = T extends ObjectSchema<infer U> ? U : never
 export type LoadOpts<Sources extends Source<string, never>[]> = {
   sources: SourcesToRecord<Sources>
 }
-
-export type Source<K extends string, V> = {
-  key: K
-  load: (opts?: V) => Promise<unknown>
-}
-
-type ExtractItemFromArray<T> = T extends Array<infer U> ? U : never
-
-type SourceToRecord<T extends Source<string, never>> = T extends Source<infer K, infer V>
-  ? Record<K, V>
-  : never
-
-export type MergeUnionTypes<T> = (T extends any ? (x: T) => any : never) extends
-  (x: infer R) => any ? R : never;
-
-export type SourcesToRecord<T extends Source<string, never>[]> = Partial<MergeUnionTypes<SourceToRecord<ExtractItemFromArray<T>>>>
 
 export type ConfigSpec<ConfigSchema extends ObjectSchema<Record<string, ConfSchema>>, Sources extends Source<string, never>[]> = {
   configSchema: ConfigSchema

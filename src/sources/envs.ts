@@ -1,4 +1,4 @@
-import type {Source} from "../c.js";
+import type {Source} from "./source.js";
 
 export function envSource (): Source<"envs", NodeJS.ProcessEnv> {
   return {
