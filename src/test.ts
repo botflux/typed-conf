@@ -27,4 +27,28 @@ describe("testing", () => {
       host: "localhost"
     })
   })
+
+  test("should be able to load a config from envs with a prefix", async t => {
+    // Given
+    const envs = envSource({ prefix: "APP_" })
+
+    const configSpec = c.config({
+      schema: c.object({
+        host: c.string()
+      }),
+      sources: [ envs ]
+    })
+
+    // When
+    const config = await configSpec.load({
+      sources: {
+        envs: { APP_HOST: "localhost" }
+      }
+    })
+
+    // Then
+    assert.deepStrictEqual(config, {
+      host: "localhost"
+    })
+  })
 })

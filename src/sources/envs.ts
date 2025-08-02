@@ -1,13 +1,19 @@
 import type {Source} from "./source.js";
 
-export function envSource (): Source<"envs", NodeJS.ProcessEnv> {
+export type EnvSourceOpts = {
+  prefix?: string
+}
+
+export function envSource (opts: EnvSourceOpts = {}): Source<"envs", NodeJS.ProcessEnv> {
+  const { prefix = "" } = opts
+
   return {
     key: "envs",
     load(envs?: NodeJS.ProcessEnv) : Promise<unknown> {
       const e = envs ?? process.env
 
       return Promise.resolve(
-        Object.fromEntries(Object.entries(e).map(([k, v]) => ([k.toLowerCase(), v] as const)))
+        Object.fromEntries(Object.entries(e).map(([k, v]) => ([k.replace(prefix, "").toLowerCase(), v] as const)))
       )
     }
   }
