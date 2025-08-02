@@ -1,17 +1,5 @@
 import type {Source, SourcesToRecord} from "./sources/source.js";
-
-export type StringSchema = {
-  type: "string"
-}
-
-export type ObjectSchema<T extends ObjectSpec> = {
-  type: "object"
-  spec: T
-}
-
-export type ConfSchema = StringSchema
-
-export type ObjectSpec = Record<string, ConfSchema>
+import {type ConfSchema, object, type ObjectSchema, string} from "./schemes.js";
 
 export const c = {
   config,
@@ -54,15 +42,3 @@ function config<Schema extends ObjectSchema<Record<string, any>>, Sources extend
   }
 }
 
-function object<T extends ObjectSpec>(spec: T): ObjectSchema<T> {
-  return {
-    type: "object",
-    spec
-  }
-}
-
-function string(): StringSchema {
-  return {
-    type: "string"
-  }
-}
