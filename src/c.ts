@@ -26,14 +26,8 @@ export type LoadOpts<Sources extends Source<string, never>[]> = {
 
 export type Source<K extends string, V> = {
   key: K
-  load: (opts: V) => Promise<unknown>
+  load: (opts?: V) => Promise<unknown>
 }
-
-// Extract the key and value from a Source type
-type ExtractKey<T> = T extends Source<infer K, any> ? K : never
-type ExtractValue<T> = T extends Source<any, infer V> ? V : never
-
-// Transform tuple of sources into a record
 
 type ExtractItemFromArray<T> = T extends Array<infer U> ? U : never
 
@@ -44,7 +38,7 @@ type SourceToRecord<T extends Source<string, never>> = T extends Source<infer K,
 export type MergeUnionTypes<T> = (T extends any ? (x: T) => any : never) extends
   (x: infer R) => any ? R : never;
 
-export type SourcesToRecord<T extends Source<string, never>[]> = MergeUnionTypes<SourceToRecord<ExtractItemFromArray<T>>>
+export type SourcesToRecord<T extends Source<string, never>[]> = Partial<MergeUnionTypes<SourceToRecord<ExtractItemFromArray<T>>>>
 
 export type ConfigSpec<ConfigSchema extends ObjectSchema<Record<string, ConfSchema>>, Sources extends Source<string, never>[]> = {
   configSchema: ConfigSchema
@@ -67,7 +61,6 @@ function config<Schema extends ObjectSchema<Record<string, any>>, Sources extend
       for (const source of configOpts.sources) {
         // @ts-expect-error
         const o = sources[source.key] as any
-        // @ts-expect-error
         return await source.load(o) as any
       }
       
