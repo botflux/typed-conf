@@ -1,5 +1,5 @@
 import type {Source, SourcesToRecord} from "./sources/source.js";
-import {type ConfSchema, object, type ObjectSchema, string} from "./schemes.js";
+import {type BaseSchema, kType, object, type ObjectSchema, string} from "./schemes.js";
 
 export const c = {
   config,
@@ -7,16 +7,25 @@ export const c = {
   object,
 }
 
-export type Static<T> = T extends ObjectSchema<infer U> ? U : never
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
+export type Static<
+  T extends ConfigSpec<
+    ObjectSchema<Record<string, BaseSchema<unknown>>>,
+    Source<string, never>[]
+  >
+> = Prettify<T["configSchema"][typeof kType]>
 
 export type LoadOpts<Sources extends Source<string, never>[]> = {
   sources: SourcesToRecord<Sources>
 }
 
-export type ConfigSpec<ConfigSchema extends ObjectSchema<Record<string, ConfSchema>>, Sources extends Source<string, never>[]> = {
+export type ConfigSpec<ConfigSchema extends ObjectSchema<Record<string, BaseSchema<any>>>, Sources extends Source<string, never>[]> = {
   configSchema: ConfigSchema
   sources: Sources
-  load: (opts: LoadOpts<Sources>) => Promise<Static<ConfigSchema>>
+  load: (opts: LoadOpts<Sources>) => Promise<Prettify<ConfigSchema[typeof kType]>>
 }
 
 export type ConfigOpts<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]> = {

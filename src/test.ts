@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { c } from "./c.js"
+import {c, type Static} from "./c.js"
 import {envSource} from "./sources/envs.js";
 
 describe("testing", () => {
