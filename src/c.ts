@@ -14,34 +14,72 @@ export type ObjectSpec = Record<string, ConfSchema>
 
 export const c = {
   config,
-  string
+  string,
+  object,
 }
 
 export type Static<T> = T extends ObjectSchema<infer U> ? U : never
 
-export type LoadOpts = {
-  sources: {
-    envs: Record<string, string>
+export type LoadOpts<Sources extends Source<string, never>[]> = {
+  sources: SourcesToRecord<Sources>
+}
+
+export type Source<K extends string, V> = {
+  key: K
+  load: (opts: V) => Promise<unknown>
+}
+
+// Extract the key and value from a Source type
+type ExtractKey<T> = T extends Source<infer K, any> ? K : never
+type ExtractValue<T> = T extends Source<any, infer V> ? V : never
+
+// Transform tuple of sources into a record
+
+type ExtractItemFromArray<T> = T extends Array<infer U> ? U : never
+
+type SourceToRecord<T extends Source<string, never>> = T extends Source<infer K, infer V>
+  ? Record<K, V>
+  : never
+
+export type MergeUnionTypes<T> = (T extends any ? (x: T) => any : never) extends
+  (x: infer R) => any ? R : never;
+
+export type SourcesToRecord<T extends Source<string, never>[]> = MergeUnionTypes<SourceToRecord<ExtractItemFromArray<T>>>
+
+export type ConfigSpec<ConfigSchema extends ObjectSchema<Record<string, ConfSchema>>, Sources extends Source<string, never>[]> = {
+  configSchema: ConfigSchema
+  sources: Sources
+  load: (opts: LoadOpts<Sources>) => Promise<Static<ConfigSchema>>
+}
+
+export type ConfigOpts<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]> = {
+  schema: Schema
+  sources: Sources
+}
+
+function config<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]>(configOpts: ConfigOpts<Schema, Sources>): ConfigSpec<Schema, Sources> {
+  return {
+    configSchema: configOpts.schema,
+    sources: configOpts.sources,
+    load: async (opts: LoadOpts<Sources>) => {
+      const { sources } = opts
+      
+      for (const source of configOpts.sources) {
+        // @ts-expect-error
+        const o = sources[source.key] as any
+        // @ts-expect-error
+        return await source.load(o) as any
+      }
+      
+      throw new Error("Not implemented at line 67 in c.ts")
+    },
   }
 }
 
-export type ConfigSpec<ConfigSchema extends ObjectSchema<Record<string, ConfSchema>>> = {
-  configSchema: ConfigSchema
-  load: (opts: LoadOpts) => Promise<Static<ConfigSchema>>
-}
-
-function config<T extends ObjectSpec>(objSpec: T): ConfigSpec<ObjectSchema<T>> {
+function object<T extends ObjectSpec>(spec: T): ObjectSchema<T> {
   return {
-    configSchema: {
-      type: "object",
-      spec: objSpec
-    },
-    load: async (opts: LoadOpts) => {
-      const { sources: { envs } } = opts
-      const entries = Object.entries(envs)
-
-      return Object.fromEntries(entries.map(([key, value ]) => [ key.toLowerCase(), value ])) as any
-    }
+    type: "object",
+    spec
   }
 }
 
