@@ -147,6 +147,38 @@ describe("testing", () => {
           })
         }
       })
+
+      describe('float', function () {
+        const scenarios = [
+          [ "3.14", 3.14 ] as const,
+          [ "-3.14", -3.14 ] as const,
+        ]
+
+        for (const [input, expected] of scenarios) {
+          test(`should be able to coerce '${input}' into '${expected}'`, async (t) => {
+            // Given
+            const envs = envSource()
+            const configSpec = c.config({
+              schema: c.object({
+                value: c.float()
+              }),
+              sources: [ envs ]
+            })
+
+            // When
+            const config = await configSpec.load({
+              sources: {
+                envs: { VALUE: input }
+              }
+            })
+
+            // Then
+            assert.deepStrictEqual(config, {
+              value: expected
+            })
+          })
+        }
+      })
     })
   })
 })

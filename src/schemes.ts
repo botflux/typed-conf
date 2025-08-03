@@ -17,6 +17,10 @@ export type IntegerSchema = {
   type: "integer"
 } & BaseSchema<number>
 
+export type FloatSchema = {
+  type: "float"
+} & BaseSchema<number>
+
 export type ObjectSchema<T extends ObjectSpec> = {
   type: "object"
   spec: T
@@ -72,6 +76,27 @@ export function integer(): IntegerSchema {
       }
 
       const parsed = Number.parseInt(value)
+
+      if (Number.isNaN(parsed)) {
+        return value
+      }
+
+      return parsed
+    }
+  }
+}
+
+
+export function float(): FloatSchema {
+  return {
+    type: "float",
+    [kType]: 0,
+    coerce: (value: unknown) => {
+      if (typeof value !== "string") {
+        return value
+      }
+
+      const parsed = Number.parseFloat(value)
 
       if (Number.isNaN(parsed)) {
         return value
