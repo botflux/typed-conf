@@ -12,6 +12,11 @@ export type Alias = { id: string, sourceKey: string }
 
 export type StringSchemaBuilder = {
   type: "string"
+  /**
+   * Define aliases for this value.
+   *
+   * @param aliases
+   */
   aliases(...aliases: Alias[]): StringSchemaBuilder
 } & BaseSchema<string>
 
