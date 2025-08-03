@@ -13,6 +13,10 @@ export type BooleanSchema = {
   type: "boolean"
 } & BaseSchema<boolean>
 
+export type IntegerSchema = {
+  type: "integer"
+} & BaseSchema<number>
+
 export type ObjectSchema<T extends ObjectSpec> = {
   type: "object"
   spec: T
@@ -54,6 +58,26 @@ export function boolean(): BooleanSchema {
       if (lowercase === "true") return true
 
       return value
+    }
+  }
+}
+
+export function integer(): IntegerSchema {
+  return {
+    type: "integer",
+    [kType]: 0,
+    coerce: (value: unknown) => {
+      if (typeof value !== "string") {
+        return value
+      }
+
+      const parsed = Number.parseInt(value)
+
+      if (Number.isNaN(parsed)) {
+        return value
+      }
+
+      return parsed
     }
   }
 }

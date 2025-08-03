@@ -114,6 +114,39 @@ describe("testing", () => {
           })
         }
       })
+
+      describe('integer', function () {
+        const scenarios = [
+          [ "111", 111 ] as const,
+          [ "0", 0 ] as const,
+          [ "-34", -34 ] as const,
+        ]
+
+        for (const [input, expected] of scenarios) {
+          test(`should be able to coerce '${input}' into '${expected}'`, async (t) => {
+            // Given
+            const envs = envSource()
+            const configSpec = c.config({
+              schema: c.object({
+                value: c.integer()
+              }),
+              sources: [ envs ]
+            })
+
+            // When
+            const config = await configSpec.load({
+              sources: {
+                envs: { VALUE: input }
+              }
+            })
+
+            // Then
+            assert.deepStrictEqual(config, {
+              value: expected
+            })
+          })
+        }
+      })
     })
   })
 })
