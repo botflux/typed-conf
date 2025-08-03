@@ -1,12 +1,18 @@
+import type {Source} from "./sources/source.js";
+
 export const kType = Symbol("type")
 
 export type BaseSchema<T> = {
   [kType]: T
   coerce?: (value: unknown) => unknown
+  _aliases: Alias[]
 }
 
-export type StringSchema = {
+export type Alias = { id: string, sourceKey: string }
+
+export type StringSchemaBuilder = {
   type: "string"
+  aliases(...aliases: Alias[]): StringSchemaBuilder
 } & BaseSchema<string>
 
 export type BooleanSchema = {
@@ -36,21 +42,32 @@ export function object<T extends ObjectSpec>(spec: T): ObjectSchema<T> {
   return {
     type: "object",
     spec,
-    [kType]: {} as ToRecord<T>
+    [kType]: {} as ToRecord<T>,
+    _aliases: [],
   }
 }
 
-export function string(): StringSchema {
-  return {
-    type: "string",
-    [kType]: ""
+class StringSchemaCls implements StringSchemaBuilder {
+  type: "string" = "string";
+  [kType]: string = "";
+
+  _aliases: Alias[] = []
+
+  aliases(...aliases: Alias[]): StringSchemaBuilder {
+    this._aliases = aliases
+    return this
   }
+}
+
+export function string(): StringSchemaBuilder {
+  return new StringSchemaCls()
 }
 
 export function boolean(): BooleanSchema {
   return {
     type: "boolean",
     [kType]: false,
+    _aliases: [],
     coerce: (value: unknown) => {
       if (typeof value !== "string") {
         return value
@@ -70,6 +87,7 @@ export function integer(): IntegerSchema {
   return {
     type: "integer",
     [kType]: 0,
+    _aliases: [],
     coerce: (value: unknown) => {
       if (typeof value !== "string") {
         return value
@@ -91,6 +109,7 @@ export function float(): FloatSchema {
   return {
     type: "float",
     [kType]: 0,
+    _aliases: [],
     coerce: (value: unknown) => {
       if (typeof value !== "string") {
         return value

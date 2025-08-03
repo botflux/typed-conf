@@ -1,7 +1,7 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import {c, type Static} from "./c.js"
-import {envSource} from "./sources/envs.js";
+import {envAlias, envSource} from "./sources/envs.js";
 
 describe("testing", () => {
   test("should be able to load a config from envs", async t => {
@@ -178,6 +178,59 @@ describe("testing", () => {
             })
           })
         }
+      })
+    })
+
+    describe('aliases', function () {
+      test("should be able to load a config from an alias", async t => {
+        // Given
+        const envs = envSource()
+
+        const configSpec = c.config({
+          schema: c.object({
+            host: c.string().aliases(envAlias("MY_SPECIAL_HOST"))
+          }),
+          sources: [ envs ]
+        })
+
+        // When
+        const config = await configSpec.load({
+          sources: {
+            envs: { MY_SPECIAL_HOST: "localhost" }
+          }
+        })
+
+        // Then
+        assert.deepStrictEqual(config, {
+          host: "localhost"
+        })
+      })
+
+      test("should be able to load a config from the normal key by default", async t => {
+        // Given
+        const envs = envSource()
+
+        const configSpec = c.config({
+          schema: c.object({
+            host: c.string().aliases(envAlias("MY_SPECIAL_HOST"))
+          }),
+          sources: [ envs ]
+        })
+
+        // When
+        const config = await configSpec.load({
+          sources: {
+            envs: {
+              HOST: "localhost",
+              MY_SPECIAL_HOST: "host.docker.internal"
+            }
+          }
+        })
+
+        // Then
+        assert.deepStrictEqual(config, {
+          host: "localhost"
+        })
       })
     })
   })

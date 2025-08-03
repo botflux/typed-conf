@@ -1,5 +1,5 @@
 import type {Source} from "./source.js";
-import {flatten, type ObjectSchema, type ObjectSpec} from "../schemes.js";
+import {type Alias, flatten, type ObjectSchema, type ObjectSpec} from "../schemes.js";
 
 export type EnvSourceOpts = {
   prefix?: string
@@ -15,7 +15,22 @@ export function envSource (opts: EnvSourceOpts = {}): Source<"envs", NodeJS.Proc
       const config = {}
 
       for (const entry of entries) {
-        const envKey = [prefix, entry.key.join("_").toUpperCase()].join("")
+        const envAliases = entry.value._aliases.filter(a => a.sourceKey === "envs")
+        const defaultEnvKey = [prefix, entry.key.join("_").toUpperCase()].join("")
+        const allEnvKeys = [ defaultEnvKey, ...envAliases.map(a => a.id) ]
+
+        let envValue = undefined
+
+        for (const envKey of allEnvKeys) {
+          if (envs[envKey] !== undefined) {
+            envValue = envs[envKey]
+            break
+          }
+        }
+
+        if (envValue === undefined) {
+          continue
+        }
 
         let tmp = config
         const intermediateObjectPath = entry.key.slice(0, -1)
@@ -41,7 +56,7 @@ export function envSource (opts: EnvSourceOpts = {}): Source<"envs", NodeJS.Proc
         }
 
         Object.defineProperty(tmp, key, {
-          value: entry.value.coerce?.(envs[envKey]) ?? envs[envKey],
+          value: entry.value.coerce?.(envValue) ?? envValue,
           enumerable: true,
           configurable: true,
           writable: true
@@ -50,5 +65,12 @@ export function envSource (opts: EnvSourceOpts = {}): Source<"envs", NodeJS.Proc
 
       return Promise.resolve(config)
     }
+  }
+}
+
+export function envAlias (id: string): Alias {
+  return {
+    id,
+    sourceKey: "envs"
   }
 }
