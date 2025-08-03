@@ -40,7 +40,12 @@ export function envSource (opts: EnvSourceOpts = {}): Source<"envs", NodeJS.Proc
           throw new Error("key is undefined")
         }
 
-        Object.defineProperty(tmp, key, { value: envs[envKey], enumerable: true, configurable: true, writable: true })
+        Object.defineProperty(tmp, key, {
+          value: entry.value.coerce?.(envs[envKey]) ?? envs[envKey],
+          enumerable: true,
+          configurable: true,
+          writable: true
+        })
       }
 
       return Promise.resolve(config)

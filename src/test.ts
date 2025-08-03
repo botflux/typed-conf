@@ -79,5 +79,41 @@ describe("testing", () => {
         }
       })
     })
+
+    describe('coercion', function () {
+      describe('boolean', function () {
+        const scenarios = [
+          [ "true", true ] as const,
+          [ "tRue", true ] as const,
+          [ "false", false ] as const,
+          [ "fAlSe", false ] as const,
+        ]
+
+        for (const [input, expected] of scenarios) {
+          test(`should be able to coerce '${input}' into '${expected}'`, async (t) => {
+            // Given
+            const envs = envSource()
+            const configSpec = c.config({
+              schema: c.object({
+                enabled: c.boolean()
+              }),
+              sources: [ envs ]
+            })
+
+            // When
+            const config = await configSpec.load({
+              sources: {
+                envs: { ENABLED: input }
+              }
+            })
+
+            // Then
+            assert.deepStrictEqual(config, {
+              enabled: expected
+            })
+          })
+        }
+      })
+    })
   })
 })

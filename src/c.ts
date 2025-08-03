@@ -1,10 +1,11 @@
 import type {Source, SourcesToRecord} from "./sources/source.js";
-import {type BaseSchema, kType, object, type ObjectSchema, string} from "./schemes.js";
+import {type BaseSchema, boolean, kType, object, type ObjectSchema, string} from "./schemes.js";
 
 export const c = {
   config,
   string,
   object,
+  boolean
 }
 
 export type Prettify<T> = {

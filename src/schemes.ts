@@ -2,11 +2,16 @@ export const kType = Symbol("type")
 
 export type BaseSchema<T> = {
   [kType]: T
+  coerce?: (value: unknown) => unknown
 }
 
 export type StringSchema = {
   type: "string"
 } & BaseSchema<string>
+
+export type BooleanSchema = {
+  type: "boolean"
+} & BaseSchema<boolean>
 
 export type ObjectSchema<T extends ObjectSpec> = {
   type: "object"
@@ -31,6 +36,25 @@ export function string(): StringSchema {
   return {
     type: "string",
     [kType]: ""
+  }
+}
+
+export function boolean(): BooleanSchema {
+  return {
+    type: "boolean",
+    [kType]: false,
+    coerce: (value: unknown) => {
+      if (typeof value !== "string") {
+        return value
+      }
+
+      const lowercase = value.toLowerCase()
+
+      if (lowercase === "false") return false
+      if (lowercase === "true") return true
+
+      return value
+    }
   }
 }
 
