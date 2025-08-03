@@ -2,6 +2,7 @@ import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import {c, type Static} from "./c.js"
 import {envAlias, envSource} from "./sources/envs.js";
+import {FakeFileSystem, fileSource} from "./sources/files.js";
 
 describe("testing", () => {
   test("should be able to load a config from envs", async t => {
@@ -232,6 +233,33 @@ describe("testing", () => {
           host: "localhost"
         })
       })
+    })
+  })
+
+  describe('files', function () {
+    test("should be able to load config from a json file", async (t) => {
+      // Given
+      const fs = new FakeFileSystem()
+        .addFile("config.json", JSON.stringify({ host: "localhost" }))
+
+      const configSpec = c.config({
+        schema: c.object({
+          host: c.string()
+        }),
+        sources: [
+          fileSource({ file: "config.json" })
+        ]
+      })
+
+      // When
+      const config = await configSpec.load({
+        sources: {
+          file: { fs }
+        }
+      })
+
+      // Then
+      assert.deepStrictEqual(config, { host: "localhost" })
     })
   })
 })
