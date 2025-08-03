@@ -43,7 +43,7 @@ function config<Schema extends ObjectSchema<Record<string, any>>, Sources extend
       for (const source of configOpts.sources) {
         // @ts-expect-error
         const o = sources[source.key] as any
-        return await source.load(o) as any
+        return await source.load(configOpts.schema, o) as any
       }
       
       throw new Error("Not implemented at line 67 in c.ts")

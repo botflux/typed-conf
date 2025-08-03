@@ -33,3 +33,20 @@ export function string(): StringSchema {
     [kType]: ""
   }
 }
+
+export type Entry = {
+  key: string[]
+  value: BaseSchema<unknown>
+}
+
+export function flatten(config: ObjectSchema<ObjectSpec>, base: string[] = []): Entry[] {
+  const entries = Object.entries(config.spec)
+
+  return entries.flatMap(([k, value]) => isObject(value)
+    ? flatten(value, [...base, k])
+    : { key: [...base, k], value } as Entry)
+}
+
+function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<ObjectSpec> {
+  return "type" in schema && schema.type === "object"
+}

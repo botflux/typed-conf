@@ -51,4 +51,33 @@ describe("testing", () => {
       host: "localhost"
     })
   })
+
+  describe('envs', function () {
+    test("should be able to load a nested config from envs", async (t) => {
+      // Given
+      const envs = envSource()
+      const configSpec = c.config({
+        schema: c.object({
+          api: c.object({
+            host: c.string()
+          })
+        }),
+        sources: [ envs ]
+      })
+
+      // When
+      const config = await configSpec.load({
+        sources: {
+          envs: { API_HOST: "localhost" }
+        }
+      })
+
+      // Then
+      assert.deepStrictEqual(config, {
+        api: {
+          host: "localhost"
+        }
+      })
+    })
+  })
 })
