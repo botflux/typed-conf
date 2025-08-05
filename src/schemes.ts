@@ -1,5 +1,3 @@
-import type {Source} from "./sources/source.js";
-
 export const kType = Symbol("type")
 
 export type BaseSchema<T> = {
@@ -37,6 +35,10 @@ export type ObjectSchema<T extends ObjectSpec> = {
   spec: T
 } & BaseSchema<ToRecord<T>>
 
+export type SecretSchema = {
+  type: "secret"
+} & BaseSchema<string>
+
 export type ToRecord<ObjectSpec extends Record<string, BaseSchema<unknown>>> = {
   [K in keyof ObjectSpec]: ObjectSpec[K][typeof kType]
 }
@@ -66,6 +68,14 @@ class StringSchemaCls implements StringSchemaBuilder {
 
 export function string(): StringSchemaBuilder {
   return new StringSchemaCls()
+}
+
+export function secret(): SecretSchema {
+  return {
+    type: "secret",
+    [kType]: "",
+    _aliases: [],
+  }
 }
 
 export function boolean(): BooleanSchema {

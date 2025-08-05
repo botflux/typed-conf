@@ -1,5 +1,5 @@
 import type {Source, SourcesToRecord} from "./sources/source.js";
-import {type BaseSchema, boolean, float, integer, kType, object, type ObjectSchema, string} from "./schemes.js";
+import {type BaseSchema, boolean, float, integer, kType, object, type ObjectSchema, secret, string} from "./schemes.js";
 
 export const c = {
   config,
@@ -7,7 +7,8 @@ export const c = {
   object,
   boolean,
   integer,
-  float
+  float,
+  secret
 }
 
 export type Prettify<T> = {

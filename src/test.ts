@@ -53,6 +53,28 @@ describe("testing", () => {
     })
   })
 
+  test("should be able to declare a secret", async (t) => {
+    // Given
+    const configSpec = c.config({
+      schema: c.object({
+        dbPassword: c.secret()
+      }),
+      sources: [
+        envSource()
+      ]
+    })
+
+    // When
+    const config = await configSpec.load({
+      sources: {
+        envs: { DBPASSWORD: "my-secret-db-password" }
+      }
+    })
+
+    // Then
+    assert.deepStrictEqual(config, { dbPassword: "my-secret-db-password" })
+  })
+
   describe('envs', function () {
     test("should be able to load a nested config from envs", async (t) => {
       // Given
