@@ -60,7 +60,7 @@ describe("testing", () => {
         dbPassword: c.secret()
       }),
       sources: [
-        envSource()
+        envSource({ loadSecrets: true })
       ]
     })
 
@@ -101,6 +101,28 @@ describe("testing", () => {
           host: "localhost"
         }
       })
+    })
+
+    test("should not be able to load secrets by default", async (t) => {
+      // Given
+      const configSpec = c.config({
+        schema: c.object({
+          password: c.secret()
+        }),
+        sources: [
+          envSource()
+        ]
+      })
+
+      // When
+      const config = await configSpec.load({
+        sources: {
+          envs: { PASSWORD: "my-pass" }
+        }
+      })
+
+      // Then
+      assert.deepStrictEqual(config, {})
     })
 
     describe('coercion', function () {

@@ -1,20 +1,46 @@
 import type {Source} from "./source.js";
-import {type Alias, flatten, type ObjectSchema, type ObjectSpec} from "../schemes.js";
+import {
+  type Alias,
+  type BaseSchema,
+  flatten,
+  type ObjectSchema,
+  type ObjectSpec,
+  type SecretSchema
+} from "../schemes.js";
 
 export type EnvSourceOpts = {
+  /**
+   * Specify a global env name prefix.
+   * By default, there is no prefix.
+   *
+   * @default {""}
+   */
   prefix?: string
+
+  /**
+   * True if you want the secrets to be loaded from env variables.
+   * By default, secrets are not loaded from env variables.
+   *
+   * @default {false}
+   */
+  loadSecrets?: boolean
 }
 
 export function envSource (opts: EnvSourceOpts = {}): Source<"envs", NodeJS.ProcessEnv> {
-  const { prefix = "" } = opts
+  const { prefix = "", loadSecrets = false } = opts
 
   return {
     key: "envs",
     load(schema: ObjectSchema<ObjectSpec>, envs: NodeJS.ProcessEnv = process.env) : Promise<unknown> {
       const entries = flatten(schema)
+
+      const filteredEntries = !loadSecrets
+        ? entries.filter(e => !isSecret(e.value))
+        : entries
+
       const config = {}
 
-      for (const entry of entries) {
+      for (const entry of filteredEntries) {
         const envAliases = entry.value._aliases.filter(a => a.sourceKey === "envs")
         const defaultEnvKey = [prefix, entry.key.join("_").toUpperCase()].join("")
         const allEnvKeys = [ defaultEnvKey, ...envAliases.map(a => a.id) ]
@@ -73,4 +99,8 @@ export function envAlias (id: string): Alias {
     id,
     sourceKey: "envs"
   }
+}
+
+function isSecret(schema: BaseSchema<unknown>): schema is SecretSchema {
+  return "type" in schema && schema.type === "secret"
 }
