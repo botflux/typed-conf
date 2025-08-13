@@ -1,10 +1,11 @@
 export type IndirectionExpression = {
   source: string
   args: string[]
+  namedArgs?: Record<string, string>
 }
 
 type Token = {
-  type: "identifier" | "left_paren" | "right_paren" | "string" | "comma",
+  type: "identifier" | "left_paren" | "right_paren" | "string" | "comma" | "equals",
   lexeme?: string | undefined,
   column: number,
   literal?: unknown
@@ -59,6 +60,14 @@ function scan(source: string) {
         case ',': return [
           {
             type: "comma",
+            column: currentIndex,
+          },
+          1
+        ]
+
+        case '=': return [
+          {
+            type: "equals",
             column: currentIndex,
           },
           1
@@ -171,20 +180,53 @@ export function compileIndirectionExpression(expression: string): IndirectionExp
 
   const argTokens = tokens.slice(2, rightParenIndex)
   const args: string[] = []
+  const namedArgs: Record<string, string> = {}
+  let hasNamedArgs = false
 
   for (let i = 0; i < argTokens.length; i++) {
     const token = argTokens[i]
-    if (token?.type === "string") {
-      args.push(token.literal as string)
-    } else if (token?.type === "comma") {
+    
+    if (token?.type === "comma") {
       continue
+    }
+    
+    if (token?.type === "string") {
+      if (hasNamedArgs) {
+        throw new Error("Cannot mix positional and named arguments")
+      }
+      args.push(token.literal as string)
+    } else if (token?.type === "identifier") {
+      const nextToken = argTokens[i + 1]
+      const valueToken = argTokens[i + 2]
+      
+      if (nextToken?.type !== "equals") {
+        throw new Error("Expected '=' after parameter name")
+      }
+      
+      if (valueToken?.type !== "string") {
+        throw new Error("Expected string value after '='")
+      }
+      
+      if (args.length > 0) {
+        throw new Error("Cannot mix positional and named arguments")
+      }
+      
+      hasNamedArgs = true
+      namedArgs[token.lexeme!] = valueToken.literal as string
+      i += 2
     } else {
       throw new Error(`Unexpected token: ${token?.type}`)
     }
   }
 
-  return {
+  const result: IndirectionExpression = {
     source: identifierToken.lexeme!,
     args
   }
+
+  if (hasNamedArgs) {
+    result.namedArgs = namedArgs
+  }
+
+  return result
 }

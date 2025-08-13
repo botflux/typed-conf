@@ -181,4 +181,115 @@ describe('compileIndirectionExpression', () => {
       args: ["secret/data/my_secret", "foo", "bar"]
     })
   })
+
+  test("should parse named arguments", () => {
+    const expression = "%vault(path='secret/data/my_secret', key='foo')"
+    
+    const result = compileIndirectionExpression(expression)
+    
+    assert.deepStrictEqual(result, {
+      source: "vault",
+      args: [],
+      namedArgs: {
+        path: "secret/data/my_secret",
+        key: "foo"
+      }
+    })
+  })
+
+  test("should parse single named argument", () => {
+    const expression = "%env(name='MY_ENV')"
+    
+    const result = compileIndirectionExpression(expression)
+    
+    assert.deepStrictEqual(result, {
+      source: "env",
+      args: [],
+      namedArgs: {
+        name: "MY_ENV"
+      }
+    })
+  })
+
+  test("should handle named arguments with spaces", () => {
+    const expression = "% vault ( path = 'secret/data/my_secret' , key = 'foo' )"
+    
+    const result = compileIndirectionExpression(expression)
+    
+    assert.deepStrictEqual(result, {
+      source: "vault",
+      args: [],
+      namedArgs: {
+        path: "secret/data/my_secret",
+        key: "foo"
+      }
+    })
+  })
+
+  test("should handle named arguments with double quotes", () => {
+    const expression = '%vault(path="secret/data/my_secret", key="foo")'
+    
+    const result = compileIndirectionExpression(expression)
+    
+    assert.deepStrictEqual(result, {
+      source: "vault",
+      args: [],
+      namedArgs: {
+        path: "secret/data/my_secret",
+        key: "foo"
+      }
+    })
+  })
+
+  test("should throw error when mixing positional and named arguments", () => {
+    const expression = "%vault('secret/data/my_secret', key='foo')"
+    
+    assert.throws(
+      () => compileIndirectionExpression(expression),
+      new Error("Cannot mix positional and named arguments")
+    )
+  })
+
+  test("should throw error when mixing named and positional arguments", () => {
+    const expression = "%vault(path='secret/data/my_secret', 'foo')"
+    
+    assert.throws(
+      () => compileIndirectionExpression(expression),
+      new Error("Cannot mix positional and named arguments")
+    )
+  })
+
+  test("should throw error for missing equals after parameter name", () => {
+    const expression = "%vault(path 'secret/data/my_secret')"
+    
+    assert.throws(
+      () => compileIndirectionExpression(expression),
+      new Error("Expected '=' after parameter name")
+    )
+  })
+
+  test("should throw error for missing value after equals", () => {
+    const expression = "%vault(path=)"
+    
+    assert.throws(
+      () => compileIndirectionExpression(expression),
+      new Error("Expected string value after '='")
+    )
+  })
+
+  test("should handle complex named arguments", () => {
+    const expression = "%vault(path='secret/data/app/production/database', key='connection_string', version='v2')"
+    
+    const result = compileIndirectionExpression(expression)
+    
+    assert.deepStrictEqual(result, {
+      source: "vault",
+      args: [],
+      namedArgs: {
+        path: "secret/data/app/production/database",
+        key: "connection_string",
+        version: "v2"
+      }
+    })
+  })
 })
