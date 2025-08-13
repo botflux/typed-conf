@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "borp ./test.ts",
-    "test:only": "borp --only ./test.ts"
+    "test": "borp *.test.ts",
+    "test:only": "borp --only *.test.ts"
   },
   "keywords": [],
   "type": "module",
