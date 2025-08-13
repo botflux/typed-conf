@@ -31,7 +31,7 @@ export function envSource (opts: EnvSourceOpts = {}): Source<"envs", NodeJS.Proc
 
   return {
     key: "envs",
-    load(schema: ObjectSchema<ObjectSpec>, envs: NodeJS.ProcessEnv = process.env) : Promise<unknown> {
+    load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env) : Promise<unknown> {
       const entries = flatten(schema)
 
       const filteredEntries = !loadSecrets

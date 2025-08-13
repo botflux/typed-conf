@@ -3,6 +3,9 @@ import assert from "node:assert/strict"
 import {c, type Static} from "./c.js"
 import {envAlias, envSource} from "./sources/envs.js";
 import {FakeFileSystem, fileSource} from "./sources/files.js";
+import {VaultContainer} from "@testcontainers/vault";
+import {vaultConfig, vaultSource} from "./sources/vault.js";
+import vault from "node-vault"
 
 describe("testing", () => {
   test("should be able to load a config from envs", async t => {
@@ -304,6 +307,63 @@ describe("testing", () => {
 
       // Then
       assert.deepStrictEqual(config, { host: "localhost" })
+    })
+  })
+
+  describe('hashicorp vault', function () {
+    test("should be able to load secrets from hashicorp vault", { skip: true }, async (t) => {
+      // Given
+      const token = "my-token"
+      const image = "hashicorp/vault:1.20"
+      const secretValue = "my-secret-value"
+
+      await using container = await new VaultContainer(image)
+          .withVaultToken(token)
+          .withName("vault")
+          .start()
+
+      const client = vault({
+        apiVersion: "v1",
+        token: container.getRootToken()!,
+        endpoint: container.getAddress()
+      })
+
+      await client.write("secret/data/secret", {
+        data: {
+          value: secretValue
+        }
+      })
+
+      const configSpec = c.config({
+        schema: c.object({
+          secret: c.secret(),
+          vault: vaultConfig
+        }),
+        sources: [
+          envSource({ loadSecrets: true }),
+          vaultSource()
+        ]
+      })
+
+      // When
+      const config = await configSpec.load({
+        sources: {
+          envs: {
+            VAULT_TOKEN: container.getRootToken(),
+            VAULT_ENDPOINT: container.getAddress(),
+            SECRET: '%vault("secret/data/secret", "value")'
+          },
+        }
+      })
+
+      // Then
+      assert.deepStrictEqual(config, {
+        vault: {
+          endpoint: container.getAddress(),
+          token: container.getRootToken()
+        },
+        secret: secretValue
+      })
     })
   })
 })

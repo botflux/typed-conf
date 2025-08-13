@@ -12,8 +12,13 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@testcontainers/vault": "^11.5.1",
     "@types/node": "^24.1.0",
     "borp": "^0.20.1",
     "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "merge-anything": "^6.0.6",
+    "node-vault": "^0.10.5"
   }
 }

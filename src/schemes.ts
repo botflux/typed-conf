@@ -157,3 +157,7 @@ export function flatten(config: ObjectSchema<ObjectSpec>, base: string[] = []): 
 function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<ObjectSpec> {
   return "type" in schema && schema.type === "object"
 }
+
+export function isSecret(schema: BaseSchema<unknown>): schema is SecretSchema {
+  return "type" in schema && schema.type === "secret"
+}

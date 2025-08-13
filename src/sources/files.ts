@@ -89,7 +89,7 @@ export type FileSourceDeps = {
 export function fileSource(opts: FileSourceOpts): Source<"file", FileSourceDeps> {
   return {
     key: "file",
-    async load(schema: ObjectSchema<ObjectSpec>, deps?: FileSourceDeps) {
+    async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: FileSourceDeps) {
       const fs = deps?.fs ?? regularFs
       const file = await fs.readFile(opts.file, "utf-8")
 

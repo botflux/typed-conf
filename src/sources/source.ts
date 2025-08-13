@@ -2,7 +2,7 @@ import type {ObjectSchema, ObjectSpec} from "../schemes.js";
 
 export type Source<K extends string, V> = {
   key: K
-  load: (schema: ObjectSchema<ObjectSpec>, opts?: V) => Promise<unknown>
+  load: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, opts?: V) => Promise<unknown>
 }
 
 export type ExtractItemFromArray<T> = T extends Array<infer U> ? U : never
