@@ -149,7 +149,7 @@ function takeWhile<T>(array: T[], startAt: number, predicate: (char: T) => boole
 }
 
 export function isIndirectionExpression(str: string): boolean {
-  return str.startsWith("%") && str.includes("(") && str.includes(")")
+  return str.startsWith("%")
 }
 
 export function compileIndirectionExpression(expression: string): IndirectionExpression {

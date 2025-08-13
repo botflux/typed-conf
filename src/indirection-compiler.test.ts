@@ -7,22 +7,37 @@ describe('isIndirectionExpression', () => {
     {
       expression: "%vault('secret/data/my_secret', 'foo')",
       expected: true,
-      description: "vault expression with arguments"
+      description: "valid vault expression with arguments"
     },
     {
       expression: "%env('MY_ENV')",
       expected: true,
-      description: "env expression with single argument"
+      description: "valid env expression with single argument"
     },
     {
       expression: "%file('config.json', 'database.host')",
       expected: true,
-      description: "file expression with arguments"
+      description: "valid file expression with arguments"
     },
     {
       expression: "%source()",
       expected: true,
-      description: "expression with no arguments"
+      description: "valid expression with no arguments"
+    },
+    {
+      expression: "%vault:secret",
+      expected: true,
+      description: "string starting with % (even if malformed)"
+    },
+    {
+      expression: "%vault",
+      expected: true,
+      description: "string starting with % without parentheses"
+    },
+    {
+      expression: "%",
+      expected: true,
+      description: "just % character"
     },
     {
       expression: "vault('secret/data/my_secret', 'foo')",
@@ -30,19 +45,14 @@ describe('isIndirectionExpression', () => {
       description: "expression without % prefix"
     },
     {
-      expression: "%vault:secret",
-      expected: false,
-      description: "expression with colon syntax"
-    },
-    {
       expression: "regular string",
       expected: false,
       description: "regular string"
     },
     {
-      expression: "%vault",
+      expression: "",
       expected: false,
-      description: "expression without parentheses"
+      description: "empty string"
     }
   ]
 
