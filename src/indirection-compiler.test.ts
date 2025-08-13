@@ -3,18 +3,54 @@ import assert from "node:assert/strict"
 import { isIndirectionExpression, compileIndirectionExpression } from "./indirection-compiler.js"
 
 describe('isIndirectionExpression', () => {
-  test("should return true for valid indirection expressions", () => {
-    assert.strictEqual(isIndirectionExpression("%vault('secret/data/my_secret', 'foo')"), true)
-    assert.strictEqual(isIndirectionExpression("%env('MY_ENV')"), true)
-    assert.strictEqual(isIndirectionExpression("%file('config.json', 'database.host')"), true)
-  })
+  const testCases = [
+    {
+      expression: "%vault('secret/data/my_secret', 'foo')",
+      expected: true,
+      description: "vault expression with arguments"
+    },
+    {
+      expression: "%env('MY_ENV')",
+      expected: true,
+      description: "env expression with single argument"
+    },
+    {
+      expression: "%file('config.json', 'database.host')",
+      expected: true,
+      description: "file expression with arguments"
+    },
+    {
+      expression: "%source()",
+      expected: true,
+      description: "expression with no arguments"
+    },
+    {
+      expression: "vault('secret/data/my_secret', 'foo')",
+      expected: false,
+      description: "expression without % prefix"
+    },
+    {
+      expression: "%vault:secret",
+      expected: false,
+      description: "expression with colon syntax"
+    },
+    {
+      expression: "regular string",
+      expected: false,
+      description: "regular string"
+    },
+    {
+      expression: "%vault",
+      expected: false,
+      description: "expression without parentheses"
+    }
+  ]
 
-  test("should return false for invalid expressions", () => {
-    assert.strictEqual(isIndirectionExpression("vault('secret/data/my_secret', 'foo')"), false)
-    assert.strictEqual(isIndirectionExpression("%vault:secret"), false)
-    assert.strictEqual(isIndirectionExpression("regular string"), false)
-    assert.strictEqual(isIndirectionExpression("%vault"), false)
-  })
+  for (const testCase of testCases) {
+    test(`should return ${testCase.expected} for ${testCase.description}`, () => {
+      assert.strictEqual(isIndirectionExpression(testCase.expression), testCase.expected)
+    })
+  }
 })
 
 describe('compileIndirectionExpression', () => {
