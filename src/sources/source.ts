@@ -1,4 +1,5 @@
 import type {ObjectSchema, ObjectSpec} from "../schemes.js";
+import type {IndirectionEvaluator} from "../indirection/evaluator.js";
 
 export interface Source<K extends string, Deps> {
   /**
@@ -13,12 +14,14 @@ export interface Source<K extends string, Deps> {
    * represents the configuration as a dictionary.
    *
    * @param schema The configuration schema
-   * @param loaded @deprecated The configuration that was already loaded.
+   * @param loaded The configuration that was already loaded.
    * @param opts The source load-time dependencies.
    *             This parameter is useful when testing because it allows injecting env variables
    *             or mocked filesystem.
    */
   load: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: Deps) => Promise<Record<string, unknown>>
+
+  getEvaluator?(deps?: Deps): IndirectionEvaluator
 }
 
 export type ExtractItemFromArray<T> = T extends Array<infer U> ? U : never

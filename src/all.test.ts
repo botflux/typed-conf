@@ -281,6 +281,37 @@ describe("testing", () => {
         })
       })
     })
+
+    describe('indirection', function () {
+      test("should be able to reference a configuration from another source", async (t) => {
+        // Given
+        const fs = new FakeFileSystem()
+          .addFile("config.json", JSON.stringify({ host: "%envs('ANOTHER_HOST_ENV_ENTRY')" }))
+
+        const configSpec = c.config({
+          schema: c.object({
+            host: c.string()
+          }),
+          sources: [
+            envSource(),
+            fileSource({ file: "config.json" })
+          ]
+        })
+
+        // When
+        const config = await configSpec.load({
+          sources: {
+            envs: { ANOTHER_HOST_ENV_ENTRY: "localhost" },
+            file: { fs }
+          }
+        })
+
+        // Then
+        assert.deepStrictEqual(config, {
+          host: "localhost"
+        })
+      })
+    })
   })
 
   describe('files', function () {
