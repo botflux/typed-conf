@@ -35,7 +35,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     this.#opts = config
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env): Promise<unknown> {
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env): Promise<Record<string, unknown>> {
     const entries = flatten(schema)
 
     const filteredEntries = !this.#opts.loadSecrets
