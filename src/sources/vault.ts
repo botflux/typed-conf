@@ -1,4 +1,4 @@
-import {flatten, isSecret, object, secret, string} from "../schemes.js";
+import {flatten, isSecret, object, type ObjectSchema, type ObjectSpec, secret, string} from "../schemes.js";
 import type {Source} from "./source.js";
 import vault from "node-vault"
 import type {Static2} from "../c.js";
@@ -11,81 +11,84 @@ export const vaultConfig = object({
 
 export type VaultConfig = Static2<typeof vaultConfig>
 
-export function vaultSource (): Source<"vault", undefined> {
-  return {
-    key: "vault",
-    load: async (schema, loaded, opts) => {
-      const vaultConfig = extractVaultConfig(loaded)
+class VaultSource implements Source<"vault", undefined> {
+  key: "vault" = "vault"
 
-      const vaultClient = vault({
-        endpoint: vaultConfig.endpoint,
-        token: vaultConfig.token,
-      })
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps: undefined): Promise<Record<string, unknown>> {
+    const vaultConfig = extractVaultConfig(loaded)
 
-      const secretEntries = flatten(schema)
-        .filter(entry => isSecret(entry.value))
+    const vaultClient = vault({
+      endpoint: vaultConfig.endpoint,
+      token: vaultConfig.token,
+    })
 
-      const config = {}
+    const secretEntries = flatten(schema)
+      .filter(entry => isSecret(entry.value))
 
-      for (const entry of secretEntries) {
-        const alreadyLoaded = getAtPath(loaded, entry.key)
+    const config = {}
 
-        if (typeof alreadyLoaded !== "string") {
-          continue
-        }
+    for (const entry of secretEntries) {
+      const alreadyLoaded = getAtPath(loaded, entry.key)
 
-        if (!isIndirection(alreadyLoaded)) {
-          continue
-        }
-
-        const indirection = parseIndirection(alreadyLoaded)
-
-        if (indirection.source !== "vault") {
-          continue
-        }
-
-        const [ path ] = indirection.args
-
-        if (path === undefined) {
-          throw new Error("The vault secret's path is missing from the indirection expression.")
-        }
-
-        const secret = await vaultClient.read(path)
-
-        let tmp = config
-        const intermediateObjectPath = entry.key.slice(0, -1)
-
-        // Asserts intermediate objects are created.
-        for (const chunk of intermediateObjectPath) {
-          if (!(chunk in tmp)) {
-            Object.defineProperty(tmp, chunk, {
-              value: {},
-              enumerable: true,
-              configurable: true,
-              writable: true
-            })
-          }
-          // @ts-expect-error
-          tmp = tmp[chunk]
-        }
-
-        const key = entry.key.at(-1)
-
-        if (key === undefined) {
-          throw new Error("key is undefined")
-        }
-
-        Object.defineProperty(tmp, key, {
-          value: secret,
-          enumerable: true,
-          configurable: true,
-          writable: true
-        })
+      if (typeof alreadyLoaded !== "string") {
+        continue
       }
 
-      return config
+      if (!isIndirection(alreadyLoaded)) {
+        continue
+      }
+
+      const indirection = parseIndirection(alreadyLoaded)
+
+      if (indirection.source !== "vault") {
+        continue
+      }
+
+      const [ path ] = indirection.args
+
+      if (path === undefined) {
+        throw new Error("The vault secret's path is missing from the indirection expression.")
+      }
+
+      const secret = await vaultClient.read(path)
+
+      let tmp = config
+      const intermediateObjectPath = entry.key.slice(0, -1)
+
+      // Asserts intermediate objects are created.
+      for (const chunk of intermediateObjectPath) {
+        if (!(chunk in tmp)) {
+          Object.defineProperty(tmp, chunk, {
+            value: {},
+            enumerable: true,
+            configurable: true,
+            writable: true
+          })
+        }
+        // @ts-expect-error
+        tmp = tmp[chunk]
+      }
+
+      const key = entry.key.at(-1)
+
+      if (key === undefined) {
+        throw new Error("key is undefined")
+      }
+
+      Object.defineProperty(tmp, key, {
+        value: secret,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      })
     }
+
+    return config
   }
+}
+
+export function vaultSource (): Source<"vault", undefined> {
+  return new VaultSource()
 }
 
 function getAtPath (loaded: Record<string, unknown>, path: string[]): unknown {
