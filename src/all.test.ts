@@ -342,7 +342,7 @@ describe("testing", () => {
   })
 
   describe('hashicorp vault', function () {
-    test("should be able to load secrets from hashicorp vault", { skip: true }, async (t) => {
+    test("should be able to load secrets from hashicorp vault", async (t) => {
       // Given
       const token = "my-token"
       const image = "hashicorp/vault:1.20"
@@ -382,7 +382,7 @@ describe("testing", () => {
           envs: {
             VAULT_TOKEN: container.getRootToken(),
             VAULT_ENDPOINT: container.getAddress(),
-            SECRET: '%vault("secret/data/secret", "value")'
+            SECRET: "%vault('secret/data/secret', 'value')"
           },
         }
       })

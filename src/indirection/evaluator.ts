@@ -7,8 +7,9 @@ export interface IndirectionEvaluator {
    * handle the given expression; otherwise it'll throw an error.
    *
    * @param indirection
+   * @param loaded
    */
-  evaluate(indirection: IndirectionExpression): Promise<unknown>
+  evaluate(indirection: IndirectionExpression, loaded: Record<string, unknown>): Promise<unknown>
 
   /**
    * True if the given indirection expression is supported
@@ -39,10 +40,10 @@ export class OneOfEvaluator implements IndirectionEvaluator {
     this.#evaluators = evaluators;
   }
 
-  evaluate(indirection: IndirectionExpression): Promise<unknown> {
+  evaluate(indirection: IndirectionExpression, loaded: Record<string, unknown>): Promise<unknown> {
     for (const evaluator of this.#evaluators) {
       if (evaluator.supports(indirection)) {
-        return evaluator.evaluate(indirection)
+        return evaluator.evaluate(indirection, loaded)
       }
     }
 

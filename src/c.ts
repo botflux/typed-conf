@@ -66,7 +66,7 @@ function config<Schema extends ObjectSchema<Record<string, any>>, Sources extend
         throw new Error(`Indirection evaluator does not support indirection: ${value}`)
       }
 
-      obj[key] = await evaluator.evaluate(indirection)
+      obj[key] = await evaluator.evaluate(indirection, obj)
     }
   }
 
