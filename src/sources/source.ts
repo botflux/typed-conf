@@ -1,5 +1,6 @@
 import type {ObjectSchema, ObjectSpec} from "../schemes.js";
 import type {IndirectionEvaluator} from "../indirection/evaluator.js";
+import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
 export interface Source<K extends string, Deps> {
   /**
@@ -22,6 +23,12 @@ export interface Source<K extends string, Deps> {
   load: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: Deps) => Promise<Record<string, unknown>>
 
   getEvaluator?(deps?: Deps): IndirectionEvaluator
+
+  /**
+   * Returns a function that will be executed during
+   * indirection expression evaluation.
+   */
+  getEvaluatorFunction?(loaded: Record<string, unknown>, deps?: Deps): EvaluatorFunction
 }
 
 export type ExtractItemFromArray<T> = T extends Array<infer U> ? U : never

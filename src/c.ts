@@ -4,6 +4,7 @@ import {merge} from "merge-anything";
 import {type IndirectionEvaluator, OneOfEvaluator} from "./indirection/evaluator.js";
 import {isIndirection, parseIndirection} from "./indirection.js";
 import {compileIndirectionExpression} from "./indirection/compiler.js";
+import {DefaultEvaluator} from "./indirection/default-evaluator.js";
 
 export const c = {
   config,
@@ -75,14 +76,13 @@ function config<Schema extends ObjectSchema<Record<string, any>>, Sources extend
     sources: configOpts.sources,
     load: async (opts: LoadOpts<Sources>) => {
       const { sources } = opts
-      const evaluators = configOpts.sources
-        .filter(s => "getEvaluator" in s)
-        .map(s => s.getEvaluator!(
-          // @ts-expect-error
-          sources[s.key]
-        ))
+      // const evaluators = configOpts.sources
+      //   .filter(s => "getEvaluator" in s)
+      //   .map(s => s.getEvaluator!(
+      //     // @ts-expect-error
+      //     sources[s.key]
+      //   ))
 
-      const evaluator = new OneOfEvaluator(evaluators)
 
       let previouslyLoaded = {}
 
@@ -93,6 +93,20 @@ function config<Schema extends ObjectSchema<Record<string, any>>, Sources extend
 
         previouslyLoaded = merge(previouslyLoaded, loaded)
       }
+
+
+      const evaluator = new DefaultEvaluator()
+
+      for (const source of configOpts.sources) {
+        if ('getEvaluatorFunction' in source) {
+          evaluator.registerFunction(source.getEvaluatorFunction(
+            previouslyLoaded,
+            // @ts-expect-error
+            sources[source.key]
+          ))
+        }
+      }
+
 
       await resolveIndirection(previouslyLoaded, evaluator)
 

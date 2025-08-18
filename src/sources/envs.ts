@@ -9,6 +9,7 @@ import {
 } from "../schemes.js";
 import type {IndirectionEvaluator} from "../indirection/evaluator.js";
 import type {IndirectionExpression} from "../indirection/compiler.js";
+import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
 export type EnvSourceOpts = {
   /**
@@ -164,6 +165,27 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
   getEvaluator(envs: NodeJS.ProcessEnv = process.env): IndirectionEvaluator {
     return new EnvIndirectionEvaluator(this, envs)
+  }
+
+  getEvaluatorFunction(loaded: Record<string, unknown>, deps: NodeJS.ProcessEnv = process.env): EvaluatorFunction {
+    return {
+      name: "envs",
+      params: [
+        {
+          name: "key",
+          type: "string"
+        }
+      ],
+      fn: args => {
+        const key = args.key
+
+        if (typeof key !== "string") {
+          throw new Error(`Env indirections must have a "key" argument that is a string, but received ${typeof key} instead.`)
+        }
+
+        return this.loadByKey(key, deps)
+      }
+    }
   }
 
   loadByKey(envKey: string, envs: NodeJS.ProcessEnv): string | undefined {

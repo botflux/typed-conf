@@ -5,6 +5,7 @@ import type {Static2} from "../c.js";
 import {isIndirection, parseIndirection} from "../indirection.js";
 import type {IndirectionEvaluator} from "../indirection/evaluator.js";
 import type {IndirectionExpression} from "../indirection/compiler.js";
+import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
 export const vaultConfig = object({
   endpoint: string(),
@@ -179,6 +180,36 @@ class VaultSource implements Source<"vault", undefined> {
 
   getEvaluator(deps?: undefined): IndirectionEvaluator {
     return new VaultEvaluator(this)
+  }
+
+  getEvaluatorFunction(loaded: Record<string, unknown>, deps?: undefined): EvaluatorFunction {
+    return {
+      name: "vault",
+      params: [
+        {
+          type: "string",
+          name: "path"
+        },
+        {
+          type: "string",
+          name: "key"
+        }
+      ],
+      fn: async args => {
+        const { path, key } = args
+
+        if (typeof path !== "string") {
+          throw new Error(`Invalid argument "${path}" in vault.`)
+        }
+
+        if (typeof key !== "string") {
+          throw new Error(`Invalid argument "${key}" in vault.`)
+        }
+
+        const secret = await this.loadSecret(path, loaded)
+        return getAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
+      }
+    }
   }
 }
 
