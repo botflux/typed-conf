@@ -1,8 +1,8 @@
 import type {Source, SourcesToRecord} from "./sources/source.js";
 import {type BaseSchema, boolean, float, integer, kType, object, type ObjectSchema, secret, string} from "./schemes.js";
 import {merge} from "merge-anything";
-import {type IndirectionEvaluator, OneOfEvaluator} from "./indirection/evaluator.js";
-import {isIndirection, parseIndirection} from "./indirection.js";
+import {type IndirectionEvaluator} from "./indirection/evaluator.js";
+import {isIndirection} from "./indirection.js";
 import {compileIndirectionExpression} from "./indirection/compiler.js";
 import {DefaultEvaluator} from "./indirection/default-evaluator.js";
 

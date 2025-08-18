@@ -7,8 +7,6 @@ import {
   type ObjectSpec,
   type SecretSchema
 } from "../schemes.js";
-import type {IndirectionEvaluator} from "../indirection/evaluator.js";
-import type {IndirectionExpression} from "../indirection/compiler.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
 export type EnvSourceOpts = {
@@ -27,70 +25,6 @@ export type EnvSourceOpts = {
    * @default {false}
    */
   loadSecrets?: boolean
-}
-
-class EnvIndirectionEvaluator implements IndirectionEvaluator {
-  #source: EnvSource
-  #envs: NodeJS.ProcessEnv
-
-  constructor(source: EnvSource, envs: NodeJS.ProcessEnv) {
-    this.#source = source;
-    this.#envs = envs;
-  }
-
-  evaluate(indirection: IndirectionExpression): Promise<unknown> {
-    const { source, namedArgs = {}, args: positionalArgs } = indirection
-
-    if (source !== "envs") {
-      throw new Error(`EnvIndirectionEvaluator can only evaluate envs indirections, received ${source} indirection instead.`)
-    }
-
-    if (Object.keys(namedArgs ?? {}).length === 0 && positionalArgs.length === 0) {
-      throw new Error("An env expression must have at least one argument. You can either pass it as a positional argument " +
-        "(e.g. `%env('MY_ENV')`) or using a named argument (e.g. `%env(key='MY_ENV')`).")
-    }
-
-    const envKey = Object.keys(namedArgs).length > 0
-      ? this.#getEnvKeyFromNamed(namedArgs)
-      : this.#getEnvKeyFromPositional(positionalArgs)
-
-
-    const mEnvValue = this.#source.loadByKey(envKey, this.#envs)
-
-    if (mEnvValue === undefined) {
-      throw new Error(`Env variable ${envKey} is not defined.`)
-    }
-
-    return Promise.resolve(mEnvValue)
-  }
-
-  supports(indirection: IndirectionExpression): boolean {
-    return indirection.source === "envs"
-  }
-
-  #getEnvKeyFromNamed(namedArgs: Record<string, unknown>): string {
-    if (!("key" in namedArgs)) {
-      throw new Error(
-        `Env indirections must have a "key" argument, but received ${Object.keys(namedArgs).join(", ")} instead.`
-      )
-    }
-
-    const key = namedArgs.key
-
-    if (typeof key !== "string") {
-      throw new Error(`Env indirections must have a "key" argument that is a string, but received ${typeof key} instead.`)
-    }
-
-    return key
-  }
-
-  #getEnvKeyFromPositional(positionalArgs: string[]): string {
-    if (positionalArgs.length !== 1) {
-      throw new Error(`Env indirections can only have one positional argument, but received ${positionalArgs.length}. The only accepted argument is the env name (e.g. \`%env('MY_ENV')\`).`)
-    }
-
-    return positionalArgs[0]!
-  }
 }
 
 class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
@@ -161,10 +95,6 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     }
 
     return Promise.resolve(config)
-  }
-
-  getEvaluator(envs: NodeJS.ProcessEnv = process.env): IndirectionEvaluator {
-    return new EnvIndirectionEvaluator(this, envs)
   }
 
   getEvaluatorFunction(loaded: Record<string, unknown>, deps: NodeJS.ProcessEnv = process.env): EvaluatorFunction {

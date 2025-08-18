@@ -14,83 +14,6 @@ export const vaultConfig = object({
 
 export type VaultConfig = Static2<typeof vaultConfig>
 
-export type VaultFunctionArgs = {
-  path: string
-  key: string
-}
-
-class VaultEvaluator implements IndirectionEvaluator {
-  #source: VaultSource
-
-  constructor(source: VaultSource) {
-    this.#source = source;
-  }
-
-  async evaluate(indirection: IndirectionExpression, loaded: Record<string, unknown>): Promise<unknown> {
-    const { source, namedArgs = {}, args: positionalArgs } = indirection
-
-    if (source !== "vault") {
-      throw new Error(`VaultIndirectionEvaluator can only evaluate vault indirections, received ${source} indirection instead.`)
-    }
-
-    if (Object.keys(namedArgs ?? {}).length === 0 && positionalArgs.length === 0) {
-      throw new Error("A vault expression must have at least two arguments. You can either pass them as positional arguments " +
-        "where the first argument is the secret's path and the second is the key in the secret object (e.g. `%vault('secret/data/my-secret', 'data')`). " +
-        "You can also use named argument like this: `%vault(path='secret/data/my-secret', key='data')`.")
-    }
-
-    const { path, key } = positionalArgs.length === 0
-      ? this.#getArgsFromNamedArgs(namedArgs)
-      : this.#getArgsFromPositionalArgs(positionalArgs)
-
-    const secret = await this.#source.loadSecret(path, loaded)
-
-    return this.#extractKeyFromObject(secret, key)
-  }
-
-  supports(indirection: IndirectionExpression): boolean {
-    return indirection.source === "vault"
-  }
-
-  #getArgsFromNamedArgs(namedArgs: Record<string, unknown>): VaultFunctionArgs {
-    const { key, path } = namedArgs
-
-    if (typeof path !== "string") {
-      throw new Error(`Invalid argument "${path}" in vault.`)
-    }
-
-    if (typeof key !== "string") {
-      throw new Error(`Invalid argument "${key}" in vault.`)
-    }
-
-    return { key, path }
-  }
-
-  #getArgsFromPositionalArgs(positionalArgs: string[]): VaultFunctionArgs {
-    if (positionalArgs.length !== 2) {
-      throw new Error(`Invalid argument "${positionalArgs}" in vault.`)
-    }
-
-    const [ path, key ] = positionalArgs
-
-    return { key: key!, path: path! }
-  }
-
-  #extractKeyFromObject(secret: unknown, key: string): string {
-    if (typeof secret !== "object" || secret === null) {
-      throw new Error("Secret is not an object")
-    }
-
-    const field = getAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
-
-    if (typeof field !== "string") {
-      throw new Error(`Field '${field}' in secret is not a string.`)
-    }
-
-    return field
-  }
-}
-
 class VaultSource implements Source<"vault", undefined> {
   key: "vault" = "vault"
 
@@ -176,10 +99,6 @@ class VaultSource implements Source<"vault", undefined> {
     // }
     //
     // return config
-  }
-
-  getEvaluator(deps?: undefined): IndirectionEvaluator {
-    return new VaultEvaluator(this)
   }
 
   getEvaluatorFunction(loaded: Record<string, unknown>, deps?: undefined): EvaluatorFunction {

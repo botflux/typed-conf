@@ -22,8 +22,6 @@ export interface Source<K extends string, Deps> {
    */
   load: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: Deps) => Promise<Record<string, unknown>>
 
-  getEvaluator?(deps?: Deps): IndirectionEvaluator
-
   /**
    * Returns a function that will be executed during
    * indirection expression evaluation.
