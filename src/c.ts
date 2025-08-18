@@ -63,10 +63,6 @@ function config<Schema extends ObjectSchema<Record<string, any>>, Sources extend
 
       const indirection = compileIndirectionExpression(value)
 
-      if (!evaluator.supports(indirection)) {
-        throw new Error(`Indirection evaluator does not support indirection: ${value}`)
-      }
-
       obj[key] = await evaluator.evaluate(indirection, obj)
     }
   }

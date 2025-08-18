@@ -32,10 +32,6 @@ export class DefaultEvaluator implements IndirectionEvaluator {
     this.#functions.set(f.name, f)
   }
 
-  supports(indirection: IndirectionExpression): boolean {
-    return true
-  }
-
   #extractArgs(f: EvaluatorFunction, namedArgs: Record<string, string>, positionalArgs: string[]) {
     const hasPositional = positionalArgs.length > 0
 
