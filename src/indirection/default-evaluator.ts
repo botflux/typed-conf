@@ -20,7 +20,7 @@ export class DefaultEvaluator implements IndirectionEvaluator {
     const mFunction = this.#functions.get(source)
 
     if (mFunction === undefined) {
-      throw new Error(`Unknown function '${source}', available functions are '${Array.from(this.#functions.keys())}'`)
+      throw new Error(`Unknown function '${source}', available functions are: ${Array.from(this.#functions.keys()).join(", ")}`)
     }
 
     const functionArgs=  this.#extractArgs(mFunction, namedArgs, args)
@@ -28,8 +28,9 @@ export class DefaultEvaluator implements IndirectionEvaluator {
     return mFunction.fn(functionArgs)
   }
 
-  registerFunction(f: EvaluatorFunction) {
+  registerFunction(f: EvaluatorFunction): this {
     this.#functions.set(f.name, f)
+    return this
   }
 
   #extractArgs(f: EvaluatorFunction, namedArgs: Record<string, string>, positionalArgs: string[]) {
@@ -42,7 +43,7 @@ export class DefaultEvaluator implements IndirectionEvaluator {
 
   #getArgsFromPositional(f: EvaluatorFunction, positionalArgs: string[]) {
     if (positionalArgs.length !== f.params.length) {
-      throw new Error(`Function '${f.name}' expects ${f.params.length} parameter(s) but received ${positionalArgs.length} parameter(s).`)
+      throw new Error(`Function '${f.name}' expects ${f.params.length} parameter(s), got ${positionalArgs.length}.`)
     }
 
     return f.params.reduce((args, p, i) => {
@@ -61,7 +62,7 @@ export class DefaultEvaluator implements IndirectionEvaluator {
       const param = namedArgs[p.name]
 
       if (param === undefined) {
-        throw new Error("Parameter is not defined")
+        throw new Error(`Named argument '${p.name}' is missing for function 'hello'`)
       }
 
       return { ...args, [p.name]: param }
