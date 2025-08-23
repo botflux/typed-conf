@@ -119,7 +119,6 @@ export function integer(): IntegerSchema {
   }
 }
 
-
 export function float(): FloatSchema {
   return {
     type: "float",

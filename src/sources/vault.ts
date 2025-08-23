@@ -1,10 +1,7 @@
-import {flatten, isSecret, object, type ObjectSchema, type ObjectSpec, secret, string} from "../schemes.js";
+import {object, type ObjectSchema, type ObjectSpec, secret, string} from "../schemes.js";
 import type {Source} from "./source.js";
 import vault from "node-vault"
 import type {Static2} from "../c.js";
-import {isIndirection, parseIndirection} from "../indirection.js";
-import type {IndirectionEvaluator} from "../indirection/evaluator.js";
-import type {IndirectionExpression} from "../indirection/compiler.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
 export const vaultConfig = object({
@@ -30,75 +27,6 @@ class VaultSource implements Source<"vault", undefined> {
 
   async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps: undefined): Promise<Record<string, unknown>> {
     return {}
-    // const vaultConfig = extractVaultConfig(loaded)
-    //
-    // const vaultClient = vault({
-    //   endpoint: vaultConfig.endpoint,
-    //   token: vaultConfig.token,
-    // })
-    //
-    // const secretEntries = flatten(schema)
-    //   .filter(entry => isSecret(entry.value))
-    //
-    // const config = {}
-    //
-    // for (const entry of secretEntries) {
-    //   const alreadyLoaded = getAtPath(loaded, entry.key)
-    //
-    //   if (typeof alreadyLoaded !== "string") {
-    //     continue
-    //   }
-    //
-    //   if (!isIndirection(alreadyLoaded)) {
-    //     continue
-    //   }
-    //
-    //   const indirection = parseIndirection(alreadyLoaded)
-    //
-    //   if (indirection.source !== "vault") {
-    //     continue
-    //   }
-    //
-    //   const [path] = indirection.args
-    //
-    //   if (path === undefined) {
-    //     throw new Error("The vault secret's path is missing from the indirection expression.")
-    //   }
-    //
-    //   const secret = await vaultClient.read(path)
-    //
-    //   let tmp = config
-    //   const intermediateObjectPath = entry.key.slice(0, -1)
-    //
-    //   // Asserts intermediate objects are created.
-    //   for (const chunk of intermediateObjectPath) {
-    //     if (!(chunk in tmp)) {
-    //       Object.defineProperty(tmp, chunk, {
-    //         value: {},
-    //         enumerable: true,
-    //         configurable: true,
-    //         writable: true
-    //       })
-    //     }
-    //     // @ts-expect-error
-    //     tmp = tmp[chunk]
-    //   }
-    //
-    //   const key = entry.key.at(-1)
-    //
-    //   if (key === undefined) {
-    //     throw new Error("key is undefined")
-    //   }
-    //
-    //   Object.defineProperty(tmp, key, {
-    //     value: secret,
-    //     enumerable: true,
-    //     configurable: true,
-    //     writable: true
-    //   })
-    // }
-    //
-    // return config
   }
 
   getEvaluatorFunction(loaded: Record<string, unknown>, deps?: undefined): EvaluatorFunction {
