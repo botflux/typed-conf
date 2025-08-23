@@ -26,7 +26,7 @@ export type LoadOpts<Sources extends Source<string, never>[]> = {
   sources: SourcesToRecord<Sources>
 }
 
-export type ConfigSpec<ConfigSchema extends ObjectSchema<Record<string, BaseSchema<any>>>, Sources extends Source<string, never>[]> = {
+export type ConfigLoader<ConfigSchema extends ObjectSchema<Record<string, BaseSchema<any>>>, Sources extends Source<string, never>[]> = {
   configSchema: ConfigSchema
   sources: Sources
   load: (opts: LoadOpts<Sources>) => Promise<Prettify<ConfigSchema[typeof kType]>>
@@ -37,7 +37,8 @@ export type ConfigOpts<Schema extends ObjectSchema<Record<string, any>>, Sources
   sources: Sources
 }
 
-class ConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]> {
+class DefaultConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]>
+  implements ConfigLoader<Schema, Sources> {
   configSchema: Schema
   sources: Sources
 
@@ -100,6 +101,6 @@ class ConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sources ext
   }
 }
 
-function config<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]>(configOpts: ConfigOpts<Schema, Sources>): ConfigSpec<Schema, Sources> {
-  return new ConfigLoader(configOpts.schema, configOpts.sources)
+function config<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]>(configOpts: ConfigOpts<Schema, Sources>): ConfigLoader<Schema, Sources> {
+  return new DefaultConfigLoader(configOpts.schema, configOpts.sources)
 }
