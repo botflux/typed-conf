@@ -1,8 +1,9 @@
 import {type FileHandle, readFile} from "node:fs/promises"
-import type {ObjectEncodingOptions, OpenMode, PathLike} from "node:fs";
+import  {type ObjectEncodingOptions, type OpenMode, type PathLike} from "node:fs";
 import type {Abortable} from "node:events";
 import type {Source} from "./source.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes.js";
+import * as fs from "node:fs";
 
 export interface FileSystem {
   readFile: typeof readFile
@@ -86,14 +87,23 @@ export type FileSourceDeps = {
   fs?: FileSystem
 }
 
-export function fileSource(opts: FileSourceOpts): Source<"file", FileSourceDeps> {
-  return {
-    key: "file",
-    async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: FileSourceDeps): Promise<Record<string, unknown>> {
-      const fs = deps?.fs ?? regularFs
-      const file = await fs.readFile(opts.file, "utf-8")
+class FileSource implements Source<"file", FileSourceDeps> {
+  key: "file" = "file"
 
-      return JSON.parse(file)
-    }
+  #opts: FileSourceOpts
+
+  constructor(opts: FileSourceOpts) {
+    this.#opts = opts;
   }
+
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: FileSourceDeps): Promise<Record<string, unknown>> {
+    const fs = deps?.fs ?? regularFs
+    const file = await fs.readFile(this.#opts.file, "utf-8")
+
+    return JSON.parse(file)
+  }
+}
+
+export function fileSource(opts: FileSourceOpts): Source<"file", FileSourceDeps> {
+  return new FileSource(opts)
 }
