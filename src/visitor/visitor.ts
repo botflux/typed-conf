@@ -4,11 +4,11 @@ import {
   type FloatSchema,
   type IntegerSchema,
   type ObjectSchema, type ObjectSpec, type SecretSchema,
-  type StringSchemaBuilder
+  type StringSchema
 } from "../schemes.js"
 
 export interface Visitor<Out> {
-  visitString(schema: StringSchemaBuilder): Out
+  visitString(schema: StringSchema): Out
   visitInteger(schema: IntegerSchema): Out
   visitFloat(schema: FloatSchema): Out
   visitBoolean(schema: BooleanSchema): Out

@@ -5,30 +5,50 @@ export const kType = Symbol("type")
 export type BaseSchema<T> = {
   [kType]: T
   coerce?: (value: unknown) => unknown
-  _aliases: Alias[]
+  aliases: Alias[]
   optional: boolean
   accept<R>(visitor: Visitor<R>): R
 }
 
+export interface BaseSchemaBuilder<S extends BaseSchema<unknown>> {
+  schema: S
+  optional(): this
+  aliases(...aliases: Alias[]): this
+}
+
 export type Alias = { id: string, sourceKey: string }
 
-export type StringSchemaBuilder = {
+export interface StringSchemaBuilder extends BaseSchemaBuilder<StringSchema> {
+  optional(): this
+  aliases(...aliases: Alias[]): this
+}
+
+export type StringSchema = {
   type: "string"
-  /**
-   * Define aliases for this value.
-   *
-   * @param aliases
-   */
-  aliases(...aliases: Alias[]): StringSchemaBuilder
 } & BaseSchema<string>
+
+export interface BooleanSchemaBuilder extends BaseSchemaBuilder<BooleanSchema> {
+  optional(): this
+  aliases(...aliases: Alias[]): this
+}
 
 export type BooleanSchema = {
   type: "boolean"
 } & BaseSchema<boolean>
 
+export interface IntegerSchemaBuilder extends BaseSchemaBuilder<IntegerSchema> {
+  optional(): this
+  aliases(...aliases: Alias[]): this
+}
+
 export type IntegerSchema = {
   type: "integer"
 } & BaseSchema<number>
+
+export interface FloatSchemaBuilder extends BaseSchemaBuilder<FloatSchema> {
+  optional(): this
+  aliases(...aliases: Alias[]): this
+}
 
 export type FloatSchema = {
   type: "float"
@@ -39,42 +59,81 @@ export type ObjectSchema<T extends ObjectSpec> = {
   spec: T
 } & BaseSchema<ToRecord<T>>
 
+export interface SecretSchemaBuilder extends BaseSchemaBuilder<SecretSchema> {
+  optional(): this
+  aliases(...aliases: Alias[]): this
+}
+
 export type SecretSchema = {
   type: "secret"
 } & BaseSchema<string>
 
-export type ToRecord<ObjectSpec extends Record<string, BaseSchema<unknown>>> = {
-  [K in keyof ObjectSpec]: ObjectSpec[K][typeof kType]
+export type ToRecord<ObjectSpec extends Record<string, BaseSchemaBuilder<BaseSchema<unknown>>>> = {
+  [K in keyof ObjectSpec]: ObjectSpec[K]["schema"][typeof kType]
 }
 
-export type ObjectSpec = Record<string, BaseSchema<unknown>>
+export type ObjectSpec = Record<string, BaseSchemaBuilder<BaseSchema<unknown>>>
 
-export function object<T extends ObjectSpec>(spec: T): ObjectSchema<T> {
-  return {
-    type: "object",
-    spec,
-    [kType]: {} as ToRecord<T>,
-    _aliases: [],
-    accept<R>(visitor: Visitor<R>): R {
-      return visitor.visitObject(this)
-    },
-    optional: false
+export class ObjectSchemaBuilder<T extends ObjectSpec> implements BaseSchemaBuilder<ObjectSchema<T>> {
+  schema: ObjectSchema<T>
+
+  constructor(spec: T) {
+    this.schema = {
+      type: "object",
+      optional: false,
+      [kType]: {} as ToRecord<T>,
+      aliases: [],
+      accept<R>(visitor: Visitor<R>): R {
+        return visitor.visitObject(this)
+      },
+      spec,
+    }
   }
+
+  optional(): this {
+    this.schema.optional = true
+    return this
+  }
+
+  aliases(...aliases: Alias[]): this {
+    this.schema.aliases = [...this.schema.aliases, ...aliases]
+    return this
+  }
+}
+
+export function object<T extends ObjectSpec>(spec: T): ObjectSchemaBuilder<T> {
+  return new ObjectSchemaBuilder(spec)
+  // return {
+  //   type: "object",
+  //   spec,
+  //   [kType]: {} as ToRecord<T>,
+  //   aliases: [],
+  //   accept<R>(visitor: Visitor<R>): R {
+  //     return visitor.visitObject(this)
+  //   },
+  //   optional: false
+  // }
 }
 
 class StringSchemaCls implements StringSchemaBuilder {
-  type: "string" = "string";
-  [kType]: string = "";
-  optional: boolean = false;
 
-  _aliases: Alias[] = []
+  schema: StringSchema = {
+    [kType]: "string" as const,
+    optional: false,
+    aliases: [],
+    accept<R>(visitor: Visitor<R>): R {
+      return visitor.visitString(this)
+    },
+    type: "string"
+  }
 
-  aliases(...aliases: Alias[]): StringSchemaBuilder {
-    this._aliases = aliases
+  optional(): this {
+    this.schema.optional = true
     return this
   }
-  accept<R>(visitor: Visitor<R>): R {
-    return visitor.visitString(this)
+  aliases(...aliases: Alias[]): this {
+    this.schema.aliases = [...this.schema.aliases, ...aliases]
+    return this
   }
 }
 
@@ -82,72 +141,118 @@ export function string(): StringSchemaBuilder {
   return new StringSchemaCls()
 }
 
-export function secret(optional: boolean = false): SecretSchema {
-  return {
-    type: "secret",
-    [kType]: "",
-    _aliases: [],
-    accept<R>(visitor: Visitor<R>): R {
-      return visitor.visitSecret(this)
-    },
-    optional
-  }
+class SecretSchemaCls implements SecretSchemaBuilder {
+    schema: SecretSchema = {
+      [kType]: "secret" as const,
+      optional: false,
+      aliases: [],
+      accept<R>(visitor: Visitor<R>): R {
+          return visitor.visitSecret(this)
+      },
+      type: "secret"
+    }
+
+    optional(): this {
+      this.schema.optional = true
+      return this
+    }
+
+    aliases(...aliases: Alias[]): this {
+      this.schema.aliases = [...this.schema.aliases, ...aliases]
+      return this
+    }
 }
 
-export function boolean(): BooleanSchema {
-  return {
-    type: "boolean",
-    [kType]: false,
-    _aliases: [],
-    coerce: (value: unknown) => {
-      if (typeof value !== "string") {
-        return value
-      }
-
-      const lowercase = value.toLowerCase()
-
-      if (lowercase === "false") return false
-      if (lowercase === "true") return true
-
-      return value
-    },
-    accept<R>(visitor: Visitor<R>): R {
-      return visitor.visitBoolean(this)
-    },
-    optional: false
-  }
+export function secret(): SecretSchemaBuilder {
+  return new SecretSchemaCls()
 }
 
-export function integer(): IntegerSchema {
-  return {
-    type: "integer",
-    [kType]: 0,
-    _aliases: [],
-    coerce: (value: unknown) => {
-      if (typeof value !== "string") {
+class BooleanSchemaCls implements BooleanSchemaBuilder {
+    schema: BooleanSchema = {
+      [kType]: false as true,
+      optional: false,
+      aliases: [],
+      accept<R>(visitor: Visitor<R>): R {
+          return visitor.visitBoolean(this)
+      },
+      type: "boolean",
+      coerce: (value: unknown) => {
+        if (typeof value !== "string") {
+          return value
+        }
+
+        const lowercase = value.toLowerCase()
+
+        if (lowercase === "false") return false
+        if (lowercase === "true") return true
+
         return value
       }
+    }
 
-      const parsed = Number.parseInt(value)
+    optional(): this {
+      this.schema.optional = true
+      return this
+    }
 
-      if (Number.isNaN(parsed)) {
-        return value
-      }
-
-      return parsed
-    },
-    accept<R>(visitor: Visitor<R>): R {
-      return visitor.visitInteger(this)
-    },
-    optional: false
-  }
+    aliases(...aliases: Alias[]): this {
+      this.schema.aliases = [...this.schema.aliases, ...aliases]
+      return this
+    }
 }
 
-export function float(): FloatSchema {
-  return {
+export function boolean(): BooleanSchemaBuilder {
+  return new BooleanSchemaCls()
+}
+
+class IntegerSchemaCls implements IntegerSchemaBuilder {
+    schema: IntegerSchema = {
+      [kType]: 0,
+      optional: false,
+      aliases: [],
+      accept<R>(visitor: Visitor<R>): R {
+          return visitor.visitInteger(this)
+      },
+      type: "integer",
+      coerce: (value: unknown) => {
+        if (typeof value !== "string") {
+          return value
+        }
+
+        const parsed = Number.parseInt(value)
+
+        if (Number.isNaN(parsed)) {
+          return value
+        }
+
+        return parsed
+      }
+    }
+
+    optional(): this {
+      this.schema.optional = true
+      return this
+    }
+
+    aliases(...aliases: Alias[]): this {
+      this.schema.aliases = [...this.schema.aliases, ...aliases]
+      return this
+    }
+}
+
+export function integer(): IntegerSchemaBuilder {
+  return new IntegerSchemaCls()
+}
+
+class FloatSchemaCls implements FloatSchemaBuilder {
+  schema: FloatSchema = {
     type: "float",
     [kType]: 0,
-    _aliases: [],
+    aliases: [],
+    accept<R>(visitor: Visitor<R>): R {
+      return visitor.visitFloat(this)
+    },
+    optional: false,
     coerce: (value: unknown) => {
       if (typeof value !== "string") {
         return value
@@ -160,12 +265,22 @@ export function float(): FloatSchema {
       }
 
       return parsed
-    },
-    accept<R>(visitor: Visitor<R>): R {
-      return visitor.visitFloat(this)
-    },
-    optional: false
+    }
   }
+
+  optional(): this {
+    this.schema.optional = true
+    return this
+  }
+  aliases(...aliases: Alias[]): this {
+    this.schema.aliases = [...this.schema.aliases, ...aliases]
+    return this
+  }
+
+}
+
+export function float(): FloatSchemaBuilder {
+  return new FloatSchemaCls()
 }
 
 export type Entry = {
@@ -176,9 +291,9 @@ export type Entry = {
 export function flatten(config: ObjectSchema<ObjectSpec>, base: string[] = []): Entry[] {
   const entries = Object.entries(config.spec)
 
-  return entries.flatMap(([k, value]) => isObject(value)
-    ? flatten(value, [...base, k])
-    : { key: [...base, k], value } as Entry)
+  return entries.flatMap(([k, value]) => isObject(value.schema)
+    ? flatten(value.schema, [...base, k])
+    : { key: [...base, k], value: value.schema } as Entry)
 }
 
 function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<ObjectSpec> {

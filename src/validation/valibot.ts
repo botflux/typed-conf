@@ -10,7 +10,7 @@ class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue
     return this.visitObject(schema)
   }
 
-  visitString(schema: t.StringSchemaBuilder): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  visitString(schema: t.StringSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     return v.string()
   }
 
@@ -28,7 +28,7 @@ class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue
 
   visitObject(schema: t.ObjectSchema<t.ObjectSpec>): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     const props = Object.entries(schema.spec)
-      .map(([key, value]) => [ key, this.visit(value) ] as const)
+      .map(([key, value]) => [ key, this.visit(value.schema) ] as const)
 
     return v.object(Object.fromEntries(props))
   }

@@ -46,7 +46,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     const config = {}
 
     for (const entry of filteredEntries) {
-      const envAliases = entry.value._aliases.filter(a => a.sourceKey === "envs")
+      const envAliases = entry.value.aliases.filter(a => a.sourceKey === "envs")
       const defaultEnvKey = [this.#opts.prefix, entry.key.join("_").toUpperCase()].join("")
       const allEnvKeys = [defaultEnvKey, ...envAliases.map(a => a.id)]
 

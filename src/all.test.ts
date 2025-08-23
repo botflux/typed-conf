@@ -110,7 +110,7 @@ describe("testing", () => {
       // Given
       const configSpec = c.config({
         schema: c.object({
-          password: c.secret(true)
+          password: c.secret().optional()
         }),
         sources: [
           envSource()

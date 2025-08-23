@@ -1,5 +1,16 @@
 import type {Source, SourcesToRecord} from "./sources/source.js";
-import {type BaseSchema, boolean, float, integer, kType, object, type ObjectSchema, secret, string} from "./schemes.js";
+import {
+  type BaseSchema, type BaseSchemaBuilder,
+  boolean,
+  float,
+  integer,
+  kType,
+  object,
+  type ObjectSchema,
+  ObjectSchemaBuilder,
+  secret,
+  string
+} from "./schemes.js";
 import {merge} from "merge-anything";
 import {type IndirectionEvaluator} from "./indirection/evaluator.js";
 import {compileIndirectionExpression} from "./indirection/compiler.js";
@@ -21,24 +32,24 @@ export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
 
-export type Static<T extends BaseSchema<unknown>> = T[typeof kType]
+export type Static<T extends BaseSchemaBuilder<BaseSchema<unknown>>> = T["schema"][typeof kType]
 
 export type LoadOpts<Sources extends Source<string, never>[]> = {
   sources: SourcesToRecord<Sources>
 }
 
-export type ConfigLoader<ConfigSchema extends ObjectSchema<Record<string, BaseSchema<any>>>, Sources extends Source<string, never>[]> = {
+export type ConfigLoader<ConfigSchema extends ObjectSchemaBuilder<Record<string, BaseSchemaBuilder<any>>>, Sources extends Source<string, never>[]> = {
   configSchema: ConfigSchema
   sources: Sources
-  load: (opts: LoadOpts<Sources>) => Promise<Prettify<ConfigSchema[typeof kType]>>
+  load: (opts: LoadOpts<Sources>) => Promise<Prettify<ConfigSchema["schema"][typeof kType]>>
 }
 
-export type ConfigOpts<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]> = {
+export type ConfigOpts<Schema extends ObjectSchemaBuilder<Record<string, any>>, Sources extends Source<string, never>[]> = {
   schema: Schema
   sources: Sources
 }
 
-class DefaultConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]>
+class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>>, Sources extends Source<string, never>[]>
   implements ConfigLoader<Schema, Sources> {
   configSchema: Schema
   sources: Sources
@@ -50,14 +61,14 @@ class DefaultConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sour
     this.sources = sources;
   }
 
-  async load(opts: LoadOpts<Sources>): Promise<Prettify<Schema[typeof kType]>> {
+  async load(opts: LoadOpts<Sources>): Promise<Prettify<Schema["schema"][typeof kType]>> {
     const { sources } = opts
     let previouslyLoaded = {}
 
     for (const source of this.sources) {
       // @ts-expect-error
       const o = sources[source.key]
-      const loaded = await source.load(this.configSchema, previouslyLoaded, o) as any
+      const loaded = await source.load(this.configSchema.schema, previouslyLoaded, o) as any
 
       previouslyLoaded = merge(previouslyLoaded, loaded)
     }
@@ -76,7 +87,7 @@ class DefaultConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sour
 
     await this.#resolveIndirection(previouslyLoaded, evaluator)
 
-    return this.#validator.validate(this.configSchema, previouslyLoaded) as Prettify<Schema[typeof kType]>
+    return this.#validator.validate(this.configSchema.schema, previouslyLoaded) as Prettify<Schema["schema"][typeof kType]>
   }
 
   async #resolveIndirection(obj: Record<string, unknown>, evaluator: IndirectionEvaluator): Promise<void> {
@@ -102,6 +113,6 @@ class DefaultConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sour
   }
 }
 
-function config<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]>(configOpts: ConfigOpts<Schema, Sources>): ConfigLoader<Schema, Sources> {
+function config<Schema extends ObjectSchemaBuilder<Record<string, any>>, Sources extends Source<string, never>[]>(configOpts: ConfigOpts<Schema, Sources>): ConfigLoader<Schema, Sources> {
   return new DefaultConfigLoader(configOpts.schema, configOpts.sources)
 }

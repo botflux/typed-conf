@@ -1,8 +1,8 @@
-import type { StringSchemaBuilder, IntegerSchema, FloatSchema, BooleanSchema, ObjectSchema, ObjectSpec, SecretSchema, BaseSchema } from "../schemes.js";
+import type { StringSchema, IntegerSchema, FloatSchema, BooleanSchema, ObjectSchema, ObjectSpec, SecretSchema, BaseSchema } from "../schemes.js";
 import type {Visitor} from "./visitor.js";
 
 export abstract class BaseVisitor<R> implements Visitor<R> {
-    abstract visitString(schema: StringSchemaBuilder): R
+    abstract visitString(schema: StringSchema): R
     abstract visitInteger(schema: IntegerSchema): R
     abstract visitFloat(schema: FloatSchema): R
     abstract visitBoolean(schema: BooleanSchema): R
@@ -15,7 +15,7 @@ export abstract class BaseVisitor<R> implements Visitor<R> {
       }
 
       switch (schema.type) {
-        case "string": return this.visitString(schema as StringSchemaBuilder)
+        case "string": return this.visitString(schema as StringSchema)
         case "integer": return this.visitInteger(schema as IntegerSchema)
         case "float": return this.visitFloat(schema as FloatSchema)
         case "boolean": return this.visitBoolean(schema as BooleanSchema)
