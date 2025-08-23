@@ -20,14 +20,7 @@ export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
 
-export type Static<
-  T extends ConfigSpec<
-    ObjectSchema<Record<string, BaseSchema<unknown>>>,
-    Source<string, never>[]
-  >
-> = Prettify<T["configSchema"][typeof kType]>
-
-export type Static2<T extends BaseSchema<unknown>> = T[typeof kType]
+export type Static<T extends BaseSchema<unknown>> = T[typeof kType]
 
 export type LoadOpts<Sources extends Source<string, never>[]> = {
   sources: SourcesToRecord<Sources>
@@ -44,13 +37,52 @@ export type ConfigOpts<Schema extends ObjectSchema<Record<string, any>>, Sources
   sources: Sources
 }
 
-function config<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]>(configOpts: ConfigOpts<Schema, Sources>): ConfigSpec<Schema, Sources> {
-  async function resolveIndirection(obj: Record<string, unknown>, evaluator: IndirectionEvaluator): Promise<void> {
+class ConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]> {
+  configSchema: Schema
+  sources: Sources
+
+  constructor(configSchema: Schema, sources: Sources) {
+    this.configSchema = configSchema;
+    this.sources = sources;
+  }
+
+  async load(opts: LoadOpts<Sources>): Promise<Prettify<Schema[typeof kType]>> {
+    const { sources } = opts
+    let previouslyLoaded = {}
+
+    for (const source of this.sources) {
+      // @ts-expect-error
+      const o = sources[source.key]
+      const loaded = await source.load(this.configSchema, previouslyLoaded, o) as any
+
+      previouslyLoaded = merge(previouslyLoaded, loaded)
+    }
+
+
+    const evaluator = new DefaultEvaluator()
+
+    for (const source of this.sources) {
+      if ('getEvaluatorFunction' in source) {
+        evaluator.registerFunction(source.getEvaluatorFunction(
+          previouslyLoaded,
+          // @ts-expect-error
+          sources[source.key]
+        ))
+      }
+    }
+
+
+    await this.#resolveIndirection(previouslyLoaded, evaluator)
+
+    return previouslyLoaded as Prettify<Schema[typeof kType]>
+  }
+
+  async #resolveIndirection(obj: Record<string, unknown>, evaluator: IndirectionEvaluator): Promise<void> {
     for (const key in obj) {
       const value = obj[key]
 
       if (typeof value === "object" && value !== null) {
-        await resolveIndirection(value as Record<string, unknown>, evaluator)
+        await this.#resolveIndirection(value as Record<string, unknown>, evaluator)
       }
 
       if (typeof value !== "string") {
@@ -66,48 +98,8 @@ function config<Schema extends ObjectSchema<Record<string, any>>, Sources extend
       obj[key] = await evaluator.evaluate(indirection, obj)
     }
   }
-
-  return {
-    configSchema: configOpts.schema,
-    sources: configOpts.sources,
-    load: async (opts: LoadOpts<Sources>) => {
-      const { sources } = opts
-      // const evaluators = configOpts.sources
-      //   .filter(s => "getEvaluator" in s)
-      //   .map(s => s.getEvaluator!(
-      //     // @ts-expect-error
-      //     sources[s.key]
-      //   ))
-
-
-      let previouslyLoaded = {}
-
-      for (const source of configOpts.sources) {
-        // @ts-expect-error
-        const o = sources[source.key]
-        const loaded = await source.load(configOpts.schema, previouslyLoaded, o) as any
-
-        previouslyLoaded = merge(previouslyLoaded, loaded)
-      }
-
-
-      const evaluator = new DefaultEvaluator()
-
-      for (const source of configOpts.sources) {
-        if ('getEvaluatorFunction' in source) {
-          evaluator.registerFunction(source.getEvaluatorFunction(
-            previouslyLoaded,
-            // @ts-expect-error
-            sources[source.key]
-          ))
-        }
-      }
-
-
-      await resolveIndirection(previouslyLoaded, evaluator)
-
-      return previouslyLoaded as Prettify<Schema[typeof kType]>
-    },
-  }
 }
 
+function config<Schema extends ObjectSchema<Record<string, any>>, Sources extends Source<string, never>[]>(configOpts: ConfigOpts<Schema, Sources>): ConfigSpec<Schema, Sources> {
+  return new ConfigLoader(configOpts.schema, configOpts.sources)
+}

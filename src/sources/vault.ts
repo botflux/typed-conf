@@ -1,7 +1,7 @@
 import {object, type ObjectSchema, type ObjectSpec, secret, string} from "../schemes.js";
 import type {Source} from "./source.js";
 import vault from "node-vault"
-import type {Static2} from "../c.js";
+import type {Static} from "../c.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
 export const vaultConfig = object({
@@ -9,7 +9,7 @@ export const vaultConfig = object({
   token: secret()
 })
 
-export type VaultConfig = Static2<typeof vaultConfig>
+export type VaultConfig = Static<typeof vaultConfig>
 
 class VaultSource implements Source<"vault", undefined> {
   key: "vault" = "vault"

@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import {c, type Static} from "./c.js"
+import {c} from "./c.js"
 import {envAlias, envSource} from "./sources/envs.js";
 import {FakeFileSystem, fileSource} from "./sources/files.js";
 import {VaultContainer} from "@testcontainers/vault";
