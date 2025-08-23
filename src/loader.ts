@@ -5,6 +5,7 @@ import {type IndirectionEvaluator} from "./indirection/evaluator.js";
 import {compileIndirectionExpression} from "./indirection/compiler.js";
 import {DefaultEvaluator} from "./indirection/default-evaluator.js";
 import {isIndirection} from "./indirection/is-indirection.js";
+import {ValibotValidator} from "./validation/valibot.js";
 
 export const c = {
   config,
@@ -42,6 +43,8 @@ class DefaultConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sour
   configSchema: Schema
   sources: Sources
 
+  #validator = new ValibotValidator()
+
   constructor(configSchema: Schema, sources: Sources) {
     this.configSchema = configSchema;
     this.sources = sources;
@@ -59,7 +62,6 @@ class DefaultConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sour
       previouslyLoaded = merge(previouslyLoaded, loaded)
     }
 
-
     const evaluator = new DefaultEvaluator()
 
     for (const source of this.sources) {
@@ -72,10 +74,9 @@ class DefaultConfigLoader<Schema extends ObjectSchema<Record<string, any>>, Sour
       }
     }
 
-
     await this.#resolveIndirection(previouslyLoaded, evaluator)
 
-    return previouslyLoaded as Prettify<Schema[typeof kType]>
+    return this.#validator.validate(this.configSchema, previouslyLoaded) as Prettify<Schema[typeof kType]>
   }
 
   async #resolveIndirection(obj: Record<string, unknown>, evaluator: IndirectionEvaluator): Promise<void> {

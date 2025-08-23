@@ -1,9 +1,12 @@
+import type {Visitor} from "./visitor/visitor.js";
+
 export const kType = Symbol("type")
 
 export type BaseSchema<T> = {
   [kType]: T
   coerce?: (value: unknown) => unknown
   _aliases: Alias[]
+  accept<R>(visitor: Visitor<R>): R
 }
 
 export type Alias = { id: string, sourceKey: string }
@@ -51,6 +54,9 @@ export function object<T extends ObjectSpec>(spec: T): ObjectSchema<T> {
     spec,
     [kType]: {} as ToRecord<T>,
     _aliases: [],
+    accept<R>(visitor: Visitor<R>): R {
+      return visitor.visitObject(this)
+    }
   }
 }
 
@@ -64,6 +70,9 @@ class StringSchemaCls implements StringSchemaBuilder {
     this._aliases = aliases
     return this
   }
+  accept<R>(visitor: Visitor<R>): R {
+    return visitor.visitString(this)
+  }
 }
 
 export function string(): StringSchemaBuilder {
@@ -75,6 +84,9 @@ export function secret(): SecretSchema {
     type: "secret",
     [kType]: "",
     _aliases: [],
+    accept<R>(visitor: Visitor<R>): R {
+      return visitor.visitSecret(this)
+    }
   }
 }
 
@@ -94,6 +106,9 @@ export function boolean(): BooleanSchema {
       if (lowercase === "true") return true
 
       return value
+    },
+    accept<R>(visitor: Visitor<R>): R {
+      return visitor.visitBoolean(this)
     }
   }
 }
@@ -115,6 +130,9 @@ export function integer(): IntegerSchema {
       }
 
       return parsed
+    },
+    accept<R>(visitor: Visitor<R>): R {
+      return visitor.visitInteger(this)
     }
   }
 }
@@ -136,6 +154,9 @@ export function float(): FloatSchema {
       }
 
       return parsed
+    },
+    accept<R>(visitor: Visitor<R>): R {
+      return visitor.visitFloat(this)
     }
   }
 }
