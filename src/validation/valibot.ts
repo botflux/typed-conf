@@ -34,6 +34,10 @@ class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue
   }
 
   visitSecret(schema: t.SecretSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+    if (schema.optional) {
+      return v.optional(v.string())
+    }
+
     return v.string()
   }
 }
