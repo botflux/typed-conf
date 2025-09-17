@@ -2,6 +2,14 @@ import type {ObjectSchema, ObjectSpec} from "../schemes.js";
 import type {IndirectionEvaluator} from "../indirection/evaluator.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
+export type SourceValue<T = unknown> = {
+  value: T
+  source: string
+  originalNameInSource: string
+}
+
+export type ConfigWithMetadata = Record<string, unknown | SourceValue>
+
 export interface Source<K extends string, Deps> {
   /**
    * The string identifier of the source.
@@ -20,7 +28,7 @@ export interface Source<K extends string, Deps> {
    *             This parameter is useful when testing because it allows injecting env variables
    *             or mocked filesystem.
    */
-  load: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: Deps) => Promise<Record<string, unknown>>
+  load: (schema: ObjectSchema<ObjectSpec>, loaded: ConfigWithMetadata, deps?: Deps) => Promise<ConfigWithMetadata>
 
   /**
    * Returns a function that will be executed during

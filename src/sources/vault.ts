@@ -1,5 +1,6 @@
 import {object, type ObjectSchema, type ObjectSpec, secret, string} from "../schemes.js";
-import type {Source} from "./source.js";
+import type {Source, ConfigWithMetadata} from "./source.js";
+import {extractValues} from "./metadata-utils.js";
 import vault from "node-vault"
 import type {Static} from "../loader.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
@@ -25,7 +26,7 @@ class VaultSource implements Source<"vault", undefined> {
     return await client.read(path) as unknown
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps: undefined): Promise<Record<string, unknown>> {
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: ConfigWithMetadata, deps: undefined): Promise<ConfigWithMetadata> {
     return {}
   }
 
