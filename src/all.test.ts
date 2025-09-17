@@ -348,9 +348,9 @@ describe("testing", () => {
       const image = "hashicorp/vault:1.20"
       const secretValue = "my-secret-value"
 
-      await using container = await new VaultContainer(image)
+      const container = await new VaultContainer(image)
           .withVaultToken(token)
-          .withName("vault")
+          .withReuse()
           .start()
 
       const client = vault({
