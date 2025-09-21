@@ -1,8 +1,10 @@
-import {object, type ObjectSchema, type ObjectSpec, secret, string} from "../schemes.js";
 import type {Source} from "./source.js";
 import vault from "node-vault"
 import type {Static} from "../loader.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
+import {string} from "../schemes/string.js";
+import {secret} from "../schemes/secret.js";
+import {object, type ObjectSchema, type ObjectSpec} from "../schemes/object.js";
 
 export const vaultConfig = object({
   endpoint: string(),

@@ -1,39 +1,43 @@
 import type {Validator} from "./validator.js";
-import type {Visitor} from "../visitor/visitor.js";
 import * as v from "valibot"
-import * as t from "../schemes.js"
-import {type BaseIssue, isValiError, type ValiError} from "valibot";
+import {type BaseIssue} from "valibot"
 import {BaseVisitor} from "../visitor/base-visitor.js";
+import type {StringSchema} from "../schemes/string.js";
+import type {BooleanSchema} from "../schemes/boolean.js";
+import type {IntegerSchema} from "../schemes/integer.js";
+import type {FloatSchema} from "../schemes/float.js";
+import type {SecretSchema} from "../schemes/secret.js";
+import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 
 class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue<unknown>>> {
-  build(schema: t.ObjectSchema<t.ObjectSpec>): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  build(schema: ObjectSchema<ObjectSpec>): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     return this.visitObject(schema)
   }
 
-  visitString(schema: t.StringSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  visitString(schema: StringSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     return v.string()
   }
 
-  visitInteger(schema: t.IntegerSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  visitInteger(schema: IntegerSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     return v.pipe(v.number(), v.integer())
   }
 
-  visitFloat(schema: t.FloatSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  visitFloat(schema: FloatSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     return v.number()
   }
 
-  visitBoolean(schema: t.BooleanSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  visitBoolean(schema: BooleanSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     return v.boolean()
   }
 
-  visitObject(schema: t.ObjectSchema<t.ObjectSpec>): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  visitObject(schema: ObjectSchema<ObjectSpec>): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     const props = Object.entries(schema.spec)
       .map(([key, value]) => [ key, this.visit(value.schema) ] as const)
 
     return v.object(Object.fromEntries(props))
   }
 
-  visitSecret(schema: t.SecretSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+  visitSecret(schema: SecretSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
     if (schema.optional) {
       return v.optional(v.string())
     }
@@ -45,7 +49,7 @@ class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue
 export class ValibotValidator implements Validator {
   builder = new SchemaBuilder()
 
-  validate(schema: t.ObjectSchema<t.ObjectSpec>, object: unknown): unknown {
+  validate(schema: ObjectSchema<ObjectSpec>, object: unknown): unknown {
     const valibotSchema = this.builder.build(schema)
     try {
       return v.parse(valibotSchema, object)

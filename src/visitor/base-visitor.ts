@@ -1,5 +1,11 @@
-import type { StringSchema, IntegerSchema, FloatSchema, BooleanSchema, ObjectSchema, ObjectSpec, SecretSchema, BaseSchema } from "../schemes.js";
 import type {Visitor} from "./visitor.js";
+import type {BaseSchema} from "../schemes/base.js";
+import type {StringSchema} from "../schemes/string.js";
+import type {BooleanSchema} from "../schemes/boolean.js";
+import type {IntegerSchema} from "../schemes/integer.js";
+import type {FloatSchema} from "../schemes/float.js";
+import type {SecretSchema} from "../schemes/secret.js";
+import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 
 export abstract class BaseVisitor<R> implements Visitor<R> {
     abstract visitString(schema: StringSchema): R

@@ -1,22 +1,17 @@
 import type {Source, SourcesToRecord} from "./sources/source.js";
-import {
-  type BaseSchema, type BaseSchemaBuilder,
-  boolean,
-  float,
-  integer,
-  kType,
-  object,
-  type ObjectSchema,
-  ObjectSchemaBuilder,
-  secret,
-  string
-} from "./schemes.js";
 import {merge} from "merge-anything";
 import {type IndirectionEvaluator} from "./indirection/evaluator.js";
 import {compileIndirectionExpression} from "./indirection/compiler.js";
 import {DefaultEvaluator} from "./indirection/default-evaluator.js";
 import {isIndirection} from "./indirection/is-indirection.js";
 import {ValibotValidator} from "./validation/valibot.js";
+import {type BaseSchema, type BaseSchemaBuilder, kType} from "./schemes/base.js";
+import {string} from "./schemes/string.js";
+import {boolean} from "./schemes/boolean.js";
+import {integer} from "./schemes/integer.js";
+import {float} from "./schemes/float.js";
+import {secret} from "./schemes/secret.js";
+import {object, type ObjectSchema, ObjectSchemaBuilder} from "./schemes/object.js";
 
 export const c = {
   config,

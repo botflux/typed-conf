@@ -1,11 +1,10 @@
-import {
-  type BaseSchema,
-  type BooleanSchema,
-  type FloatSchema,
-  type IntegerSchema,
-  type ObjectSchema, type ObjectSpec, type SecretSchema,
-  type StringSchema
-} from "../schemes.js"
+import type {BaseSchema} from "../schemes/base.js";
+import type {StringSchema} from "../schemes/string.js";
+import type {BooleanSchema} from "../schemes/boolean.js";
+import type {IntegerSchema} from "../schemes/integer.js";
+import type {FloatSchema} from "../schemes/float.js";
+import type {SecretSchema} from "../schemes/secret.js";
+import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 
 export interface Visitor<Out> {
   visitString(schema: StringSchema): Out

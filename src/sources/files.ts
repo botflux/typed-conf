@@ -2,8 +2,8 @@ import {type FileHandle, readFile} from "node:fs/promises"
 import  {type ObjectEncodingOptions, type OpenMode, type PathLike} from "node:fs";
 import type {Abortable} from "node:events";
 import type {Source} from "./source.js";
-import type {ObjectSchema, ObjectSpec} from "../schemes.js";
 import * as fs from "node:fs";
+import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 
 export interface FileSystem {
   readFile: typeof readFile
