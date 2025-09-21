@@ -27,3 +27,24 @@ export function setValueAtPath(o: Record<string, unknown>, path: string[], value
     configurable: true,
   })
 }
+
+export function getValueAtPath(o: Record<string, unknown>, path: string[]): unknown {
+  let tmp: Record<string, unknown> = o
+
+  const intermediateObjectPath = path.slice(0, -1)
+  const key = path.at(-1)
+
+  if (key === undefined) {
+    throw new Error("Path must at least contain one element")
+  }
+
+  for (const key of intermediateObjectPath) {
+    if (typeof tmp !== "object" || tmp === null) {
+      throw new Error(`Cannot get value at path '${path.join(".")}' because the intermediate value is not an object ${key}`)
+    }
+
+    tmp = tmp[key] as Record<string, unknown>
+  }
+
+  return tmp[key] as unknown
+}

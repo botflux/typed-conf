@@ -4,6 +4,7 @@ import type {Abortable} from "node:events";
 import type {Source} from "./source.js";
 import * as fs from "node:fs";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
+import {AjvSchemaValidator} from "../validation/ajv.js";
 
 export interface FileSystem {
   readFile: typeof readFile
@@ -92,6 +93,8 @@ class FileSource implements Source<"file", FileSourceDeps> {
 
   #opts: FileSourceOpts
 
+  #validator = new AjvSchemaValidator()
+
   constructor(opts: FileSourceOpts) {
     this.#opts = opts;
   }
@@ -100,7 +103,15 @@ class FileSource implements Source<"file", FileSourceDeps> {
     const fs = deps?.fs ?? regularFs
     const file = await fs.readFile(this.#opts.file, "utf-8")
 
-    return JSON.parse(file)
+    const parsed = JSON.parse(file)
+
+    if (typeof parsed !== "object" || parsed === null) {
+      throw new Error("Not implemented at line 106 in files.ts")
+    }
+
+    this.#validator.validate(schema.schema, parsed, `file ${this.#opts.file}`)
+
+    return parsed
   }
 }
 

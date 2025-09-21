@@ -64,7 +64,14 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
       const coercedValue = entry.value.coerce?.(envValue) ?? envValue
 
-      this.#validator.validate(entry.value.schema, coercedValue, `Env ${envKey}`)
+      this.#validator.validate({
+        type: "object",
+        properties: {
+          [envKey]: entry.value.schema
+        },
+      }, {
+        [envKey]: coercedValue
+      }, "Env")
 
       setValueAtPath(config, entry.key, coercedValue)
     }

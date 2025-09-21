@@ -24,12 +24,7 @@ export class ObjectSchemaBuilder<T extends ObjectSpec> implements BaseSchemaBuil
         return visitor.visitObject(this)
       },
       spec,
-      schema: {
-        type: "object",
-        properties: {},
-        required: [],
-        additionalProperties: false
-      } as JSONSchema
+      schema: schemaToJSONSchema(spec)
     }
   }
 
@@ -50,4 +45,24 @@ export function object<T extends ObjectSpec>(spec: T): ObjectSchemaBuilder<T> {
 
 export function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<ObjectSpec> {
   return "type" in schema && schema.type === "object"
+}
+
+function schemaToJSONSchema(schema: ObjectSpec): JSONSchema {
+  const entries = Object.entries(schema)
+
+  const props = entries.map(([key, schema ]) => [
+    key,
+    schema.schema.schema
+  ])
+
+  const required = entries
+    .filter(([, schema ]) => !schema.optional)
+    .map(([ k ]) => k)
+
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: Object.fromEntries(props),
+    required
+  }
 }
