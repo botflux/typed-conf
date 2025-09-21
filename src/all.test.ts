@@ -312,6 +312,29 @@ describe("testing", () => {
         })
       })
     })
+
+    describe('validation', function () {
+      test("should be able to validate the envs", async (t) => {
+        // Given
+        const envs = envSource()
+        const configSpec = c.config({
+          schema: c.object({
+            port: c.integer()
+          }),
+          sources: [ envs ]
+        })
+
+        // When
+        const promise = configSpec.load({
+          sources: {
+            envs: { PORT: "not-an-integer" }
+          }
+        })
+
+        // Then
+        await assert.rejects(promise, new Error("Env PORT must be integer"))
+      })
+    })
   })
 
   describe('files', function () {

@@ -4,6 +4,8 @@ import {setValueAtPath} from "../utils.js";
 import {type Alias, type BaseSchema, type Entry, flatten} from "../schemes/base.js";
 import type {SecretSchema} from "../schemes/secret.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
+import {AjvSchemaValidator} from "../validation/ajv.js";
+import type {JSONSchema} from "json-schema-to-typescript";
 
 export type EnvSourceOpts = {
   /**
@@ -27,6 +29,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
   key: "envs" = "envs" as const
 
   #opts: Required<EnvSourceOpts>
+  #validator = new AjvSchemaValidator()
 
   constructor(config: Required<EnvSourceOpts>) {
     this.#opts = config
@@ -51,13 +54,19 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
       const defaultEnvKey = this.#buildEnvKeyFromPath(entry.key)
       const allEnvKeys = [defaultEnvKey, ...envAliases.map(a => a.id)]
 
-      const envValue = allEnvKeys.map(k => envs[k]).find(v => v !== undefined)
+      const envKeyAndValue = allEnvKeys.map(k => [k, envs[k]] as const).find(([, v]) => v !== undefined)
 
-      if (envValue === undefined) {
+      if (envKeyAndValue === undefined) {
         continue
       }
 
-      setValueAtPath(config, entry.key, entry.value.coerce?.(envValue) ?? envValue)
+      const [ envKey, envValue ] = envKeyAndValue
+
+      const coercedValue = entry.value.coerce?.(envValue) ?? envValue
+
+      this.#validator.validate(entry.value.schema, coercedValue, `Env ${envKey}`)
+
+      setValueAtPath(config, entry.key, coercedValue)
     }
     return config;
   }
@@ -89,6 +98,22 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
   #buildEnvKeyFromPath(path: string[]): string {
     return [this.#opts.prefix, path.join("_").toUpperCase()].join("")
+  }
+
+  #buildValidationSchema(entries: Entry[]) {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {},
+      required: []
+    }
+
+    for (const entry of entries) {
+      const envKey = this.#buildEnvKeyFromPath(entry.key)
+
+      schema.properties![envKey] = entry.value.schema
+    }
+
+    return schema
   }
 }
 
