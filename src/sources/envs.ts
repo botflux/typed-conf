@@ -2,6 +2,7 @@ import type {Source} from "./source.js";
 import {
   type Alias,
   type BaseSchema,
+  type Entry,
   flatten,
   type ObjectSchema,
   type ObjectSpec,
@@ -39,7 +40,12 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
   async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env): Promise<Record<string, unknown>> {
     const entries = flatten(schema)
+    const config = this.#loadConfigFromEnvs(entries, envs)
 
+    return Promise.resolve(config)
+  }
+
+  #loadConfigFromEnvs(entries: Entry[], envs: NodeJS.ProcessEnv) {
     const filteredEntries = !this.#opts.loadSecrets
       ? entries.filter(e => !isSecret(e.value))
       : entries
@@ -59,8 +65,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
       setValueAtPath(config, entry.key, entry.value.coerce?.(envValue) ?? envValue)
     }
-
-    return Promise.resolve(config)
+    return config;
   }
 
   getEvaluatorFunction(loaded: Record<string, unknown>, deps: NodeJS.ProcessEnv = process.env): EvaluatorFunction {
