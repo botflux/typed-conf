@@ -1,5 +1,4 @@
-import type {Source, SourcesToRecord, ConfigWithMetadata} from "./sources/source.js";
-import {extractValues, mergeWithMetadata} from "./sources/metadata-utils.js";
+import type {Source, SourcesToRecord} from "./sources/source.js";
 import {
   type BaseSchema, type BaseSchemaBuilder,
   boolean,
@@ -12,7 +11,7 @@ import {
   secret,
   string
 } from "./schemes.js";
-
+import {merge} from "merge-anything";
 import {type IndirectionEvaluator} from "./indirection/evaluator.js";
 import {compileIndirectionExpression} from "./indirection/compiler.js";
 import {DefaultEvaluator} from "./indirection/default-evaluator.js";
@@ -64,32 +63,31 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
 
   async load(opts: LoadOpts<Sources>): Promise<Prettify<Schema["schema"][typeof kType]>> {
     const { sources } = opts
-    let previouslyLoaded: ConfigWithMetadata = {}
+    let previouslyLoaded = {}
 
     for (const source of this.sources) {
       // @ts-expect-error
       const o = sources[source.key]
       const loaded = await source.load(this.configSchema.schema, previouslyLoaded, o) as any
 
-      previouslyLoaded = mergeWithMetadata(previouslyLoaded, loaded)
+      previouslyLoaded = merge(previouslyLoaded, loaded)
     }
 
     const evaluator = new DefaultEvaluator()
-    const extractedValues = extractValues(previouslyLoaded)
 
     for (const source of this.sources) {
       if ('getEvaluatorFunction' in source) {
         evaluator.registerFunction(source.getEvaluatorFunction(
-          extractedValues,
+          previouslyLoaded,
           // @ts-expect-error
           sources[source.key]
         ))
       }
     }
 
-    await this.#resolveIndirection(extractedValues, evaluator)
+    await this.#resolveIndirection(previouslyLoaded, evaluator)
 
-    return this.#validator.validate(this.configSchema.schema, extractedValues, previouslyLoaded) as Prettify<Schema["schema"][typeof kType]>
+    return this.#validator.validate(this.configSchema.schema, previouslyLoaded) as Prettify<Schema["schema"][typeof kType]>
   }
 
   async #resolveIndirection(obj: Record<string, unknown>, evaluator: IndirectionEvaluator): Promise<void> {

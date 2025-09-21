@@ -1,7 +1,7 @@
 import {type FileHandle, readFile} from "node:fs/promises"
 import  {type ObjectEncodingOptions, type OpenMode, type PathLike} from "node:fs";
 import type {Abortable} from "node:events";
-import type {Source, ConfigWithMetadata, SourceValue} from "./source.js";
+import type {Source} from "./source.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes.js";
 import * as fs from "node:fs";
 
@@ -96,29 +96,11 @@ class FileSource implements Source<"file", FileSourceDeps> {
     this.#opts = opts;
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: ConfigWithMetadata, deps?: FileSourceDeps): Promise<ConfigWithMetadata> {
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: FileSourceDeps): Promise<Record<string, unknown>> {
     const fs = deps?.fs ?? regularFs
     const file = await fs.readFile(this.#opts.file, "utf-8")
-    const parsed = JSON.parse(file)
 
-    return this.#wrapWithMetadata(parsed, this.#opts.file)
-  }
-
-  #wrapWithMetadata(obj: any, filePath: string, keyPath: string[] = []): ConfigWithMetadata {
-    if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
-      const sourceValue: SourceValue = {
-        value: obj,
-        source: "file",
-        originalNameInSource: keyPath.length > 0 ? keyPath.join(".") : "<root>"
-      }
-      return sourceValue as any
-    }
-
-    const result: ConfigWithMetadata = {}
-    for (const [key, value] of Object.entries(obj)) {
-      result[key] = this.#wrapWithMetadata(value, filePath, [...keyPath, key])
-    }
-    return result
+    return JSON.parse(file)
   }
 }
 

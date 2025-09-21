@@ -1,4 +1,4 @@
-import type {Source, SourceValue, ConfigWithMetadata} from "./source.js";
+import type {Source} from "./source.js";
 import {
   type Alias,
   type BaseSchema,
@@ -36,7 +36,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     this.#opts = config
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: ConfigWithMetadata, envs: NodeJS.ProcessEnv = process.env): Promise<ConfigWithMetadata> {
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env): Promise<Record<string, unknown>> {
     const entries = flatten(schema)
 
     const filteredEntries = !this.#opts.loadSecrets
@@ -51,12 +51,10 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
       const allEnvKeys = [defaultEnvKey, ...envAliases.map(a => a.id)]
 
       let envValue = undefined
-      let usedEnvKey = undefined
 
       for (const envKey of allEnvKeys) {
         if (envs[envKey] !== undefined) {
           envValue = envs[envKey]
-          usedEnvKey = envKey
           break
         }
       }
@@ -88,14 +86,8 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
         throw new Error("key is undefined")
       }
 
-      const sourceValue: SourceValue = {
-        value: entry.value.coerce?.(envValue) ?? envValue,
-        source: "env",
-        originalNameInSource: usedEnvKey!
-      }
-
       Object.defineProperty(tmp, key, {
-        value: sourceValue,
+        value: entry.value.coerce?.(envValue) ?? envValue,
         enumerable: true,
         configurable: true,
         writable: true
