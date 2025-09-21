@@ -8,6 +8,7 @@ import {
   type SecretSchema
 } from "../schemes.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
+import {setValueAtPath} from "../utils.js";
 
 export type EnvSourceOpts = {
   /**
@@ -47,51 +48,16 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
     for (const entry of filteredEntries) {
       const envAliases = entry.value.aliases.filter(a => a.sourceKey === "envs")
-      const defaultEnvKey = [this.#opts.prefix, entry.key.join("_").toUpperCase()].join("")
+      const defaultEnvKey = this.#buildEnvKeyFromPath(entry.key)
       const allEnvKeys = [defaultEnvKey, ...envAliases.map(a => a.id)]
 
-      let envValue = undefined
-
-      for (const envKey of allEnvKeys) {
-        if (envs[envKey] !== undefined) {
-          envValue = envs[envKey]
-          break
-        }
-      }
+      const envValue = allEnvKeys.map(k => envs[k]).find(v => v !== undefined)
 
       if (envValue === undefined) {
         continue
       }
 
-      let tmp = config
-      const intermediateObjectPath = entry.key.slice(0, -1)
-
-      // Asserts intermediate objects are created.
-      for (const chunk of intermediateObjectPath) {
-        if (!(chunk in tmp)) {
-          Object.defineProperty(tmp, chunk, {
-            value: {},
-            enumerable: true,
-            configurable: true,
-            writable: true
-          })
-        }
-        // @ts-expect-error
-        tmp = tmp[chunk]
-      }
-
-      const key = entry.key.at(-1)
-
-      if (key === undefined) {
-        throw new Error("key is undefined")
-      }
-
-      Object.defineProperty(tmp, key, {
-        value: entry.value.coerce?.(envValue) ?? envValue,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      })
+      setValueAtPath(config, entry.key, entry.value.coerce?.(envValue) ?? envValue)
     }
 
     return Promise.resolve(config)
@@ -120,6 +86,10 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
   loadByKey(envKey: string, envs: NodeJS.ProcessEnv): string | undefined {
     return envs[envKey]
+  }
+
+  #buildEnvKeyFromPath(path: string[]): string {
+    return [this.#opts.prefix, path.join("_").toUpperCase()].join("")
   }
 }
 
