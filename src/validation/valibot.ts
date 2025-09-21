@@ -4,6 +4,8 @@ import * as v from "valibot"
 import * as t from "../schemes.js"
 import {type BaseIssue, isValiError, type ValiError} from "valibot";
 import {BaseVisitor} from "../visitor/base-visitor.js";
+import type {ObjectSpec} from "../schemes.js";
+import type {LoadedConfig} from "../sources/source.js";
 
 class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue<unknown>>> {
   build(schema: t.ObjectSchema<t.ObjectSpec>): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
@@ -52,5 +54,9 @@ export class ValibotValidator implements Validator {
     } catch (e: unknown) {
       throw e
     }
+  }
+
+  validate2(schema: t.ObjectSchema<t.ObjectSpec>, object: LoadedConfig): LoadedConfig {
+    throw new Error("Not implemented at line 60 in valibot.ts")
   }
 }

@@ -1,4 +1,4 @@
-import type {Source, SourceValue} from "./source.js";
+import type {Source, LoadedValue, LoadedConfig} from "./source.js";
 import {
   type Alias,
   type BaseSchema,
@@ -97,7 +97,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     return Promise.resolve(config)
   }
 
-  async load2(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, SourceValue<unknown>>, envs: NodeJS.ProcessEnv = process.env): Promise<Record<string, SourceValue<unknown>>> {
+  async load2(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, LoadedValue<unknown>>, envs: NodeJS.ProcessEnv = process.env): Promise<LoadedConfig> {
     const entries = flatten(schema)
 
     const filteredEntries = !this.#opts.loadSecrets
@@ -149,7 +149,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
         throw new Error("key is undefined")
       }
 
-      const value: SourceValue<unknown> = {
+      const value: LoadedValue<unknown> = {
         nameInSource: foundEnvKey!,
         source: "envs",
         value: entry.value.coerce?.(envValue) ?? envValue
