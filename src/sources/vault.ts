@@ -1,5 +1,5 @@
 import {object, type ObjectSchema, type ObjectSpec, secret, string} from "../schemes.js";
-import type {Source, LoadedValue, LoadedConfig} from "./source.js";
+import type {Source, SourceValue} from "./source.js";
 import vault from "node-vault"
 import type {Static} from "../loader.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
@@ -29,7 +29,7 @@ class VaultSource implements Source<"vault", undefined> {
     return {}
   }
 
-  load2(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, LoadedValue<unknown>>, deps: undefined): Promise<LoadedConfig> {
+  load2(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, SourceValue<unknown>>, deps: undefined): Promise<Record<string, SourceValue<unknown>>> {
     return Promise.resolve({});
   }
 

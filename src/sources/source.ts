@@ -2,18 +2,11 @@ import type {ObjectSchema, ObjectSpec} from "../schemes.js";
 import type {IndirectionEvaluator} from "../indirection/evaluator.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
-export type LoadedValue<T> = {
+export type SourceValue<T> = {
   value: T
   source: string
   nameInSource: string
 }
-
-export type LoadedValues = {
-  [key: string]: Values
-}
-
-export type Values = LoadedValue<unknown> | LoadedValues
-export type LoadedConfig = Record<string, Values>
 
 export interface Source<K extends string, Deps> {
   /**
@@ -35,7 +28,7 @@ export interface Source<K extends string, Deps> {
    */
   load: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: Deps) => Promise<Record<string, unknown>>
 
-  load2: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, LoadedValue<unknown>>, deps?: Deps) => Promise<LoadedConfig>
+  load2: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, SourceValue<unknown>>, deps?: Deps) => Promise<Record<string, SourceValue<unknown>>>
 
   /**
    * Returns a function that will be executed during
