@@ -1,4 +1,5 @@
 import type {Visitor} from "./visitor/visitor.js";
+import { type JSONSchema } from "json-schema-to-typescript"
 
 export const kType = Symbol("type")
 
@@ -8,6 +9,7 @@ export type BaseSchema<T> = {
   aliases: Alias[]
   optional: boolean
   accept<R>(visitor: Visitor<R>): R
+  schema: JSONSchema
 }
 
 export interface BaseSchemaBuilder<S extends BaseSchema<unknown>> {
@@ -87,6 +89,12 @@ export class ObjectSchemaBuilder<T extends ObjectSpec> implements BaseSchemaBuil
         return visitor.visitObject(this)
       },
       spec,
+      schema: {
+        type: "object",
+        properties: {},
+        required: [],
+        additionalProperties: false
+      } as JSONSchema
     }
   }
 
@@ -116,7 +124,6 @@ export function object<T extends ObjectSpec>(spec: T): ObjectSchemaBuilder<T> {
 }
 
 class StringSchemaCls implements StringSchemaBuilder {
-
   schema: StringSchema = {
     [kType]: "string" as const,
     optional: false,
@@ -124,7 +131,10 @@ class StringSchemaCls implements StringSchemaBuilder {
     accept<R>(visitor: Visitor<R>): R {
       return visitor.visitString(this)
     },
-    type: "string"
+    type: "string",
+    schema: {
+      type: "string",
+    }
   }
 
   optional(): this {
@@ -149,7 +159,10 @@ class SecretSchemaCls implements SecretSchemaBuilder {
       accept<R>(visitor: Visitor<R>): R {
           return visitor.visitSecret(this)
       },
-      type: "secret"
+      type: "secret",
+      schema: {
+        type: "string"
+      }
     }
 
     optional(): this {
@@ -187,6 +200,9 @@ class BooleanSchemaCls implements BooleanSchemaBuilder {
         if (lowercase === "true") return true
 
         return value
+      },
+      schema: {
+        type: "boolean"
       }
     }
 
@@ -226,6 +242,9 @@ class IntegerSchemaCls implements IntegerSchemaBuilder {
         }
 
         return parsed
+      },
+      schema: {
+        type: "integer"
       }
     }
 
@@ -265,6 +284,9 @@ class FloatSchemaCls implements FloatSchemaBuilder {
       }
 
       return parsed
+    },
+    schema: {
+      type: "number"
     }
   }
 

@@ -16,6 +16,7 @@
     "@testcontainers/vault": "^11.5.1",
     "@types/node": "^24.1.0",
     "borp": "^0.20.1",
+    "json-schema-to-typescript": "^15.0.4",
     "typescript": "^5.9.2"
   },
   "dependencies": {
