@@ -2,12 +2,6 @@ import type {ObjectSchema, ObjectSpec} from "../schemes.js";
 import type {IndirectionEvaluator} from "../indirection/evaluator.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 
-export type SourceValue<T> = {
-  value: T
-  source: string
-  nameInSource: string
-}
-
 export interface Source<K extends string, Deps> {
   /**
    * The string identifier of the source.
@@ -27,8 +21,6 @@ export interface Source<K extends string, Deps> {
    *             or mocked filesystem.
    */
   load: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: Deps) => Promise<Record<string, unknown>>
-
-  load2: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, SourceValue<unknown>>, deps?: Deps) => Promise<Record<string, SourceValue<unknown>>>
 
   /**
    * Returns a function that will be executed during
