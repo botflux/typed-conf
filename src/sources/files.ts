@@ -1,9 +1,8 @@
 import {type FileHandle, readFile} from "node:fs/promises"
-import  {type ObjectEncodingOptions, type OpenMode, type PathLike} from "node:fs";
+import {type ObjectEncodingOptions, type OpenMode, type PathLike} from "node:fs";
 import type {Abortable} from "node:events";
-import type {Source} from "./source.js";
+import type {Source, SourceValue} from "./source.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes.js";
-import * as fs from "node:fs";
 
 export interface FileSystem {
   readFile: typeof readFile
@@ -101,6 +100,21 @@ class FileSource implements Source<"file", FileSourceDeps> {
     const file = await fs.readFile(this.#opts.file, "utf-8")
 
     return JSON.parse(file)
+  }
+
+  async load2(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, SourceValue<unknown>>, deps: FileSourceDeps | undefined): Promise<Record<string, SourceValue<unknown>>> {
+    const fs = deps?.fs ?? regularFs
+    const file = await fs.readFile(this.#opts.file, "utf-8")
+
+    return JSON.parse(file, (key, value) => {
+      if (typeof value !== "object") {
+        return {
+          value,
+          source: `file ${this.#opts.file}`,
+          nameInSource: key
+        } satisfies SourceValue<unknown>
+      }
+    })
   }
 }
 
