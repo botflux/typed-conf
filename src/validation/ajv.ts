@@ -4,7 +4,7 @@ import {Ajv, type ErrorObject, type Schema} from "ajv";
 import {getValueAtPath} from "../utils.js";
 
 export class AjvSchemaValidator implements SchemaValidator {
-  #ajv = new Ajv({ coerceTypes: true })
+  #ajv = new Ajv()
 
   validate(schema: JSONSchema, toValidate: unknown, name: string): void {
     const isValid = this.#ajv.compile(schema as Schema)

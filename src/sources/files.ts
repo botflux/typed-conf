@@ -1,12 +1,10 @@
 import {type FileHandle, readFile} from "node:fs/promises"
 import  {type ObjectEncodingOptions, type OpenMode, type PathLike} from "node:fs";
 import type {Abortable} from "node:events";
-import {DefaultRawConfig, type RawConfig, type Source} from "./source.js";
+import type {Source} from "./source.js";
 import * as fs from "node:fs";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 import {AjvSchemaValidator} from "../validation/ajv.js";
-import type {BaseSchema, BaseSchemaBuilder} from "../schemes/base.js";
-import type {Static} from "../loader.js";
 
 export interface FileSystem {
   readFile: typeof readFile
@@ -101,7 +99,7 @@ class FileSource implements Source<"file", FileSourceDeps> {
     this.#opts = opts;
   }
 
-  async load<S extends BaseSchemaBuilder<BaseSchema<unknown>>>(schema: S, loaded: Record<string, unknown>, deps?: FileSourceDeps): Promise<RawConfig<Static<S>>> {
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: FileSourceDeps): Promise<Record<string, unknown>> {
     const fs = deps?.fs ?? regularFs
     const file = await fs.readFile(this.#opts.file, "utf-8")
 
@@ -111,16 +109,9 @@ class FileSource implements Source<"file", FileSourceDeps> {
       throw new Error("Not implemented at line 106 in files.ts")
     }
 
-    // this.#validator.validate(schema.schema, parsed, `file ${this.#opts.file}`)
+    this.#validator.validate(schema.schema, parsed, `file ${this.#opts.file}`)
 
-    // return parsed
-
-    return new DefaultRawConfig<unknown, Static<S>>(
-      `file ${this.#opts.file}`,
-      parsed,
-      schema.schema.schema,
-      value => value
-    )
+    return parsed
   }
 }
 
