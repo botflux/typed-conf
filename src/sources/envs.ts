@@ -106,22 +106,6 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
   #buildEnvKeyFromPath(path: string[]): string {
     return [this.#opts.prefix, path.join("_").toUpperCase()].join("")
   }
-
-  #buildValidationSchema(entries: Entry[]) {
-    const schema: JSONSchema = {
-      type: "object",
-      properties: {},
-      required: []
-    }
-
-    for (const entry of entries) {
-      const envKey = this.#buildEnvKeyFromPath(entry.key)
-
-      schema.properties![envKey] = entry.value.schema
-    }
-
-    return schema
-  }
 }
 
 export function envSource(opts: EnvSourceOpts = {}): Source<"envs", NodeJS.ProcessEnv> {
