@@ -1,5 +1,10 @@
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
+import type {SchemaValidator} from "../validation/validator.js";
+import type {JSONSchema} from "json-schema-to-typescript";
+import {transform} from "valibot";
+import type {Static} from "../loader.js";
+import type {BaseSchema, BaseSchemaBuilder} from "../schemes/base.js";
 
 export interface Source<K extends string, Deps> {
   /**
@@ -15,17 +20,41 @@ export interface Source<K extends string, Deps> {
    *
    * @param schema The configuration schema
    * @param loaded The configuration that was already loaded.
-   * @param opts The source load-time dependencies.
+   * @param deps
    *             This parameter is useful when testing because it allows injecting env variables
    *             or mocked filesystem.
    */
-  load: (schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: Deps) => Promise<Record<string, unknown>>
+  load<S extends BaseSchemaBuilder<BaseSchema<unknown>>> (schema: S, loaded: Record<string, unknown>, deps?: Deps): Promise<RawConfig<Static<S>>>
 
   /**
    * Returns a function that will be executed during
    * indirection expression evaluation.
    */
   getEvaluatorFunction?(loaded: Record<string, unknown>, deps?: Deps): EvaluatorFunction
+}
+
+export interface RawConfig<T> {
+  validate(validator: SchemaValidator): T
+}
+
+export class DefaultRawConfig<SourceRepresentation, Validated> implements RawConfig<Validated> {
+  #sourceName: string
+  #unvalidated: unknown
+  #schema: JSONSchema
+
+  #transform: (value: SourceRepresentation) => Validated
+
+  constructor(sourceName: string, unvalidated: unknown, schema: JSONSchema, transform: (value: SourceRepresentation) => Validated) {
+    this.#sourceName = sourceName;
+    this.#unvalidated = unvalidated;
+    this.#schema = schema;
+    this.#transform = transform;
+  }
+
+  validate(validator: SchemaValidator): Validated {
+    validator.validate(this.#schema, this.#unvalidated, this.#sourceName)
+    return this.#transform(this.#unvalidated as SourceRepresentation)
+  }
 }
 
 export type ExtractItemFromArray<T> = T extends Array<infer U> ? U : never

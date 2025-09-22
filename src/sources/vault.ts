@@ -1,10 +1,11 @@
-import type {Source} from "./source.js";
+import {DefaultRawConfig, type RawConfig, type Source} from "./source.js";
 import vault from "node-vault"
 import type {Static} from "../loader.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 import {string} from "../schemes/string.js";
 import {secret} from "../schemes/secret.js";
 import {object, type ObjectSchema, type ObjectSpec} from "../schemes/object.js";
+import type {BaseSchema, BaseSchemaBuilder} from "../schemes/base.js";
 
 export const vaultConfig = object({
   endpoint: string(),
@@ -27,8 +28,13 @@ class VaultSource implements Source<"vault", undefined> {
     return await client.read(path) as unknown
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps: undefined): Promise<Record<string, unknown>> {
-    return {}
+  async load<S extends BaseSchemaBuilder<BaseSchema<unknown>>>(schema: S, loaded: Record<string, unknown>, deps: undefined): Promise<RawConfig<Static<S>>> {
+    return new DefaultRawConfig<unknown, Static<S>>(
+      "vault",
+      {},
+      { type: "object", properties: {}, required: [], additionalProperties: false },
+      value => value
+    )
   }
 
   getEvaluatorFunction(loaded: Record<string, unknown>, deps?: undefined): EvaluatorFunction {

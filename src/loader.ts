@@ -12,6 +12,7 @@ import {integer} from "./schemes/integer.js";
 import {float} from "./schemes/float.js";
 import {secret} from "./schemes/secret.js";
 import {object, type ObjectSchema, ObjectSchemaBuilder} from "./schemes/object.js";
+import {AjvSchemaValidator} from "./validation/ajv.js";
 
 export const c = {
   config,
@@ -50,6 +51,7 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
   sources: Sources
 
   #validator = new ValibotValidator()
+  #ajv = new AjvSchemaValidator()
 
   constructor(configSchema: Schema, sources: Sources) {
     this.configSchema = configSchema;
@@ -63,9 +65,9 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
     for (const source of this.sources) {
       // @ts-expect-error
       const o = sources[source.key]
-      const loaded = await source.load(this.configSchema.schema, previouslyLoaded, o) as any
+      const rawConfig = await source.load(this.configSchema, previouslyLoaded, o)
 
-      previouslyLoaded = merge(previouslyLoaded, loaded)
+      previouslyLoaded = merge(previouslyLoaded, rawConfig.validate(this.#ajv))
     }
 
     const evaluator = new DefaultEvaluator()

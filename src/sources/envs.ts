@@ -1,11 +1,12 @@
-import type {Source} from "./source.js";
+import {DefaultRawConfig, type RawConfig, type Source} from "./source.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 import {setValueAtPath} from "../utils.js";
-import {type Alias, type BaseSchema, type Entry, flatten} from "../schemes/base.js";
+import {type Alias, type BaseSchema, type BaseSchemaBuilder, type Entry, flatten} from "../schemes/base.js";
 import type {SecretSchema} from "../schemes/secret.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 import {AjvSchemaValidator} from "../validation/ajv.js";
 import type {JSONSchema} from "json-schema-to-typescript";
+import type {Static} from "../loader.js";
 
 export type EnvSourceOpts = {
   /**
@@ -35,11 +36,37 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     this.#opts = config
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env): Promise<Record<string, unknown>> {
-    const entries = flatten(schema)
-    const config = this.#loadConfigFromEnvs(entries, envs)
+  async load<S extends BaseSchemaBuilder<BaseSchema<unknown>>>(schema: S, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env): Promise<RawConfig<Static<S>>> {
+    const entries = flatten(schema.schema as unknown as ObjectSchema<ObjectSpec>)
+    // const config = this.#loadConfigFromEnvs(entries, envs)
 
-    return Promise.resolve(config)
+    return new DefaultRawConfig<NodeJS.ProcessEnv, Static<S>>(
+      "envs",
+      envs,
+      this.#buildJSONSchema(entries),
+      value => this.#loadConfigFromEnvs(entries, value)
+    )
+  }
+
+  #buildJSONSchema(entries: Entry[]): JSONSchema {
+    const properties = entries.flatMap(entry => {
+      const baseSchema = entry.value.schema
+
+      const envAliases = this.#getAliases(entry)
+      const envKey = this.#buildEnvKeyFromPath(entry.key)
+
+      return [
+        envKey,
+        ...envAliases.map(a => a.sourceKey)
+      ].map(envKey => [ envKey, baseSchema ] as const)
+    })
+
+    return {
+      type: "object",
+      properties: Object.fromEntries(properties),
+      required: [],
+      additionalProperties: true
+    }
   }
 
   #loadConfigFromEnvs(entries: Entry[], envs: NodeJS.ProcessEnv) {
@@ -60,22 +87,17 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
         continue
       }
 
-      const [ envKey, envValue ] = envKeyAndValue
+      const [ , envValue ] = envKeyAndValue
 
       const coercedValue = entry.value.coerce?.(envValue) ?? envValue
-
-      this.#validator.validate({
-        type: "object",
-        properties: {
-          [envKey]: entry.value.schema
-        },
-      }, {
-        [envKey]: coercedValue
-      }, "Env")
 
       setValueAtPath(config, entry.key, coercedValue)
     }
     return config;
+  }
+
+  #getAliases(entry: Entry): Alias[] {
+    return entry.value.aliases.filter(a => a.sourceKey === "envs")
   }
 
   getEvaluatorFunction(loaded: Record<string, unknown>, deps: NodeJS.ProcessEnv = process.env): EvaluatorFunction {
@@ -107,21 +129,6 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     return [this.#opts.prefix, path.join("_").toUpperCase()].join("")
   }
 
-  #buildValidationSchema(entries: Entry[]) {
-    const schema: JSONSchema = {
-      type: "object",
-      properties: {},
-      required: []
-    }
-
-    for (const entry of entries) {
-      const envKey = this.#buildEnvKeyFromPath(entry.key)
-
-      schema.properties![envKey] = entry.value.schema
-    }
-
-    return schema
-  }
 }
 
 export function envSource(opts: EnvSourceOpts = {}): Source<"envs", NodeJS.ProcessEnv> {
