@@ -1,4 +1,3 @@
-import type {IndirectionEvaluator} from "../indirection/evaluator.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 
