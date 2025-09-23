@@ -185,11 +185,25 @@ describe('file config loading', function () {
     assert.deepStrictEqual(config, { host: "localhost" })
   })
 
-  test.todo("should be able to validate the config loaded from a file", (t) => {
+  test("should be able to validate the config loaded from a file", async (t) => {
     // Given
+    const fs = new FakeFileSystem().addFile("config.json", JSON.stringify({ port: "not-an-integer" }))
+    const configSpec = c.config({
+      schema: c.object({
+        port: c.integer()
+      }),
+      sources: [ fileSource({ file: "config.json" }) ]
+    })
 
     // When
+    const promise = configSpec.load({
+      sources: {
+        file: { fs }
+      }
+    })
+
     // Then
+    await assert.rejects(promise, new Error("port (file config.json) must be integer, got 'not-an-integer'"))
   })
 
   test.todo("should be able to ignore additional properties", (t) => {
