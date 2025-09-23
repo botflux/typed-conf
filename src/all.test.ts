@@ -139,6 +139,115 @@ describe('env variable loading', function () {
       host: "localhost"
     })
   })
+
+  test.todo("should be able to ignore additional envs", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+})
+
+describe('file config loading', function () {
+  test.todo("should be able to load a config from a json file", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+
+  test.todo("should be able to validate the config loaded from a file", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+
+  test.todo("should be able to ignore additional properties", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+})
+
+describe('hashicorp vault secret loading', function () {
+  test.todo("should be able to not load anything by default", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+
+  test.todo("should be able to load static secrets", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+
+  test.todo("should be able to load dynamic secrets", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+})
+
+describe('merging configurations', function () {
+  test.todo("should be able to merge configuration coming from multiple sources", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+
+  test.todo("should be able to throw an error if the a config property is missing", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+})
+
+describe('config interpolation', function () {
+  test.todo("should be able to evaluate interpolation expression", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+})
+
+describe('deprecation', function () {
+  test.todo("should be able to mark a config as deprecated", (t) => {
+    // Given
+    // When
+    // Then
+  })
+})
+
+describe('reporting', function () {
+  test.todo("should be able to report if a config from a given file is overridden", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+
+  test.todo("should be able to report the origin of each config", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
+
+  test.todo("should be able to report given a deprecated config field was provided", (t) => {
+    // Given
+
+    // When
+    // Then
+  })
 })
 
 describe("testing", () => {
