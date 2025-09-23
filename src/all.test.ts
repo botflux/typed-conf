@@ -162,11 +162,27 @@ describe('env variable loading', function () {
 })
 
 describe('file config loading', function () {
-  test.todo("should be able to load a config from a json file", (t) => {
+  test("should be able to load a config from a json file", async (t) => {
     // Given
+    const fs = new FakeFileSystem()
+      .addFile("config.json", JSON.stringify({ host: "localhost" }))
+
+    const configSpec = c.config({
+      schema: c.object({
+        host: c.string()
+      }),
+      sources: [ fileSource({ file: "config.json" }) ]
+    })
 
     // When
+    const config = await configSpec.load({
+      sources: {
+        file: { fs }
+      }
+    })
+
     // Then
+    assert.deepStrictEqual(config, { host: "localhost" })
   })
 
   test.todo("should be able to validate the config loaded from a file", (t) => {
