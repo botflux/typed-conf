@@ -140,11 +140,24 @@ describe('env variable loading', function () {
     })
   })
 
-  test.todo("should be able to ignore additional envs", (t) => {
+  test("should be able to ignore additional envs", async (t) => {
     // Given
+    const configSpec = c.config({
+      schema: c.object({}),
+      sources: [ envSource() ]
+    })
 
     // When
+    const config = await configSpec.load({
+      sources: {
+        envs: {
+          HOST: "localhost",
+        }
+      }
+    })
+
     // Then
+    assert.deepStrictEqual(config, {})
   })
 })
 
