@@ -37,8 +37,16 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
   async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env): Promise<Record<string, unknown>> {
     const entries = flatten(schema)
-    const config = this.#loadConfigFromEnvs(entries, envs)
+    const [ rawEnvs, jsonSchemes, schemes ] = this.#loadConfigFromEnvs(entries, envs)
 
+    this.#validator.validate({
+      type: "object",
+      properties: Object.fromEntries(jsonSchemes.entries()),
+      required: [],
+      additionalProperties: false
+    }, Object.fromEntries(rawEnvs.entries()), this.key)
+
+    const config = this.#envsToRecord(rawEnvs, schemes)
     return Promise.resolve(config)
   }
 
@@ -47,10 +55,12 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
       ? entries.filter(e => !isSecret(e.value))
       : entries
 
-    const config = {}
+    const config = new Map<string, unknown>()
+    const jsonSchemes = new Map<string, JSONSchema>()
+    const schemes = new Map<string, Entry>()
 
     for (const entry of filteredEntries) {
-      const envAliases = entry.value.aliases.filter(a => a.sourceKey === "envs")
+      const envAliases = this.#getEnvAliases(entry)
       const defaultEnvKey = this.#buildEnvKeyFromPath(entry.key)
       const allEnvKeys = [defaultEnvKey, ...envAliases.map(a => a.id)]
 
@@ -64,18 +74,25 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
       const coercedValue = entry.value.coerce?.(envValue) ?? envValue
 
-      this.#validator.validate({
-        type: "object",
-        properties: {
-          [envKey]: entry.value.schema
-        },
-      }, {
-        [envKey]: coercedValue
-      }, "Env")
-
-      setValueAtPath(config, entry.key, coercedValue)
+      config.set(envKey, coercedValue)
+      jsonSchemes.set(envKey, entry.value.schema)
+      schemes.set(envKey, entry)
     }
-    return config;
+    return [ config, jsonSchemes, schemes ] as const;
+  }
+
+  #getEnvAliases(entry: Entry) {
+    return entry.value.aliases.filter(a => a.sourceKey === "envs");
+  }
+
+  #envsToRecord(envs: Map<string, unknown>, schemes: Map<string, Entry>): Record<string, unknown> {
+    let record: Record<string, unknown> = {}
+
+    for (const [ key, value ] of schemes) {
+      setValueAtPath(record, value.key, envs.get(key))
+    }
+
+    return record
   }
 
   getEvaluatorFunction(loaded: Record<string, unknown>, deps: NodeJS.ProcessEnv = process.env): EvaluatorFunction {

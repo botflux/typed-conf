@@ -332,7 +332,7 @@ describe("testing", () => {
         })
 
         // Then
-        await assert.rejects(promise, new Error("PORT (Env) must be integer, got 'not-an-integer'"))
+        await assert.rejects(promise, new Error("PORT (envs) must be integer, got 'not-an-integer'"))
       })
     })
   })
