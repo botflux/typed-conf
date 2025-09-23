@@ -206,11 +206,25 @@ describe('file config loading', function () {
     await assert.rejects(promise, new Error("port (file config.json) must be integer, got 'not-an-integer'"))
   })
 
-  test.todo("should be able to ignore additional properties", (t) => {
+  test("should be able to ignore additional properties", async (t) => {
     // Given
+    const fs = new FakeFileSystem().addFile("config.json", JSON.stringify({ port: 8080, host: "localhost" }))
+    const configSpec = c.config({
+      schema: c.object({
+        port: c.integer()
+      }),
+      sources: [ fileSource({ file: "config.json" }) ]
+    })
 
     // When
+    const config = await configSpec.load({
+      sources: {
+        file: { fs }
+      }
+    })
+
     // Then
+    assert.deepStrictEqual(config, { port: 8080 })
   })
 })
 
