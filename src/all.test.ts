@@ -7,16 +7,14 @@ import {VaultContainer} from "@testcontainers/vault";
 import {vaultConfig, vaultSource} from "./sources/vault.js";
 import vault from "node-vault"
 
-describe("testing", () => {
+describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
     // Given
-    const envs = envSource()
-
     const configSpec = c.config({
       schema: c.object({
         host: c.string()
       }),
-      sources: [ envs ]
+      sources: [ envSource() ]
     })
 
     // When
@@ -32,6 +30,118 @@ describe("testing", () => {
     })
   })
 
+  test("should be able to validate the env variables", async (t) => {
+    // Given
+    const configSpec = c.config({
+      schema: c.object({
+        port: c.integer()
+      }),
+      sources: [ envSource() ]
+    })
+
+    // When
+    const promise = configSpec.load({
+      sources: {
+        envs: { PORT: "not-an-integer" }
+      }
+    })
+
+    // Then
+    await assert.rejects(promise, new Error("PORT (envs) must be integer, got 'not-an-integer'"))
+  })
+
+  test("should be able to prefix all the envs", async (t) => {
+    // Given
+    const configSpec = c.config({
+      schema: c.object({
+        host: c.string()
+      }),
+      sources: [ envSource({ prefix: "APP_" }) ]
+    })
+
+    // When
+    const config = await configSpec.load({
+      sources: {
+        envs: { APP_HOST: "localhost" }
+      }
+    })
+
+    // Then
+    assert.deepStrictEqual(config, { host: "localhost" })
+  })
+
+  test("should be able to load nested objects from envs", async (t) => {
+    // Given
+    const configSpec = c.config({
+      schema: c.object({
+        api: c.object({
+          host: c.string()
+        })
+      }),
+      sources: [ envSource() ]
+    })
+
+    // When
+    const config = await configSpec.load({
+      sources: {
+        envs: { API_HOST: "localhost" }
+      }
+    })
+
+    // Then
+    assert.deepStrictEqual(config, {
+      api: {
+        host: "localhost"
+      }
+    })
+  })
+
+  test("should be able to define alias for a given env", async (t) => {
+    // Given
+    const configSpec = c.config({
+      schema: c.object({
+        host: c.string().aliases(envAlias("MY_SPECIAL_HOST"))
+      }),
+      sources: [ envSource() ]
+    })
+
+    // When
+    const config = await configSpec.load({
+      sources: {
+        envs: { MY_SPECIAL_HOST: "localhost" }
+      }
+    })
+
+    // Then
+    assert.deepStrictEqual(config, {
+      host: "localhost"
+    })
+  })
+
+  test("should be able to ignore the env prefix when using a env alias", async (t) => {
+    // Given
+    const configSpec = c.config({
+      schema: c.object({
+        host: c.string().aliases(envAlias("HOST"))
+      }),
+      sources: [ envSource({ prefix: "APP_" }) ]
+    })
+
+    // When
+    const config = await configSpec.load({
+      sources: {
+        envs: { HOST: "localhost" }
+      }
+    })
+
+    // Then
+    assert.deepStrictEqual(config, {
+      host: "localhost"
+    })
+  })
+})
+
+describe("testing", () => {
   test("should be able to load a config from envs with a prefix", async t => {
     // Given
     const envs = envSource({ prefix: "APP_" })
