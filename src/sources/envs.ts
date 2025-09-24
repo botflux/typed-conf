@@ -52,7 +52,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
 
   #loadConfigFromEnvs(entries: Entry[], envs: NodeJS.ProcessEnv) {
     const filteredEntries = !this.#opts.loadSecrets
-      ? entries.filter(e => !isSecret(e.value))
+      ? entries.filter(e => !isSecret(e.value) || !e.value.secret)
       : entries
 
     const config = new Map<string, unknown>()

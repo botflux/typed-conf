@@ -34,7 +34,8 @@ class BooleanSchemaCls implements BooleanSchemaBuilder {
     },
     schema: {
       type: "boolean"
-    }
+    },
+    secret: false
   }
 
   optional(): this {

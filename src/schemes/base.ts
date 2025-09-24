@@ -10,6 +10,7 @@ export type BaseSchema<T> = {
   optional: boolean
   accept<R>(visitor: Visitor<R>): R
   schema: JSONSchema
+  secret: boolean
 }
 
 export interface BaseSchemaBuilder<S extends BaseSchema<unknown>> {

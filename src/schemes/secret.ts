@@ -22,7 +22,8 @@ class SecretSchemaCls implements SecretSchemaBuilder {
     type: "secret",
     schema: {
       type: "string"
-    }
+    },
+    secret: true,
   }
 
   optional(): this {

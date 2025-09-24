@@ -35,7 +35,8 @@ class FloatSchemaCls implements FloatSchemaBuilder {
     },
     schema: {
       type: "number"
-    }
+    },
+    secret: false
   }
 
   optional(): this {

@@ -24,7 +24,8 @@ export class ObjectSchemaBuilder<T extends ObjectSpec> implements BaseSchemaBuil
         return visitor.visitObject(this)
       },
       spec,
-      schema: schemaToJSONSchema(spec)
+      schema: schemaToJSONSchema(spec),
+      secret: false
     }
   }
 

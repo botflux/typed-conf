@@ -35,7 +35,8 @@ class IntegerSchemaCls implements IntegerSchemaBuilder {
     },
     schema: {
       type: "integer"
-    }
+    },
+    secret: false
   }
 
   optional(): this {
