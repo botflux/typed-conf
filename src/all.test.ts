@@ -229,17 +229,17 @@ describe('file config loading', function () {
 })
 
 describe('hashicorp vault secret loading', function () {
-  let keycloak!: StartedVaultContainer
+  let vaultContainer!: StartedVaultContainer
   const token = "token"
 
   before(async () => {
-    keycloak = await new VaultContainer("hashicorp/vault:1.20")
+    vaultContainer = await new VaultContainer("hashicorp/vault:1.20")
       .withVaultToken(token)
       .withReuse()
       .start()
   })
 
-  test("should be able to not load anything by default", {only: true}, async (t) => {
+  test("should be able to not load anything by default", async (t) => {
     // Given
     const configSpec = c.config({
       schema: c.object({
@@ -256,7 +256,7 @@ describe('hashicorp vault secret loading', function () {
     const config = await configSpec.load({
       sources: {
         envs: {
-          VAULT_ENDPOINT: keycloak.getAddress(),
+          VAULT_ENDPOINT: vaultContainer.getAddress(),
           VAULT_TOKEN: token
         }
       }
@@ -265,17 +265,53 @@ describe('hashicorp vault secret loading', function () {
     // Then
     assert.deepStrictEqual(config, {
       vault: {
-        endpoint: keycloak.getAddress(),
+        endpoint: vaultContainer.getAddress(),
         token
       }
     })
   })
 
-  test.todo("should be able to load static secrets", (t) => {
+  test("should be able to load static secrets", async (t) => {
     // Given
+    const client = vault({
+      apiVersion: "v1",
+      token: vaultContainer.getRootToken()!,
+      endpoint: vaultContainer.getAddress()
+    })
+
+    await client.write("secret/data/my-secret", {
+      data: {
+        foo: "bar"
+      }
+    })
+
+    const configSpec = c.config({
+      schema: c.object({
+        secret: c.string().secret(),
+        vault: vaultConfig
+      }),
+      sources: [
+        envSource({ loadSecrets: true }),
+        vaultSource(),
+      ]
+    })
 
     // When
+    const config = await configSpec.load({
+      sources: {
+        envs: {
+          VAULT_ENDPOINT: vaultContainer.getAddress(),
+          VAULT_TOKEN: token,
+          SECRET: "%vault('secret/data/my-secret', 'foo')"
+        }
+      }
+    })
+
     // Then
+    assert.deepStrictEqual(config, {
+      vault: { endpoint: vaultContainer.getAddress(), token },
+      secret: "bar"
+    })
   })
 
   test.todo("should be able to load dynamic secrets", (t) => {
