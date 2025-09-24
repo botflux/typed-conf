@@ -1,9 +1,9 @@
-import { describe, test } from "node:test"
+import {before, describe, test} from "node:test"
 import assert from "node:assert/strict"
 import {c} from "./loader.js"
 import {envAlias, envSource} from "./sources/envs.js";
 import {FakeFileSystem, fileSource} from "./sources/files.js";
-import {VaultContainer} from "@testcontainers/vault";
+import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
 import {vaultConfig, vaultSource} from "./sources/vault.js";
 import vault from "node-vault"
 
@@ -229,11 +229,46 @@ describe('file config loading', function () {
 })
 
 describe('hashicorp vault secret loading', function () {
-  test.todo("should be able to not load anything by default", (t) => {
+  let keycloak!: StartedVaultContainer
+  const token = "token"
+
+  before(async () => {
+    keycloak = await new VaultContainer("hashicorp/vault:1.20")
+      .withVaultToken(token)
+      .withReuse()
+      .start()
+  })
+
+  test("should be able to not load anything by default", {only: true}, async (t) => {
     // Given
+    const configSpec = c.config({
+      schema: c.object({
+        secret: c.secret().optional(),
+        vault: vaultConfig
+      }),
+      sources: [
+        envSource({ loadSecrets: true }),
+        vaultSource(),
+      ]
+    })
 
     // When
+    const config = await configSpec.load({
+      sources: {
+        envs: {
+          VAULT_ENDPOINT: keycloak.getAddress(),
+          VAULT_TOKEN: token
+        }
+      }
+    })
+
     // Then
+    assert.deepStrictEqual(config, {
+      vault: {
+        endpoint: keycloak.getAddress(),
+        token
+      }
+    })
   })
 
   test.todo("should be able to load static secrets", (t) => {
