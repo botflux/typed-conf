@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@testcontainers/mongodb": "^11.6.0",
     "@testcontainers/vault": "^11.5.1",
     "@types/node": "^24.1.0",
     "borp": "^0.20.1",

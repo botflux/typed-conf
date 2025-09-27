@@ -1,4 +1,4 @@
-import {before, describe, test} from "node:test"
+import {after, before, describe, test} from "node:test"
 import assert from "node:assert/strict"
 import {c} from "./loader.js"
 import {envAlias, envSource} from "./sources/envs.js";
@@ -6,6 +6,8 @@ import {FakeFileSystem, fileSource} from "./sources/files.js";
 import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
 import {vaultConfig, vaultSource} from "./sources/vault.js";
 import vault from "node-vault"
+import {MongoDBContainer, StartedMongoDBContainer} from "@testcontainers/mongodb";
+import {Network, StartedNetwork} from "testcontainers"
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
@@ -229,14 +231,41 @@ describe('file config loading', function () {
 })
 
 describe('hashicorp vault secret loading', function () {
+  let network!: StartedNetwork
   let vaultContainer!: StartedVaultContainer
+  let mongodbContainer!: StartedMongoDBContainer
   const token = "token"
 
   before(async () => {
+    const mongodbUsername = "test"
+    const mongodbPassword = "testpass"
+    const mongodbNetworkAlias = "mongodb"
+
+    const vaultMongoConfigName = "my-mongodb-database"
+    const vaultMongoRole = "my-role"
+
+    network = await new Network().start()
+    mongodbContainer = await new MongoDBContainer("mongo:8")
+      .withUsername(mongodbUsername)
+      .withPassword(mongodbPassword)
+      .withNetwork(network)
+      .withNetworkAliases(mongodbNetworkAlias)
+      .start()
     vaultContainer = await new VaultContainer("hashicorp/vault:1.20")
       .withVaultToken(token)
-      .withReuse()
+      .withNetwork(network)
+      .withInitCommands(
+        "secrets enable database",
+        vaultConfigureMongoPluginCommand(vaultMongoConfigName, vaultMongoRole, mongodbNetworkAlias, mongodbUsername, mongodbPassword),
+        vaultCreateRoleCommand(vaultMongoConfigName, vaultMongoRole)
+      )
       .start()
+  })
+
+  after(async () => {
+    await vaultContainer.stop()
+    await mongodbContainer.stop()
+    await network.stop()
   })
 
   test("should be able to not load anything by default", async (t) => {
@@ -314,8 +343,16 @@ describe('hashicorp vault secret loading', function () {
     })
   })
 
-  test.todo("should be able to load dynamic secrets", (t) => {
+  test("should be able to load dynamic secrets", { only: true }, async (t) => {
     // Given
+    const client = vault({
+      apiVersion: "v1",
+      token: vaultContainer.getRootToken()!,
+      endpoint: vaultContainer.getAddress()
+    })
+
+    assert.deepStrictEqual(await client.read('database/creds/my-role'), {})
+
 
     // When
     // Then
@@ -795,3 +832,23 @@ describe("testing", () => {
     })
   })
 })
+
+function vaultConfigureMongoPluginCommand(
+  configName: string,
+  allowedRole: string,
+  mongodbAlias: string,
+  mongodbUsername: string,
+  mongodbPassword: string
+) {
+  return `write database/config/${configName} plugin_name=mongodb-database-plugin allowed_roles="${allowedRole}" connection_url="mongodb://{{username}}:{{password}}@${mongodbAlias}:27017/admin?tls=false" username="${mongodbUsername}" password="${mongodbPassword}"`
+}
+
+function vaultCreateRoleCommand(configName: string, role: string) {
+  /*vault write database/roles/my-role \
+    db_name=my-mongodb-database \
+    creation_statements='{ "db": "admin", "roles": [{ "role": "readWrite" }, {"role": "read", "db": "foo"}] }' \
+    default_ttl="1h" \
+    max_ttl="24h"*/
+
+  return `write database/roles/my-role db_name=my-mongodb-database creation_statements='{ "db": "admin", "roles": [{ "role": "readWrite" }, {"role": "read", "db": "foo"}] }' default_ttl="1h" max_ttl="24h"`
+}
