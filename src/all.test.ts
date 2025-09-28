@@ -11,6 +11,7 @@ import {Network, StartedNetwork} from "testcontainers"
 import type { StringSchemaBuilder } from "./schemes/string.js";
 import {expect} from "expect";
 import {boolean} from "./schemes/boolean.js";
+import {MongoClient} from "mongodb";
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
@@ -407,15 +408,8 @@ describe('hashicorp vault secret loading', function () {
     })
   })
 
-  // TODO: test that the secret is valid (it can connect to MongoDB)
   test("should be able to load dynamic secrets", {only: true}, async (t) => {
     // Given
-    const client = vault({
-      apiVersion: "v1",
-      token: vaultContainer.getRootToken()!,
-      endpoint: vaultContainer.getAddress()
-    })
-
     const configSpec = c.config({
       schema: c.object({
         creds: vaultDynamicSecret({
