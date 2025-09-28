@@ -4,10 +4,11 @@ import {c} from "./loader.js"
 import {envAlias, envSource} from "./sources/envs.js";
 import {FakeFileSystem, fileSource} from "./sources/files.js";
 import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
-import {vaultConfig, vaultSource} from "./sources/vault.js";
+import {vaultConfig, vaultDynamicSecret, vaultSource} from "./sources/vault.js";
 import vault from "node-vault"
 import {MongoDBContainer, StartedMongoDBContainer} from "@testcontainers/mongodb";
 import {Network, StartedNetwork} from "testcontainers"
+import type { StringSchemaBuilder } from "./schemes/string.js";
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
@@ -16,13 +17,13 @@ describe('env variable loading', function () {
       schema: c.object({
         host: c.string()
       }),
-      sources: [ envSource() ]
+      sources: [envSource()]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        envs: { HOST: "localhost" }
+        envs: {HOST: "localhost"}
       }
     })
 
@@ -38,13 +39,13 @@ describe('env variable loading', function () {
       schema: c.object({
         port: c.integer()
       }),
-      sources: [ envSource() ]
+      sources: [envSource()]
     })
 
     // When
     const promise = configSpec.load({
       sources: {
-        envs: { PORT: "not-an-integer" }
+        envs: {PORT: "not-an-integer"}
       }
     })
 
@@ -58,18 +59,18 @@ describe('env variable loading', function () {
       schema: c.object({
         host: c.string()
       }),
-      sources: [ envSource({ prefix: "APP_" }) ]
+      sources: [envSource({prefix: "APP_"})]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        envs: { APP_HOST: "localhost" }
+        envs: {APP_HOST: "localhost"}
       }
     })
 
     // Then
-    assert.deepStrictEqual(config, { host: "localhost" })
+    assert.deepStrictEqual(config, {host: "localhost"})
   })
 
   test("should be able to load nested objects from envs", async (t) => {
@@ -80,13 +81,13 @@ describe('env variable loading', function () {
           host: c.string()
         })
       }),
-      sources: [ envSource() ]
+      sources: [envSource()]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        envs: { API_HOST: "localhost" }
+        envs: {API_HOST: "localhost"}
       }
     })
 
@@ -104,13 +105,13 @@ describe('env variable loading', function () {
       schema: c.object({
         host: c.string().aliases(envAlias("MY_SPECIAL_HOST"))
       }),
-      sources: [ envSource() ]
+      sources: [envSource()]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        envs: { MY_SPECIAL_HOST: "localhost" }
+        envs: {MY_SPECIAL_HOST: "localhost"}
       }
     })
 
@@ -126,13 +127,13 @@ describe('env variable loading', function () {
       schema: c.object({
         host: c.string().aliases(envAlias("HOST"))
       }),
-      sources: [ envSource({ prefix: "APP_" }) ]
+      sources: [envSource({prefix: "APP_"})]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        envs: { HOST: "localhost" }
+        envs: {HOST: "localhost"}
       }
     })
 
@@ -146,7 +147,7 @@ describe('env variable loading', function () {
     // Given
     const configSpec = c.config({
       schema: c.object({}),
-      sources: [ envSource() ]
+      sources: [envSource()]
     })
 
     // When
@@ -167,40 +168,40 @@ describe('file config loading', function () {
   test("should be able to load a config from a json file", async (t) => {
     // Given
     const fs = new FakeFileSystem()
-      .addFile("config.json", JSON.stringify({ host: "localhost" }))
+      .addFile("config.json", JSON.stringify({host: "localhost"}))
 
     const configSpec = c.config({
       schema: c.object({
         host: c.string()
       }),
-      sources: [ fileSource({ file: "config.json" }) ]
+      sources: [fileSource({file: "config.json"})]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        file: { fs }
+        file: {fs}
       }
     })
 
     // Then
-    assert.deepStrictEqual(config, { host: "localhost" })
+    assert.deepStrictEqual(config, {host: "localhost"})
   })
 
   test("should be able to validate the config loaded from a file", async (t) => {
     // Given
-    const fs = new FakeFileSystem().addFile("config.json", JSON.stringify({ port: "not-an-integer" }))
+    const fs = new FakeFileSystem().addFile("config.json", JSON.stringify({port: "not-an-integer"}))
     const configSpec = c.config({
       schema: c.object({
         port: c.integer()
       }),
-      sources: [ fileSource({ file: "config.json" }) ]
+      sources: [fileSource({file: "config.json"})]
     })
 
     // When
     const promise = configSpec.load({
       sources: {
-        file: { fs }
+        file: {fs}
       }
     })
 
@@ -210,23 +211,23 @@ describe('file config loading', function () {
 
   test("should be able to ignore additional properties", async (t) => {
     // Given
-    const fs = new FakeFileSystem().addFile("config.json", JSON.stringify({ port: 8080, host: "localhost" }))
+    const fs = new FakeFileSystem().addFile("config.json", JSON.stringify({port: 8080, host: "localhost"}))
     const configSpec = c.config({
       schema: c.object({
         port: c.integer()
       }),
-      sources: [ fileSource({ file: "config.json" }) ]
+      sources: [fileSource({file: "config.json"})]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        file: { fs }
+        file: {fs}
       }
     })
 
     // Then
-    assert.deepStrictEqual(config, { port: 8080 })
+    assert.deepStrictEqual(config, {port: 8080})
   })
 })
 
@@ -276,7 +277,7 @@ describe('hashicorp vault secret loading', function () {
         vault: vaultConfig
       }),
       sources: [
-        envSource({ loadSecrets: true }),
+        envSource({loadSecrets: true}),
         vaultSource(),
       ]
     })
@@ -320,7 +321,7 @@ describe('hashicorp vault secret loading', function () {
         vault: vaultConfig
       }),
       sources: [
-        envSource({ loadSecrets: true }),
+        envSource({loadSecrets: true}),
         vaultSource(),
       ]
     })
@@ -338,12 +339,12 @@ describe('hashicorp vault secret loading', function () {
 
     // Then
     assert.deepStrictEqual(config, {
-      vault: { endpoint: vaultContainer.getAddress(), token },
+      vault: {endpoint: vaultContainer.getAddress(), token},
       secret: "bar"
     })
   })
 
-  test("should be able to load dynamic secrets", { only: true }, async (t) => {
+  test("should be able to load dynamic secrets", {only: true}, async (t) => {
     // Given
     const client = vault({
       apiVersion: "v1",
@@ -351,11 +352,40 @@ describe('hashicorp vault secret loading', function () {
       endpoint: vaultContainer.getAddress()
     })
 
-    assert.deepStrictEqual(await client.read('database/creds/my-role'), {})
-
+    const configSpec = c.config({
+      schema: c.object({
+        creds: vaultDynamicSecret({
+          username: c.string(),
+          password: c.string()
+        }),
+        vault: vaultConfig
+      }),
+      sources: [
+        envSource({loadSecrets: true}),
+        vaultSource(),
+      ]
+    })
 
     // When
+    const config = await configSpec.load({
+      sources: {
+        envs: {
+          VAULT_ENDPOINT: vaultContainer.getAddress(),
+          VAULT_TOKEN: token,
+          CREDS: 'database/creds/my-role'
+        },
+      }
+    })
+
     // Then
+    assert.deepStrictEqual(config, {
+      vault: {endpoint: vaultContainer.getAddress(), token},
+      creds: {
+        username: "test",
+        password: "<PASSWORD>"
+      }
+    })
+    // assert.deepStrictEqual(await client.read('database/creds/my-role'), {})
   })
 })
 
@@ -418,19 +448,19 @@ describe('reporting', function () {
 describe("testing", () => {
   test("should be able to load a config from envs with a prefix", async t => {
     // Given
-    const envs = envSource({ prefix: "APP_" })
+    const envs = envSource({prefix: "APP_"})
 
     const configSpec = c.config({
       schema: c.object({
         host: c.string()
       }),
-      sources: [ envs ]
+      sources: [envs]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        envs: { APP_HOST: "localhost" }
+        envs: {APP_HOST: "localhost"}
       }
     })
 
@@ -447,19 +477,19 @@ describe("testing", () => {
         dbPassword: c.secret()
       }),
       sources: [
-        envSource({ loadSecrets: true })
+        envSource({loadSecrets: true})
       ]
     })
 
     // When
     const config = await configSpec.load({
       sources: {
-        envs: { DBPASSWORD: "my-secret-db-password" }
+        envs: {DBPASSWORD: "my-secret-db-password"}
       }
     })
 
     // Then
-    assert.deepStrictEqual(config, { dbPassword: "my-secret-db-password" })
+    assert.deepStrictEqual(config, {dbPassword: "my-secret-db-password"})
   })
 
   describe('envs', function () {
@@ -472,13 +502,13 @@ describe("testing", () => {
             host: c.string()
           })
         }),
-        sources: [ envs ]
+        sources: [envs]
       })
 
       // When
       const config = await configSpec.load({
         sources: {
-          envs: { API_HOST: "localhost" }
+          envs: {API_HOST: "localhost"}
         }
       })
 
@@ -504,7 +534,7 @@ describe("testing", () => {
       // When
       const config = await configSpec.load({
         sources: {
-          envs: { PASSWORD: "my-pass" }
+          envs: {PASSWORD: "my-pass"}
         }
       })
 
@@ -515,10 +545,10 @@ describe("testing", () => {
     describe('coercion', function () {
       describe('boolean', function () {
         const scenarios = [
-          [ "true", true ] as const,
-          [ "tRue", true ] as const,
-          [ "false", false ] as const,
-          [ "fAlSe", false ] as const,
+          ["true", true] as const,
+          ["tRue", true] as const,
+          ["false", false] as const,
+          ["fAlSe", false] as const,
         ]
 
         for (const [input, expected] of scenarios) {
@@ -529,13 +559,13 @@ describe("testing", () => {
               schema: c.object({
                 enabled: c.boolean()
               }),
-              sources: [ envs ]
+              sources: [envs]
             })
 
             // When
             const config = await configSpec.load({
               sources: {
-                envs: { ENABLED: input }
+                envs: {ENABLED: input}
               }
             })
 
@@ -549,9 +579,9 @@ describe("testing", () => {
 
       describe('integer', function () {
         const scenarios = [
-          [ "111", 111 ] as const,
-          [ "0", 0 ] as const,
-          [ "-34", -34 ] as const,
+          ["111", 111] as const,
+          ["0", 0] as const,
+          ["-34", -34] as const,
         ]
 
         for (const [input, expected] of scenarios) {
@@ -562,13 +592,13 @@ describe("testing", () => {
               schema: c.object({
                 value: c.integer()
               }),
-              sources: [ envs ]
+              sources: [envs]
             })
 
             // When
             const config = await configSpec.load({
               sources: {
-                envs: { VALUE: input }
+                envs: {VALUE: input}
               }
             })
 
@@ -582,8 +612,8 @@ describe("testing", () => {
 
       describe('float', function () {
         const scenarios = [
-          [ "3.14", 3.14 ] as const,
-          [ "-3.14", -3.14 ] as const,
+          ["3.14", 3.14] as const,
+          ["-3.14", -3.14] as const,
         ]
 
         for (const [input, expected] of scenarios) {
@@ -594,13 +624,13 @@ describe("testing", () => {
               schema: c.object({
                 value: c.float()
               }),
-              sources: [ envs ]
+              sources: [envs]
             })
 
             // When
             const config = await configSpec.load({
               sources: {
-                envs: { VALUE: input }
+                envs: {VALUE: input}
               }
             })
 
@@ -622,13 +652,13 @@ describe("testing", () => {
           schema: c.object({
             host: c.string().aliases(envAlias("MY_SPECIAL_HOST"))
           }),
-          sources: [ envs ]
+          sources: [envs]
         })
 
         // When
         const config = await configSpec.load({
           sources: {
-            envs: { MY_SPECIAL_HOST: "localhost" }
+            envs: {MY_SPECIAL_HOST: "localhost"}
           }
         })
 
@@ -646,7 +676,7 @@ describe("testing", () => {
           schema: c.object({
             host: c.string().aliases(envAlias("MY_SPECIAL_HOST"))
           }),
-          sources: [ envs ]
+          sources: [envs]
         })
 
         // When
@@ -670,7 +700,7 @@ describe("testing", () => {
       test("should be able to reference a configuration from another source", async (t) => {
         // Given
         const fs = new FakeFileSystem()
-          .addFile("config.json", JSON.stringify({ host: "%envs('ANOTHER_HOST_ENV_ENTRY')" }))
+          .addFile("config.json", JSON.stringify({host: "%envs('ANOTHER_HOST_ENV_ENTRY')"}))
 
         const configSpec = c.config({
           schema: c.object({
@@ -678,15 +708,15 @@ describe("testing", () => {
           }),
           sources: [
             envSource(),
-            fileSource({ file: "config.json" })
+            fileSource({file: "config.json"})
           ]
         })
 
         // When
         const config = await configSpec.load({
           sources: {
-            envs: { ANOTHER_HOST_ENV_ENTRY: "localhost" },
-            file: { fs }
+            envs: {ANOTHER_HOST_ENV_ENTRY: "localhost"},
+            file: {fs}
           }
         })
 
@@ -705,13 +735,13 @@ describe("testing", () => {
           schema: c.object({
             port: c.integer()
           }),
-          sources: [ envs ]
+          sources: [envs]
         })
 
         // When
         const promise = configSpec.load({
           sources: {
-            envs: { PORT: "not-an-integer" }
+            envs: {PORT: "not-an-integer"}
           }
         })
 
@@ -725,47 +755,47 @@ describe("testing", () => {
     test("should be able to load config from a json file", async (t) => {
       // Given
       const fs = new FakeFileSystem()
-        .addFile("config.json", JSON.stringify({ host: "localhost" }))
+        .addFile("config.json", JSON.stringify({host: "localhost"}))
 
       const configSpec = c.config({
         schema: c.object({
           host: c.string()
         }),
         sources: [
-          fileSource({ file: "config.json" })
+          fileSource({file: "config.json"})
         ]
       })
 
       // When
       const config = await configSpec.load({
         sources: {
-          file: { fs }
+          file: {fs}
         }
       })
 
       // Then
-      assert.deepStrictEqual(config, { host: "localhost" })
+      assert.deepStrictEqual(config, {host: "localhost"})
     })
 
     describe('validation', function () {
       test("should be able to validate config loaded from a file", async (t) => {
         // Given
         const fs = new FakeFileSystem()
-          .addFile("config.json", JSON.stringify({ port: "not-an-integer" }))
+          .addFile("config.json", JSON.stringify({port: "not-an-integer"}))
 
         const configSpec = c.config({
           schema: c.object({
             port: c.integer()
           }),
           sources: [
-            fileSource({ file: "config.json" })
+            fileSource({file: "config.json"})
           ]
         })
 
         // When
         const promise = configSpec.load({
           sources: {
-            file: { fs }
+            file: {fs}
           }
         })
 
@@ -783,9 +813,9 @@ describe("testing", () => {
       const secretValue = "my-secret-value"
 
       const container = await new VaultContainer(image)
-          .withVaultToken(token)
-          .withReuse()
-          .start()
+        .withVaultToken(token)
+        .withReuse()
+        .start()
 
       const client = vault({
         apiVersion: "v1",
@@ -805,7 +835,7 @@ describe("testing", () => {
           vault: vaultConfig
         }),
         sources: [
-          envSource({ loadSecrets: true }),
+          envSource({loadSecrets: true}),
           vaultSource()
         ]
       })
@@ -852,3 +882,4 @@ function vaultCreateRoleCommand(configName: string, role: string) {
 
   return `write database/roles/my-role db_name=my-mongodb-database creation_statements='{ "db": "admin", "roles": [{ "role": "readWrite" }, {"role": "read", "db": "foo"}] }' default_ttl="1h" max_ttl="24h"`
 }
+

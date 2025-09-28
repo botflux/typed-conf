@@ -1,10 +1,20 @@
 import type {Source} from "./source.js";
 import vault from "node-vault"
-import type {Static} from "../loader.js";
+import {c, type Static} from "../loader.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 import {string} from "../schemes/string.js";
 import {secret} from "../schemes/secret.js";
 import {object, type ObjectSchema, type ObjectSpec} from "../schemes/object.js";
+
+export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
+  return object({
+    lease_duration: c.integer(),
+    lease_id: c.string(),
+    renewable: c.boolean(),
+    request_id: c.string(),
+    data: object(spec).secret()
+  })
+}
 
 export const vaultConfig = object({
   endpoint: string(),

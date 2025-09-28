@@ -38,6 +38,11 @@ export class ObjectSchemaBuilder<T extends ObjectSpec> implements BaseSchemaBuil
     this.schema.aliases = [...this.schema.aliases, ...aliases]
     return this
   }
+
+  secret(): this {
+    this.schema.secret = true
+    return this
+  }
 }
 
 export function object<T extends ObjectSpec>(spec: T): ObjectSchemaBuilder<T> {
