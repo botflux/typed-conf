@@ -213,6 +213,18 @@ describe('env variable loading', function () {
       expect(coerced).toBe(1)
     })
   })
+
+  describe('indirection expression', function () {
+    it('should be able to throw if the no env key was passed', function () {
+      // Given
+      const source = envSource()
+      const fn = source.getEvaluatorFunction!({}, {})
+
+      // When
+      // Then
+      expect(() => fn.fn({})).toThrow(new Error("Env indirections must have a \"key\" argument that is a string, but received undefined instead."))
+    })
+  })
 })
 
 describe('file config loading', function () {
