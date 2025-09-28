@@ -30,7 +30,8 @@ describe('DefaultEvaluator', function () {
         params: [
           {
             name: "name",
-            type: "string"
+            type: "string",
+            required: true
           }
         ],
         fn: ({ name }) => `Hello ${name}`
@@ -56,7 +57,8 @@ describe('DefaultEvaluator', function () {
         params: [
           {
             name: "name",
-            type: "string"
+            type: "string",
+            required: true
           }
         ],
         fn: ({ name }) => `Hello ${name}`
@@ -117,7 +119,8 @@ describe('DefaultEvaluator', function () {
         params: [
           {
             name: "name",
-            type: "string"
+            type: "string",
+            required: true
           }
         ],
         fn: ({ name }) => `Hello ${name}`
@@ -142,7 +145,8 @@ describe('DefaultEvaluator', function () {
         params: [
           {
             name: "name",
-            type: "string"
+            type: "string",
+            required: true
           }
         ],
         fn: ({ name }) => `Hello ${name}`

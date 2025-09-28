@@ -101,7 +101,8 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
       params: [
         {
           name: "key",
-          type: "string"
+          type: "string",
+          required: true
         }
       ],
       fn: args => {

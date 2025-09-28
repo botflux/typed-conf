@@ -4,6 +4,7 @@ import type {IndirectionEvaluator} from "./evaluator.js";
 export type FunctionParameter = {
   name: string
   type: "string" | "number" | "boolean"
+  required: boolean
 }
 
 export type EvaluatorFunction = {
@@ -42,19 +43,21 @@ export class DefaultEvaluator implements IndirectionEvaluator {
   }
 
   #getArgsFromPositional(f: EvaluatorFunction, positionalArgs: string[]) {
-    if (positionalArgs.length !== f.params.length) {
-      throw new Error(`Function '${f.name}' expects ${f.params.length} parameter(s), got ${positionalArgs.length}.`)
+    const requiredArgs = f.params.filter(p => p.required)
+
+    if (positionalArgs.length !== requiredArgs.length) {
+      throw new Error(`Function '${f.name}' expects ${requiredArgs.length} required parameter(s), got ${positionalArgs.length}.`)
     }
 
     return f.params.reduce((args, p, i) => {
       const param = positionalArgs[i]
 
-      if (param === undefined) {
+      if (param === undefined && p.required) {
         throw new Error(`Parameter is not defined`)
       }
 
       return { ...args, [p.name]: param }
-    }, {} as Record<string, string>)
+    }, {} as Record<string, string | undefined>)
   }
 
   #getArgsFromNamed(f: EvaluatorFunction, namedArgs: Record<string, string>) {

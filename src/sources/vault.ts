@@ -5,15 +5,24 @@ import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 import {string} from "../schemes/string.js";
 import {secret} from "../schemes/secret.js";
 import {object, type ObjectSchema, type ObjectSpec} from "../schemes/object.js";
+import {ref} from "../schemes/ref.js";
 
 export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
-  return object({
+  return ref(object({
     lease_duration: c.integer(),
     lease_id: c.string(),
     renewable: c.boolean(),
     request_id: c.string(),
     data: object(spec).secret()
-  })
+  }), "vault", ref => ({ path: ref }))
+  
+  // return object({
+  //   lease_duration: c.integer(),
+  //   lease_id: c.string(),
+  //   renewable: c.boolean(),
+  //   request_id: c.string(),
+  //   data: object(spec).secret()
+  // })
 }
 
 export const vaultConfig = object({
@@ -47,11 +56,13 @@ class VaultSource implements Source<"vault", undefined> {
       params: [
         {
           type: "string",
-          name: "path"
+          name: "path",
+          required: true
         },
         {
           type: "string",
-          name: "key"
+          name: "key",
+          required: false
         }
       ],
       fn: async args => {
@@ -61,12 +72,13 @@ class VaultSource implements Source<"vault", undefined> {
           throw new Error(`Invalid argument "${path}" in vault.`)
         }
 
-        if (typeof key !== "string") {
-          throw new Error(`Invalid argument "${key}" in vault.`)
+        const secret = await this.loadSecret(path, loaded)
+
+        if (typeof key === "string") {
+          return getAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
         }
 
-        const secret = await this.loadSecret(path, loaded)
-        return getAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
+        return secret as Record<string, unknown>
       }
     }
   }

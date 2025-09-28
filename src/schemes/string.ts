@@ -2,9 +2,6 @@ import {type Alias, type BaseSchema, type BaseSchemaBuilder, kType} from "./base
 import type {Visitor} from "../visitor/visitor.js";
 
 export interface StringSchemaBuilder extends BaseSchemaBuilder<StringSchema> {
-  optional(): this
-
-  aliases(...aliases: Alias[]): this
 
   secret(): this
 }

@@ -9,6 +9,7 @@ import vault from "node-vault"
 import {MongoDBContainer, StartedMongoDBContainer} from "@testcontainers/mongodb";
 import {Network, StartedNetwork} from "testcontainers"
 import type { StringSchemaBuilder } from "./schemes/string.js";
+import {expect} from "expect";
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
@@ -344,6 +345,7 @@ describe('hashicorp vault secret loading', function () {
     })
   })
 
+  // TODO: test that the secret is valid (it can connect to MongoDB)
   test("should be able to load dynamic secrets", {only: true}, async (t) => {
     // Given
     const client = vault({
@@ -378,14 +380,25 @@ describe('hashicorp vault secret loading', function () {
     })
 
     // Then
-    assert.deepStrictEqual(config, {
+    expect(config).toMatchObject({
       vault: {endpoint: vaultContainer.getAddress(), token},
-      creds: {
-        username: "test",
-        password: "<PASSWORD>"
-      }
+      creds: expect.objectContaining({
+        lease_duration: 3600,
+        lease_id: expect.any(String),
+        data: {
+          username: expect.any(String),
+          password: expect.any(String)
+        },
+        renewable: true,
+        request_id: expect.any(String)
+      })
     })
-    // assert.deepStrictEqual(await client.read('database/creds/my-role'), {})
+  })
+
+  test.todo("should be able to renew a dynamic secret", (t) => {
+    // Given
+    // When
+    // Then
   })
 })
 
