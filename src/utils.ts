@@ -3,7 +3,7 @@ export function setValueAtPath(o: Record<string, unknown>, path: string[], value
   const last = path.at(-1)
 
   if (last === undefined) {
-    throw new Error("Path must at least contain one element")
+    throw new Error("Path must contain at least one element")
   }
 
   let tmp = o
@@ -13,8 +13,8 @@ export function setValueAtPath(o: Record<string, unknown>, path: string[], value
       tmp[chunk] = {}
     }
 
-    if (typeof tmp[chunk] !== "object") {
-      throw new Error(`Cannot set value at path '${path.join(".")}' because the intermediate value is not an object ${chunk}`)
+    if (typeof tmp[chunk] !== "object" || tmp[chunk] === null) {
+      throw new Error(`Cannot set value at path '${path.join(".")}' because the intermediate property "${chunk}" is not an object`)
     }
 
     tmp = tmp[chunk] as Record<string, unknown>
@@ -44,7 +44,7 @@ export function getValueAtPath(o: Record<string, unknown>, path: string[]): unkn
     }
 
     if (typeof tmp[key] !== "object" || tmp[key] === null) {
-      throw new Error(`Cannot get value at path '${path.join(".")}' because the intermediate value (${key}) is not an object`)
+      throw new Error(`Cannot get value at path '${path.join(".")}' because the intermediate property "${key}" is not an object`)
     }
 
     tmp = tmp[key] as Record<string, unknown>

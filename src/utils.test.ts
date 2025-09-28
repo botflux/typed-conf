@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {getValueAtPath} from "./utils.js";
+import {getValueAtPath, setValueAtPath} from "./utils.js";
 import {expect} from "expect";
 
 describe('utils#getValueAtPath', function () {
@@ -70,6 +70,63 @@ describe('utils#getValueAtPath', function () {
 
     // When
     // Then
-    expect(() => getValueAtPath(o, ["foo", "bar"])).toThrow(new Error("Cannot get value at path 'foo.bar' because the intermediate value (foo) is not an object"))
+    expect(() => getValueAtPath(o, ["foo", "bar"])).toThrow(new Error("Cannot get value at path 'foo.bar' because the intermediate property \"foo\" is not an object"))
+  })
+})
+
+describe('utils#setValueAtPath', function () {
+  it('should be able to set the value of a property', function () {
+    // Given
+    const o = {}
+
+    // When
+    setValueAtPath(o, ["key"], "foo")
+
+    // Then
+    expect(o).toEqual({key: "foo"})
+  })
+
+  it('should be able to set the value of a nested property', function () {
+    // Given
+    const o = {
+      foo: {}
+    }
+
+    // When
+    setValueAtPath(o, ["foo", "bar"], "foo")
+
+    // Then
+    expect(o).toEqual({ foo: { bar: "foo" } })
+  })
+
+  it('should be able to throw an error if the path is empty', function () {
+    // Given
+    const o = {}
+
+    // When
+    // Then
+    expect(() => setValueAtPath(o, [], "foo")).toThrow(new Error("Path must contain at least one element"))
+  })
+
+  it('should be able to create intermediate objects if they are not existing', function () {
+    // Given
+    const o = {}
+
+    // When
+    setValueAtPath(o, ["foo", "bar"], "foo")
+
+    // Then
+    expect(o).toEqual({ foo: { bar: "foo" } })
+  })
+
+  it('should be able to throw an error if the intermediate properties are not objects', function () {
+    // Given
+    const o = {
+      foo: "bar"
+    }
+
+    // When
+    // Then
+    expect(() => setValueAtPath(o, ["foo", "bar"], "foo")).toThrow(new Error("Cannot set value at path 'foo.bar' because the intermediate property \"foo\" is not an object"))
   })
 })
