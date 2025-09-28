@@ -111,7 +111,7 @@ describe('DefaultEvaluator', function () {
     }, {}), new Error("Unknown function 'unknown', available functions are: hello, goodbye"))
   })
 
-  test("should be able to throw an error if the wrong number of parameter was passed", async (t) => {
+  test("should be able to throw if more params are passed than what the function accepts", async (t) => {
     // Given
     const evaluator = new DefaultEvaluator()
       .registerFunction({
@@ -135,6 +135,36 @@ describe('DefaultEvaluator', function () {
         "Doe"
       ]
     }, {}), new Error("Function 'hello' expects 1 parameter(s), got 2."))
+  })
+
+  test("should be able to throw if there are less passed params that required params", async (t) => {
+    // Given
+    const evaluator = new DefaultEvaluator()
+      .registerFunction({
+        name: "hello",
+        params: [
+          {
+            name: "firstName",
+            type: "string",
+            required: true,
+          },
+          {
+            name: "lastName",
+            type: "string",
+            required: true,
+          }
+        ],
+        fn: ({ firstName, lastName }) => `Hello ${firstName} ${lastName}`
+      })
+
+    // When
+    // Then
+    await assert.rejects(() => evaluator.evaluate({
+      source: "hello",
+      args: [
+        "John"
+      ]
+    }, {}), new Error("Function 'hello' expects 2 required parameter(s), got 1."))
   })
 
   test("should be able to throw an error if a named arg is missing", async (t) => {
