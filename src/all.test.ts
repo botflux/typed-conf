@@ -1,4 +1,4 @@
-import {after, before, describe, test} from "node:test"
+import {after, before, describe, it, test} from "node:test"
 import assert from "node:assert/strict"
 import {c} from "./loader.js"
 import {envAlias, envSource} from "./sources/envs.js";
@@ -10,6 +10,7 @@ import {MongoDBContainer, StartedMongoDBContainer} from "@testcontainers/mongodb
 import {Network, StartedNetwork} from "testcontainers"
 import type { StringSchemaBuilder } from "./schemes/string.js";
 import {expect} from "expect";
+import {boolean} from "./schemes/boolean.js";
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
@@ -162,6 +163,55 @@ describe('env variable loading', function () {
 
     // Then
     assert.deepStrictEqual(config, {})
+  })
+
+  describe('boolean coercion', function () {
+    const b = boolean()
+
+    it('should be able to coerce the string "true" to true', function () {
+      // Given
+      // When
+      const coerced = b.schema.coerce!("true")
+
+      // Then
+      expect(coerced).toBe(true)
+    })
+
+    it('should be able to coerce the string "false" to false', function () {
+      // Given
+      // When
+      const coerced = b.schema.coerce!("false")
+
+      // Then
+      expect(coerced).toBe(false)
+    })
+
+    it('should be able to coerce "true" with a wrong case to "true"', function () {
+      // Given
+      // When
+      const coerced = b.schema.coerce!("tRue")
+
+      // Then
+      expect(coerced).toBe(true)
+    })
+
+    it('should be able to coerce "false" with a wrong case to "false"', function () {
+      // Given
+      // When
+      const coerced = b.schema.coerce!("fAlSe")
+
+      // Then
+      expect(coerced).toBe(false)
+    })
+
+    it('should be able to do nothing given the value is not a string', function () {
+      // Given
+      // When
+      const coerced = b.schema.coerce!(1)
+
+      // Then
+      expect(coerced).toBe(1)
+    })
   })
 })
 
