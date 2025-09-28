@@ -8,10 +8,8 @@ import {vaultConfig, vaultDynamicSecret, vaultSource} from "./sources/vault.js";
 import vault from "node-vault"
 import {MongoDBContainer, StartedMongoDBContainer} from "@testcontainers/mongodb";
 import {Network, StartedNetwork} from "testcontainers"
-import type { StringSchemaBuilder } from "./schemes/string.js";
 import {expect} from "expect";
 import {boolean} from "./schemes/boolean.js";
-import {MongoClient} from "mongodb";
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
