@@ -45,8 +45,12 @@ export class DefaultEvaluator implements IndirectionEvaluator {
   #getArgsFromPositional(f: EvaluatorFunction, positionalArgs: string[]) {
     const requiredArgs = f.params.filter(p => p.required)
 
-    if (positionalArgs.length !== requiredArgs.length) {
+    if (positionalArgs.length < requiredArgs.length) {
       throw new Error(`Function '${f.name}' expects ${requiredArgs.length} required parameter(s), got ${positionalArgs.length}.`)
+    }
+
+    if (positionalArgs.length > f.params.length) {
+      throw new Error(`Function '${f.name}' expects ${f.params.length} parameter(s), got ${positionalArgs.length}.`)
     }
 
     return f.params.reduce((args, p, i) => {
