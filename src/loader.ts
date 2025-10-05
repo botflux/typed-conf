@@ -15,6 +15,7 @@ import {object, type ObjectSchema, ObjectSchemaBuilder} from "./schemes/object.j
 import type {RefSchema} from "./schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "./utils.js";
 import type {Clock} from "./clock/clock.interface.js";
+import {NativeClock} from "./clock/native-clock.js";
 
 export const c = {
   config,
@@ -66,13 +67,15 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
   }
 
   async load(opts: LoadOpts<Sources>): Promise<Prettify<Schema["schema"][typeof kType]>> {
-    const { sources } = opts
+    const { sources, clock = new NativeClock() } = opts
     let previouslyLoaded = {}
+    const baseSourceDeps = { clock }
 
     for (const source of this.sources) {
       // @ts-expect-error
-      const o = sources[source.key]
-      const loaded = await source.load(this.configSchema.schema, previouslyLoaded, o) as any
+      const sourceOptions = sources[source.key]
+      const completeOptions = Object.assign(sourceOptions ?? {}, baseSourceDeps)
+      const loaded = await source.load(this.configSchema.schema, previouslyLoaded, completeOptions as never) as any
 
       previouslyLoaded = merge(previouslyLoaded, loaded)
     }
@@ -81,10 +84,12 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
 
     for (const source of this.sources) {
       if ('getEvaluatorFunction' in source) {
+        // @ts-expect-error
+        const sourceOptions = sources[source.key]
+        const completeOptions = Object.assign(sourceOptions ?? {}, baseSourceDeps)
         evaluator.registerFunction(source.getEvaluatorFunction(
           previouslyLoaded,
-          // @ts-expect-error
-          sources[source.key]
+          completeOptions as never
         ))
       }
     }

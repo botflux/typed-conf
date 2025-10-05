@@ -1,4 +1,4 @@
-import type {Source} from "./source.js";
+import type {BaseDeps, Source} from "./source.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
 import {setValueAtPath} from "../utils.js";
 import {type Alias, type BaseSchema, type Entry, flatten} from "../schemes/base.js";
@@ -25,7 +25,11 @@ export type EnvSourceOpts = {
   loadSecrets?: boolean
 }
 
-class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
+export type EnvDeps = BaseDeps & {
+  envs?: NodeJS.ProcessEnv
+}
+
+class EnvSource implements Source<"envs", EnvDeps> {
   key: "envs" = "envs" as const
 
   #opts: Required<EnvSourceOpts>
@@ -35,7 +39,8 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     this.#opts = config
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, envs: NodeJS.ProcessEnv = process.env): Promise<Record<string, unknown>> {
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps: EnvDeps): Promise<Record<string, unknown>> {
+    const { envs = process.env } = deps
     const entries = flatten(schema)
     const [ rawEnvs, jsonSchemes, schemes ] = this.#loadConfigFromEnvs(entries, envs)
 
@@ -95,7 +100,8 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
     return record
   }
 
-  getEvaluatorFunction(loaded: Record<string, unknown>, deps: NodeJS.ProcessEnv = process.env): EvaluatorFunction {
+  getEvaluatorFunction(loaded: Record<string, unknown>, deps: EnvDeps): EvaluatorFunction {
+    const { envs = process.env } = deps
     return {
       name: "envs",
       params: [
@@ -112,7 +118,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
           throw new Error(`Env indirections must have a "key" argument that is a string, but received ${typeof key} instead.`)
         }
 
-        return this.loadByKey(key, deps)
+        return this.loadByKey(key, envs)
       }
     }
   }
@@ -126,7 +132,7 @@ class EnvSource implements Source<"envs", NodeJS.ProcessEnv> {
   }
 }
 
-export function envSource(opts: EnvSourceOpts = {}): Source<"envs", NodeJS.ProcessEnv> {
+export function envSource(opts: EnvSourceOpts = {}): Source<"envs", EnvDeps> {
   const {prefix = "", loadSecrets = false} = opts
 
   return new EnvSource({prefix, loadSecrets})

@@ -25,7 +25,9 @@ describe('env variable loading', function () {
     // When
     const config = await configSpec.load({
       sources: {
-        envs: {HOST: "localhost"}
+        envs: {
+          envs: {HOST: "localhost"}
+        }
       }
     })
 
@@ -47,7 +49,9 @@ describe('env variable loading', function () {
     // When
     const promise = configSpec.load({
       sources: {
-        envs: {PORT: "not-an-integer"}
+        envs: {
+          envs: {PORT: "not-an-integer"}
+        }
       }
     })
 
@@ -67,7 +71,9 @@ describe('env variable loading', function () {
     // When
     const config = await configSpec.load({
       sources: {
-        envs: {APP_HOST: "localhost"}
+        envs: {
+          envs: {APP_HOST: "localhost"}
+        }
       }
     })
 
@@ -89,7 +95,9 @@ describe('env variable loading', function () {
     // When
     const config = await configSpec.load({
       sources: {
-        envs: {API_HOST: "localhost"}
+        envs: {
+          envs: {API_HOST: "localhost"}
+        }
       }
     })
 
@@ -113,7 +121,9 @@ describe('env variable loading', function () {
     // When
     const config = await configSpec.load({
       sources: {
-        envs: {MY_SPECIAL_HOST: "localhost"}
+        envs: {
+          envs: {MY_SPECIAL_HOST: "localhost"}
+        }
       }
     })
 
@@ -135,7 +145,9 @@ describe('env variable loading', function () {
     // When
     const config = await configSpec.load({
       sources: {
-        envs: {HOST: "localhost"}
+        envs: {
+          envs: {HOST: "localhost"}
+        }
       }
     })
 
@@ -156,7 +168,9 @@ describe('env variable loading', function () {
     const config = await configSpec.load({
       sources: {
         envs: {
-          HOST: "localhost",
+          envs: {
+            HOST: "localhost",
+          }
         }
       }
     })
@@ -349,8 +363,10 @@ describe('hashicorp vault secret loading', function () {
     const config = await configSpec.load({
       sources: {
         envs: {
-          VAULT_ENDPOINT: vaultContainer.getAddress(),
-          VAULT_TOKEN: token
+          envs: {
+            VAULT_ENDPOINT: vaultContainer.getAddress(),
+            VAULT_TOKEN: token
+          }
         }
       }
     })
@@ -393,9 +409,11 @@ describe('hashicorp vault secret loading', function () {
     const config = await configSpec.load({
       sources: {
         envs: {
-          VAULT_ENDPOINT: vaultContainer.getAddress(),
-          VAULT_TOKEN: token,
-          SECRET: "%vault('secret/data/my-secret', 'foo')"
+          envs: {
+            VAULT_ENDPOINT: vaultContainer.getAddress(),
+            VAULT_TOKEN: token,
+            SECRET: "%vault('secret/data/my-secret', 'foo')"
+          }
         }
       },
     })
@@ -429,13 +447,12 @@ describe('hashicorp vault secret loading', function () {
     const config = await configSpec.load({
       sources: {
         envs: {
-          VAULT_ENDPOINT: vaultContainer.getAddress(),
-          VAULT_TOKEN: token,
-          CREDS: 'database/creds/my-role'
+          envs: {
+            VAULT_ENDPOINT: vaultContainer.getAddress(),
+            VAULT_TOKEN: token,
+            CREDS: 'database/creds/my-role'
+          }
         },
-        vault: {
-          clock
-        }
       },
       clock,
     })
@@ -479,14 +496,14 @@ describe('hashicorp vault secret loading', function () {
     const config = await configSpec.load({
       sources: {
         envs: {
-          VAULT_ENDPOINT: vaultContainer.getAddress(),
-          VAULT_TOKEN: token,
-          CREDS: 'database/creds/my-role'
+          envs: {
+            VAULT_ENDPOINT: vaultContainer.getAddress(),
+            VAULT_TOKEN: token,
+            CREDS: 'database/creds/my-role'
+          }
         },
-        vault: {
-          clock
-        }
-      }
+      },
+      clock
     })
 
     clock.add(1_000)
@@ -582,7 +599,9 @@ describe("testing", () => {
     // When
     const config = await configSpec.load({
       sources: {
-        envs: {APP_HOST: "localhost"}
+        envs: {
+          envs: {APP_HOST: "localhost"}
+        }
       }
     })
 
@@ -606,7 +625,9 @@ describe("testing", () => {
     // When
     const config = await configSpec.load({
       sources: {
-        envs: {DBPASSWORD: "my-secret-db-password"}
+        envs: {
+          envs: {DBPASSWORD: "my-secret-db-password"}
+        }
       }
     })
 
@@ -630,7 +651,9 @@ describe("testing", () => {
       // When
       const config = await configSpec.load({
         sources: {
-          envs: {API_HOST: "localhost"}
+          envs: {
+            envs: {API_HOST: "localhost"}
+          }
         }
       })
 
@@ -656,7 +679,9 @@ describe("testing", () => {
       // When
       const config = await configSpec.load({
         sources: {
-          envs: {PASSWORD: "my-pass"}
+          envs: {
+            envs: {PASSWORD: "my-pass"}
+          }
         }
       })
 
@@ -687,7 +712,9 @@ describe("testing", () => {
             // When
             const config = await configSpec.load({
               sources: {
-                envs: {ENABLED: input}
+                envs: {
+                  envs: {ENABLED: input}
+                }
               }
             })
 
@@ -720,7 +747,9 @@ describe("testing", () => {
             // When
             const config = await configSpec.load({
               sources: {
-                envs: {VALUE: input}
+                envs: {
+                  envs: {VALUE: input}
+                }
               }
             })
 
@@ -752,7 +781,9 @@ describe("testing", () => {
             // When
             const config = await configSpec.load({
               sources: {
-                envs: {VALUE: input}
+                envs: {
+                  envs: {VALUE: input}
+                }
               }
             })
 
@@ -780,7 +811,9 @@ describe("testing", () => {
         // When
         const config = await configSpec.load({
           sources: {
-            envs: {MY_SPECIAL_HOST: "localhost"}
+            envs: {
+              envs: {MY_SPECIAL_HOST: "localhost"}
+            }
           }
         })
 
@@ -805,8 +838,10 @@ describe("testing", () => {
         const config = await configSpec.load({
           sources: {
             envs: {
-              HOST: "localhost",
-              MY_SPECIAL_HOST: "host.docker.internal"
+              envs: {
+                HOST: "localhost",
+                MY_SPECIAL_HOST: "host.docker.internal"
+              }
             }
           }
         })
@@ -837,7 +872,9 @@ describe("testing", () => {
         // When
         const config = await configSpec.load({
           sources: {
-            envs: {ANOTHER_HOST_ENV_ENTRY: "localhost"},
+            envs: {
+              envs: {ANOTHER_HOST_ENV_ENTRY: "localhost"}
+            },
             file: {fs}
           }
         })
@@ -863,7 +900,9 @@ describe("testing", () => {
         // When
         const promise = configSpec.load({
           sources: {
-            envs: {PORT: "not-an-integer"}
+            envs: {
+              envs: {PORT: "not-an-integer"}
+            }
           }
         })
 
@@ -966,9 +1005,11 @@ describe("testing", () => {
       const config = await configSpec.load({
         sources: {
           envs: {
-            VAULT_TOKEN: container.getRootToken(),
-            VAULT_ENDPOINT: container.getAddress(),
-            SECRET: "%vault('secret/data/secret', 'value')"
+            envs: {
+              VAULT_TOKEN: container.getRootToken(),
+              VAULT_ENDPOINT: container.getAddress(),
+              SECRET: "%vault('secret/data/secret', 'value')"
+            },
           },
         }
       })

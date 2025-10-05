@@ -1,4 +1,4 @@
-import type {Source} from "./source.js";
+import type {BaseDeps, Source} from "./source.js";
 import vault from "node-vault"
 import {c, type Static} from "../loader.js";
 import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
@@ -90,16 +90,13 @@ export const vaultConfig = object({
 
 export type VaultConfig = Static<typeof vaultConfig>
 
-export type VaultDeps = {
-  clock?: Clock
-}
+export type VaultDeps = BaseDeps
 
 class VaultSource implements Source<"vault", VaultDeps> {
   key: "vault" = "vault"
   #ajv = new Ajv()
 
-  async loadSecret(path: string, loaded: Record<string, unknown>, deps?: VaultDeps) {
-    const clock = deps?.clock ?? new NativeClock()
+  async loadSecret(path: string, loaded: Record<string, unknown>, clock: Clock) {
     const vaultConfig = extractVaultConfig(loaded)
 
     const client = vault({
@@ -113,15 +110,13 @@ class VaultSource implements Source<"vault", VaultDeps> {
     return Object.assign(secret, {
       expiresAt: clock.now() + secret.lease_duration,
     })
-
-    // return secret
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: VaultDeps): Promise<Record<string, unknown>> {
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps: VaultDeps): Promise<Record<string, unknown>> {
     return {}
   }
 
-  getEvaluatorFunction(loaded: Record<string, unknown>, deps?: VaultDeps): EvaluatorFunction {
+  getEvaluatorFunction(loaded: Record<string, unknown>, deps: VaultDeps): EvaluatorFunction {
     return {
       name: "vault",
       params: [
@@ -143,7 +138,7 @@ class VaultSource implements Source<"vault", VaultDeps> {
           throw new Error(`Invalid argument "${path}" in vault.`)
         }
 
-        const secret = await this.loadSecret(path, loaded, deps)
+        const secret = await this.loadSecret(path, loaded, deps.clock ?? new NativeClock())
 
         if (typeof key === "string") {
           return getAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
