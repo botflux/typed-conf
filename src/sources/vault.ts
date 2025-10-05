@@ -15,14 +15,27 @@ export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
     request_id: c.string(),
     data: object(spec).secret()
   }), "vault", ref => ({ path: ref }))
-  
-  // return object({
-  //   lease_duration: c.integer(),
-  //   lease_id: c.string(),
-  //   renewable: c.boolean(),
-  //   request_id: c.string(),
-  //   data: object(spec).secret()
-  // })
+}
+
+export type VaultDynamicSecret<T> = {
+  lease_duration: number
+  lease_id: string
+  renewable: boolean
+  request_id: string
+  data: T
+}
+
+export async function renewSecret<T>(config: VaultConfig, secret: VaultDynamicSecret<T>, increment: number) {
+  const client = vault({
+    endpoint: config.endpoint,
+    token: config.token,
+  })
+
+  const response = await client.renew({
+    lease_id: secret.lease_id,
+    increment
+  })
+  console.log(response)
 }
 
 export const vaultConfig = object({

@@ -4,7 +4,7 @@ import {c} from "./loader.js"
 import {envAlias, envSource} from "./sources/envs.js";
 import {FakeFileSystem, fileSource} from "./sources/files.js";
 import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
-import {vaultConfig, vaultDynamicSecret, vaultSource} from "./sources/vault.js";
+import {renewSecret, vaultConfig, vaultDynamicSecret, vaultSource} from "./sources/vault.js";
 import vault from "node-vault"
 import {MongoDBContainer, StartedMongoDBContainer} from "@testcontainers/mongodb";
 import {Network, StartedNetwork} from "testcontainers"
@@ -449,10 +449,48 @@ describe('hashicorp vault secret loading', function () {
     })
   })
 
-  test.todo("should be able to renew a dynamic secret", (t) => {
+  test("should be able to renew a dynamic secret", async (t) => {
     // Given
+    const configSpec = c.config({
+      schema: c.object({
+        creds: vaultDynamicSecret({
+          username: c.string(),
+          password: c.string()
+        }),
+        vault: vaultConfig
+      }),
+      sources: [
+        envSource({loadSecrets: true}),
+        vaultSource()
+      ]
+    })
+
+    const config = await configSpec.load({
+      sources: {
+        envs: {
+          VAULT_ENDPOINT: vaultContainer.getAddress(),
+          VAULT_TOKEN: token,
+          CREDS: 'database/creds/my-role'
+        },
+      }
+    })
+
     // When
+    await renewSecret(config.vault, config.creds, 120)
+
     // Then
+    expect(config).toMatchObject({
+      creds: expect.objectContaining({
+        lease_duration: 3600,
+        lease_id: expect.any(String),
+        data: expect.objectContaining({
+          username: expect.any(String),
+          password: expect.any(String)
+        }),
+        renewable: true,
+        request_id: expect.any(String)
+      })
+    })
   })
 })
 

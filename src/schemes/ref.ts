@@ -6,7 +6,7 @@ export type RefSchema<T> = {
   targetSchema: BaseSchemaBuilder<BaseSchema<T>>
   sourceName: string
   toSourceParams: (ref: string) => Record<string, unknown>
-} & BaseSchema<string>
+} & BaseSchema<T>
 
 export interface RefSchemaBuilder<T> extends BaseSchemaBuilder<RefSchema<T>> {
   secret(): this
@@ -23,7 +23,7 @@ export class RefSchemaBuilderCls<T> implements RefSchemaBuilder<T> {
   ) {
     this.schema = {
       type: "ref",
-      [kType]: "",
+      [kType]: "" as unknown as T,
       secret: false,
       optional: false,
       accept<R>(visitor: Visitor<R>): R {
