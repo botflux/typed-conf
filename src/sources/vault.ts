@@ -6,6 +6,9 @@ import {string} from "../schemes/string.js";
 import {secret} from "../schemes/secret.js";
 import {object, type ObjectSchema, type ObjectSpec} from "../schemes/object.js";
 import {ref} from "../schemes/ref.js";
+import {Ajv} from "ajv";
+import type {Clock} from "../clock/clock.interface.js";
+import {NativeClock} from "../clock/native-clock.js";
 
 export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
   return ref(object({
@@ -13,7 +16,8 @@ export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
     lease_id: c.string(),
     renewable: c.boolean(),
     request_id: c.string(),
-    data: object(spec).secret()
+    data: object(spec).secret(),
+    expiresAt: c.integer(),
   }), "vault", ref => ({ path: ref }))
 }
 
@@ -23,9 +27,44 @@ export type VaultDynamicSecret<T> = {
   renewable: boolean
   request_id: string
   data: T
+  expiresAt: number
 }
 
-export async function renewSecret<T>(config: VaultConfig, secret: VaultDynamicSecret<T>, increment: number) {
+type RenewResponse = {
+  request_id: string
+  lease_id: string
+  renewable: boolean
+  lease_duration: number
+}
+
+function validateRenewResponse (ajv: Ajv, response: unknown): asserts response is RenewResponse {
+  const schema = {
+    type: 'object',
+    properties: {
+      request_id: {
+        type: 'string'
+      },
+      lease_id: {
+        type: 'string'
+      },
+      renewable: {
+        type: 'boolean'
+      },
+      lease_duration: {
+        type: 'integer'
+      }
+    },
+    required: [ 'request_id', 'lease_id', 'renewable', 'lease_duration' ]
+  }
+
+  const isValid = ajv.compile(schema)
+
+  if (!isValid(response)) {
+    throw new Error('Invalid renew response')
+  }
+}
+
+export async function renewSecret<T>(config: VaultConfig, secret: VaultDynamicSecret<T>, increment: number, clock = new NativeClock()) {
   const client = vault({
     endpoint: config.endpoint,
     token: config.token,
@@ -34,8 +73,14 @@ export async function renewSecret<T>(config: VaultConfig, secret: VaultDynamicSe
   const response = await client.renew({
     lease_id: secret.lease_id,
     increment
-  })
-  console.log(response)
+  }) as unknown
+
+  validateRenewResponse(new Ajv(), response)
+
+  secret.lease_duration = response.lease_duration
+  secret.expiresAt = clock.now() + response.lease_duration * 1_000
+  secret.request_id = response.request_id
+  secret.lease_id = response.lease_id
 }
 
 export const vaultConfig = object({
@@ -45,10 +90,16 @@ export const vaultConfig = object({
 
 export type VaultConfig = Static<typeof vaultConfig>
 
-class VaultSource implements Source<"vault", undefined> {
-  key: "vault" = "vault"
+export type VaultDeps = {
+  clock?: Clock
+}
 
-  async loadSecret(path: string, loaded: Record<string, unknown>) {
+class VaultSource implements Source<"vault", VaultDeps> {
+  key: "vault" = "vault"
+  #ajv = new Ajv()
+
+  async loadSecret(path: string, loaded: Record<string, unknown>, deps?: VaultDeps) {
+    const clock = deps?.clock ?? new NativeClock()
     const vaultConfig = extractVaultConfig(loaded)
 
     const client = vault({
@@ -56,14 +107,21 @@ class VaultSource implements Source<"vault", undefined> {
         token: vaultConfig.token,
     })
 
-    return await client.read(path) as unknown
+    const secret = await client.read(path) as unknown
+    validateSecret(this.#ajv, secret);
+
+    return Object.assign(secret, {
+      expiresAt: clock.now() + secret.lease_duration,
+    })
+
+    // return secret
   }
 
-  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps: undefined): Promise<Record<string, unknown>> {
+  async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: VaultDeps): Promise<Record<string, unknown>> {
     return {}
   }
 
-  getEvaluatorFunction(loaded: Record<string, unknown>, deps?: undefined): EvaluatorFunction {
+  getEvaluatorFunction(loaded: Record<string, unknown>, deps?: VaultDeps): EvaluatorFunction {
     return {
       name: "vault",
       params: [
@@ -85,7 +143,7 @@ class VaultSource implements Source<"vault", undefined> {
           throw new Error(`Invalid argument "${path}" in vault.`)
         }
 
-        const secret = await this.loadSecret(path, loaded)
+        const secret = await this.loadSecret(path, loaded, deps)
 
         if (typeof key === "string") {
           return getAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
@@ -97,8 +155,35 @@ class VaultSource implements Source<"vault", undefined> {
   }
 }
 
-export function vaultSource(): Source<"vault", undefined> {
+export function vaultSource(): Source<"vault", VaultDeps> {
   return new VaultSource()
+}
+
+function validateSecret(ajv: Ajv, secret: unknown): asserts secret is VaultDynamicSecret<unknown> {
+  const schema = {
+    type: 'object',
+    properties: {
+      lease_duration: {
+        type: 'integer'
+      },
+      lease_id: {
+        type: 'string'
+      },
+      renewable: {
+        type: 'boolean'
+      },
+      request_id: {
+        type: 'string'
+      },
+      data: {}
+    },
+  }
+
+  const isValid = ajv.compile(schema)
+
+  if (!isValid(secret)) {
+    throw new Error('Invalid secret returned by vault')
+  }
 }
 
 function getAtPath(loaded: Record<string, unknown>, path: string[]): unknown {

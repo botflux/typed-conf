@@ -14,6 +14,7 @@ import {secret} from "./schemes/secret.js";
 import {object, type ObjectSchema, ObjectSchemaBuilder} from "./schemes/object.js";
 import type {RefSchema} from "./schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "./utils.js";
+import type {Clock} from "./clock/clock.interface.js";
 
 export const c = {
   config,
@@ -33,6 +34,12 @@ export type Static<T extends BaseSchemaBuilder<BaseSchema<unknown>>> = T["schema
 
 export type LoadOpts<Sources extends Source<string, never>[]> = {
   sources: SourcesToRecord<Sources>
+
+  /**
+   * A clock implementation.
+   * This option is meant to be used in tests to mock the time.
+   */
+  clock?: Clock
 }
 
 export type ConfigLoader<ConfigSchema extends ObjectSchemaBuilder<Record<string, BaseSchemaBuilder<any>>>, Sources extends Source<string, never>[]> = {

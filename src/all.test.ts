@@ -10,6 +10,7 @@ import {MongoDBContainer, StartedMongoDBContainer} from "@testcontainers/mongodb
 import {Network, StartedNetwork} from "testcontainers"
 import {expect} from "expect";
 import {boolean} from "./schemes/boolean.js";
+import {FakeClock} from "./clock/fake-clock.js";
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
@@ -396,7 +397,7 @@ describe('hashicorp vault secret loading', function () {
           VAULT_TOKEN: token,
           SECRET: "%vault('secret/data/my-secret', 'foo')"
         }
-      }
+      },
     })
 
     // Then
@@ -408,6 +409,8 @@ describe('hashicorp vault secret loading', function () {
 
   test("should be able to load dynamic secrets", {only: true}, async (t) => {
     // Given
+    const clock = new FakeClock(Date.now())
+
     const configSpec = c.config({
       schema: c.object({
         creds: vaultDynamicSecret({
@@ -430,13 +433,18 @@ describe('hashicorp vault secret loading', function () {
           VAULT_TOKEN: token,
           CREDS: 'database/creds/my-role'
         },
-      }
+        vault: {
+          clock
+        }
+      },
+      clock,
     })
 
     // Then
     expect(config).toMatchObject({
       vault: {endpoint: vaultContainer.getAddress(), token},
       creds: expect.objectContaining({
+        expiresAt: new Date(clock.now() + 3600).getTime(),
         lease_duration: 3600,
         lease_id: expect.any(String),
         data: {
@@ -451,6 +459,9 @@ describe('hashicorp vault secret loading', function () {
 
   test("should be able to renew a dynamic secret", async (t) => {
     // Given
+    const start = Date.now()
+    const clock = new FakeClock(start)
+
     const configSpec = c.config({
       schema: c.object({
         creds: vaultDynamicSecret({
@@ -472,23 +483,29 @@ describe('hashicorp vault secret loading', function () {
           VAULT_TOKEN: token,
           CREDS: 'database/creds/my-role'
         },
+        vault: {
+          clock
+        }
       }
     })
 
+    clock.add(1_000)
+
     // When
-    await renewSecret(config.vault, config.creds, 120)
+    await renewSecret(config.vault, config.creds, 120, clock)
 
     // Then
     expect(config).toMatchObject({
       creds: expect.objectContaining({
-        lease_duration: 3600,
+        lease_duration: 120,
         lease_id: expect.any(String),
         data: expect.objectContaining({
           username: expect.any(String),
           password: expect.any(String)
         }),
         renewable: true,
-        request_id: expect.any(String)
+        request_id: expect.any(String),
+        expiresAt: start + 1_000 + 120_000,
       })
     })
   })
