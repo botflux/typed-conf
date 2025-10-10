@@ -43,10 +43,10 @@ export type LoadOpts<Sources extends Source<string, never>[]> = {
   clock?: Clock
 }
 
-export type ConfigLoader<ConfigSchema extends ObjectSchemaBuilder<Record<string, BaseSchemaBuilder<any>>>, Sources extends Source<string, never>[]> = {
+export interface ConfigLoader<ConfigSchema extends ObjectSchemaBuilder<Record<string, BaseSchemaBuilder<any>>>, Sources extends Source<string, never>[]> {
   configSchema: ConfigSchema
   sources: Sources
-  load: (opts: LoadOpts<Sources>) => Promise<Prettify<ConfigSchema["schema"][typeof kType]>>
+  load(opts: LoadOpts<Sources>): Promise<Prettify<ConfigSchema["schema"][typeof kType]>>
 }
 
 export type ConfigOpts<Schema extends ObjectSchemaBuilder<Record<string, any>>, Sources extends Source<string, never>[]> = {
