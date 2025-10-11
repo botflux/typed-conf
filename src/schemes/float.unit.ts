@@ -63,4 +63,22 @@ describe('float', function () {
       })
     }
   })
+
+  it('should be able to declare a secret float', function () {
+    // Given
+    // When
+    const schema = c.float().secret()
+
+    // Then
+    expect(schema.schema.secret).toBe(true)
+  })
+
+  it('should not be a secret by default', function () {
+    // Given
+    // When
+    const schema = c.float()
+
+    // Then
+    expect(schema.schema.secret).toBe(false)
+  })
 })

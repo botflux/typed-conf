@@ -5,6 +5,8 @@ export interface FloatSchemaBuilder extends BaseSchemaBuilder<FloatSchema> {
   optional(): this
 
   aliases(...aliases: Alias[]): this
+
+  secret(): this
 }
 
 export type FloatSchema = {
@@ -49,6 +51,10 @@ class FloatSchemaCls implements FloatSchemaBuilder {
     return this
   }
 
+  secret(): this {
+    this.schema.secret = true
+    return this
+  }
 }
 
 export function float(): FloatSchemaBuilder {
