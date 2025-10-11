@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {object} from "./object.js";
+import {isObject, object} from "./object.js";
 import {string} from "./string.js";
 import {integer} from "./integer.js";
 import {expect} from "expect";
@@ -90,4 +90,22 @@ describe('object', function () {
     // Then
     expect(schema.schema.secret).toBe(false)
   })
+})
+
+describe('isObject', function () {
+  const cases = [
+    [ 'an object schema', object({}), true ] as const,
+    [ 'a string schema', string(), false ] as const
+  ]
+
+  for (const [ caseName, input, expected ] of cases) {
+    it(`should be able to return ${expected} given ${caseName}`, function () {
+      // Given
+      // When
+      const result = isObject(input.schema)
+
+      // Then
+      expect(result).toBe(expected)
+    })
+  }
 })
