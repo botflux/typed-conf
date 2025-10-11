@@ -5,6 +5,7 @@ export interface BooleanSchemaBuilder extends BaseSchemaBuilder<BooleanSchema> {
   optional(): this
 
   aliases(...aliases: Alias[]): this
+  secret(): this
 }
 
 export type BooleanSchema = {
@@ -45,6 +46,11 @@ class BooleanSchemaCls implements BooleanSchemaBuilder {
 
   aliases(...aliases: Alias[]): this {
     this.schema.aliases = [...this.schema.aliases, ...aliases]
+    return this
+  }
+
+  secret(): this {
+    this.schema.secret = true
     return this
   }
 }

@@ -87,4 +87,22 @@ describe('boolean', function () {
       })
     }
   })
+
+  it('should be able to declare a secret', function () {
+    // Given
+    // When
+    const schema = c.boolean().secret()
+
+    // Then
+    expect(schema.schema.secret).toBe(true)
+  })
+
+  it('should not be a secret by default', function () {
+    // Given
+    // When
+    const schema = c.boolean()
+
+    // Then
+    expect(schema.schema.secret).toBe(false)
+  })
 })
