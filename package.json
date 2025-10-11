@@ -6,6 +6,7 @@
     "test": "borp **/*.test.ts",
     "test:only": "borp --only *.test.ts",
     "test:unit": "borp **/*.unit.ts",
+    "test:integration": "borp **/*.integration.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],

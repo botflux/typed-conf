@@ -1,14 +1,14 @@
-import type {BaseDeps, Source} from "./source.js";
+import type {BaseDeps, Source} from "../source.js";
 import vault from "node-vault"
-import {c, type Static} from "../loader.js";
-import type {EvaluatorFunction} from "../indirection/default-evaluator.js";
-import {string} from "../schemes/string.js";
-import {secret} from "../schemes/secret.js";
-import {object, type ObjectSchema, type ObjectSpec} from "../schemes/object.js";
-import {ref} from "../schemes/ref.js";
+import {c, type Static} from "../../loader.js";
+import type {EvaluatorFunction} from "../../indirection/default-evaluator.js";
+import {string} from "../../schemes/string.js";
+import {secret} from "../../schemes/secret.js";
+import {object, type ObjectSchema, type ObjectSpec} from "../../schemes/object.js";
+import {ref} from "../../schemes/ref.js";
 import {Ajv} from "ajv";
-import type {Clock} from "../clock/clock.interface.js";
-import {NativeClock} from "../clock/native-clock.js";
+import type {Clock} from "../../clock/clock.interface.js";
+import {NativeClock} from "../../clock/native-clock.js";
 
 export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
   return ref(object({

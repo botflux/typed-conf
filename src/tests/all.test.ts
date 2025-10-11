@@ -4,7 +4,7 @@ import {c} from "../loader.js"
 import {envAlias, envSource} from "../sources/envs.js";
 import {file, fileSource} from "../sources/files/files.js";
 import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
-import {renewSecret, vaultConfig, vaultDynamicSecret, vaultSource} from "../sources/vault.js";
+import {renewSecret, vaultConfig, vaultDynamicSecret, vaultSource} from "../sources/vault/vault.js";
 import vault from "node-vault"
 import {MongoDBContainer, StartedMongoDBContainer} from "@testcontainers/mongodb";
 import {Network, StartedNetwork} from "testcontainers"
