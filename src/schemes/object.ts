@@ -62,7 +62,7 @@ function schemaToJSONSchema(schema: ObjectSpec): JSONSchema {
   ])
 
   const required = entries
-    .filter(([, schema ]) => !schema.optional)
+    .filter(([, schema ]) => !schema.schema.optional)
     .map(([ k ]) => k)
 
   return {
