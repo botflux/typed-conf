@@ -1,9 +1,10 @@
 import {describe, it} from "node:test";
-import {FakeFileSystem, fileSource} from "./sources/files.js";
+import {fileSource} from "./sources/files/files.js";
 import {c} from "./loader.js";
 import {expect} from "expect";
-import {FileParsingError} from "./sources/file-parsing.error.js";
+import {FileParsingError} from "./sources/files/file-parsing.error.js";
 import {ValidationError} from "./validation/validation.error.js";
+import {FakeFileSystem} from "./sources/files/file-system.js";
 
 describe('fileSource', function () {
   it('should be able to load configuration from a file source', async function () {

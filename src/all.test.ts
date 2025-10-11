@@ -2,7 +2,7 @@ import {after, before, describe, it, test} from "node:test"
 import assert from "node:assert/strict"
 import {c} from "./loader.js"
 import {envAlias, envSource} from "./sources/envs.js";
-import {FakeFileSystem, fileSource} from "./sources/files.js";
+import {fileSource} from "./sources/files/files.js";
 import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
 import {renewSecret, vaultConfig, vaultDynamicSecret, vaultSource} from "./sources/vault.js";
 import vault from "node-vault"
@@ -12,6 +12,7 @@ import {expect} from "expect";
 import {boolean} from "./schemes/boolean.js";
 import {FakeClock} from "./clock/fake-clock.js";
 import {ValidationError} from "./validation/validation.error.js";
+import {FakeFileSystem} from "./sources/files/file-system.js";
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
