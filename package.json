@@ -5,6 +5,7 @@
   "scripts": {
     "test": "borp **/*.test.ts",
     "test:only": "borp --only *.test.ts",
+    "test:unit": "borp **/*.unit.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
