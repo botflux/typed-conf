@@ -54,4 +54,22 @@ describe('ref', function () {
     // Then
     expect(schema.schema.aliases).toEqual([envAlias('FOO')])
   })
+
+  it('should be able to declare a secret ref', function () {
+    // Given
+    // When
+    const schema = ref(string(), 'envs', r => ({})).secret()
+
+    // Then
+    expect(schema.schema.secret).toBe(true)
+  })
+
+  it('should not be a secret by default', function () {
+    // Given
+    // When
+    const schema = ref(string(), 'envs', r => ({}))
+
+    // Then
+    expect(schema.schema.secret).toBe(false)
+  })
 })
