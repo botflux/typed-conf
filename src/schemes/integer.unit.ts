@@ -63,4 +63,22 @@ describe('integer', function () {
       })
     }
   })
+
+  it('should be able to declare a secret integer', function () {
+    // Given
+    // When
+    const schema = c.integer().secret()
+
+    // Then
+    expect(schema.schema.secret).toBe(true)
+  })
+
+  it('should not be a secret by default', function () {
+    // Given
+    // When
+    const schema = c.integer()
+
+    // Then
+    expect(schema.schema.secret).toBe(false)
+  })
 })

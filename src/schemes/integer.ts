@@ -5,6 +5,7 @@ export interface IntegerSchemaBuilder extends BaseSchemaBuilder<IntegerSchema> {
   optional(): this
 
   aliases(...aliases: Alias[]): this
+  secret(): this
 }
 
 export type IntegerSchema = {
@@ -46,6 +47,11 @@ class IntegerSchemaCls implements IntegerSchemaBuilder {
 
   aliases(...aliases: Alias[]): this {
     this.schema.aliases = [...this.schema.aliases, ...aliases]
+    return this
+  }
+
+  secret(): this {
+    this.schema.secret = true
     return this
   }
 }
