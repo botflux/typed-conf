@@ -1,5 +1,5 @@
 import {describe, test} from "node:test";
-import {ValibotValidator} from "../validation/valibot.js";
+import {ValibotValidator} from "./valibot.js";
 import {c} from "../loader.js";
 import assert from "node:assert/strict";
 

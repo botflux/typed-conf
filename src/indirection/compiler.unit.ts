@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { isIndirectionExpression, compileIndirectionExpression } from "../indirection/compiler.js"
+import { isIndirectionExpression, compileIndirectionExpression } from "./compiler.js"
 
 describe('isIndirectionExpression', () => {
   const testCases = [

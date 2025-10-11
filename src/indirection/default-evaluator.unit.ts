@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import {DefaultEvaluator} from "../indirection/default-evaluator.js";
+import {DefaultEvaluator} from "./default-evaluator.js";
 
 describe('DefaultEvaluator', function () {
   test("should be able to evaluate a function", async (t) => {
