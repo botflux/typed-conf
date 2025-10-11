@@ -11,6 +11,7 @@ import {Network, StartedNetwork} from "testcontainers"
 import {expect} from "expect";
 import {boolean} from "./schemes/boolean.js";
 import {FakeClock} from "./clock/fake-clock.js";
+import {ValidationError} from "./validation/validation.error.js";
 
 describe('env variable loading', function () {
   test("should be able to load a config from envs", async t => {
@@ -56,7 +57,7 @@ describe('env variable loading', function () {
     })
 
     // Then
-    await assert.rejects(promise, new Error("PORT (envs) must be integer, got 'not-an-integer'"))
+    await assert.rejects(promise, new ValidationError("PORT (envs) must be integer, got 'not-an-integer'"))
   })
 
   test("should be able to prefix all the envs", async (t) => {
@@ -283,7 +284,7 @@ describe('file config loading', function () {
     })
 
     // Then
-    await assert.rejects(promise, new Error("port (file config.json) must be integer, got 'not-an-integer'"))
+    await assert.rejects(promise, new ValidationError("port (file config.json) must be integer, got 'not-an-integer'"))
   })
 
   test("should be able to ignore additional properties", async (t) => {
@@ -907,7 +908,7 @@ describe("testing", () => {
         })
 
         // Then
-        await assert.rejects(promise, new Error("PORT (envs) must be integer, got 'not-an-integer'"))
+        await assert.rejects(promise, new ValidationError("PORT (envs) must be integer, got 'not-an-integer'"))
       })
     })
   })
@@ -961,7 +962,7 @@ describe("testing", () => {
         })
 
         // Then
-        await assert.rejects(promise, new Error("port (file config.json) must be integer, got 'not-an-integer'"))
+        await assert.rejects(promise, new ValidationError("port (file config.json) must be integer, got 'not-an-integer'"))
       })
     })
   })

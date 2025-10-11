@@ -2,6 +2,7 @@ import type { JSONSchema } from "json-schema-to-typescript";
 import type {SchemaValidator} from "./validator.js";
 import {Ajv, type ErrorObject, type Schema} from "ajv";
 import {getValueAtPath} from "../utils.js";
+import {ValidationError} from "./validation.error.js";
 
 export class AjvSchemaValidator implements SchemaValidator {
   #ajv = new Ajv({ coerceTypes: true, removeAdditional: "all" })
@@ -10,7 +11,7 @@ export class AjvSchemaValidator implements SchemaValidator {
     const isValid = this.#ajv.compile(schema as Schema)
 
     if (!isValid(toValidate)) {
-      throw new Error(this.#formatError(isValid.errors ?? [], toValidate, name))
+      throw new ValidationError(this.#formatError(isValid.errors ?? [], toValidate, name))
     }
   }
 

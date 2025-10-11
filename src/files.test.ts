@@ -3,6 +3,7 @@ import {FakeFileSystem, fileSource} from "./sources/files.js";
 import {c} from "./loader.js";
 import {expect} from "expect";
 import {FileParsingError} from "./sources/file-parsing.error.js";
+import {ValidationError} from "./validation/validation.error.js";
 
 describe('fileSource', function () {
   it('should be able to load configuration from a file source', async function () {
@@ -69,7 +70,7 @@ describe('fileSource', function () {
       })
 
       // Then
-      await expect(p).rejects.toThrow(new Error("file file.json must be object, got 'foo'"))
+      await expect(p).rejects.toThrow(new ValidationError("file file.json must be object, got 'foo'"))
     })
 
     it('should be able to throw given the loaded config does not match the schema', async function () {
@@ -89,7 +90,7 @@ describe('fileSource', function () {
       const p = source.load(schema.schema, {}, { fs })
 
       // Then
-      await expect(p).rejects.toThrow(new Error("port (file file.json) must be integer, got 'foo'"))
+      await expect(p).rejects.toThrow(new ValidationError("port (file file.json) must be integer, got 'foo'"))
     })
   })
 
