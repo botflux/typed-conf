@@ -9,7 +9,7 @@ import {string} from "../../schemes/string.js";
 import type {EvaluatorFunction} from "../../indirection/default-evaluator.js";
 
 export type FileSourceOpts = {
-  file: string
+  file?: string
 }
 
 export type FileSourceDeps = BaseDeps & {
@@ -28,6 +28,10 @@ class FileSource implements Source<"file", FileSourceDeps> {
   }
 
   async load(schema: ObjectSchema<ObjectSpec>, loaded: Record<string, unknown>, deps?: FileSourceDeps): Promise<Record<string, unknown>> {
+    if (this.#opts.file === undefined) {
+      return {}
+    }
+
     const fs = deps?.fs ?? regularFs
     const file = await fs.readFile(this.#opts.file, "utf-8")
 
@@ -78,6 +82,6 @@ export function file(format: string) {
   )
 }
 
-export function fileSource(opts: FileSourceOpts): Source<"file", FileSourceDeps> {
+export function fileSource(opts: FileSourceOpts = {}): Source<"file", FileSourceDeps> {
   return new FileSource(opts)
 }

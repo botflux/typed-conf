@@ -336,6 +336,29 @@ describe('file config loading', function () {
       key: 'helloworld'
     })
   })
+
+  it('should be able to declare the file source without any file to load', async function () {
+    // Given
+    const fs = new FakeFileSystem()
+    const configSpec = c.config({
+      schema: c.object({
+        port: c.integer().optional()
+      }),
+      sources: [
+        fileSource()
+      ]
+    })
+
+    // When
+    const loaded = await configSpec.load({
+      sources: {
+        file: { fs }
+      },
+    })
+
+    // Then
+    expect(loaded).toEqual({})
+  })
 })
 
 describe('hashicorp vault secret loading', function () {

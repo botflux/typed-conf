@@ -20,6 +20,10 @@ class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue
   }
 
   visitInteger(schema: IntegerSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+    if (schema.optional) {
+      return v.optional(v.pipe(v.number(), v.integer()))
+    }
+
     return v.pipe(v.number(), v.integer())
   }
 
