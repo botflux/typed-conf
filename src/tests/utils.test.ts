@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {getValueAtPath, inlineCatchSync, setValueAtPath} from "./utils.js";
+import {getValueAtPath, inlineCatchSync, setValueAtPath} from "../utils.js";
 import {expect} from "expect";
 
 describe('utils#getValueAtPath', function () {

@@ -1,6 +1,6 @@
 import {describe, test} from "node:test";
-import {ValibotValidator} from "./validation/valibot.js";
-import {c} from "./loader.js";
+import {ValibotValidator} from "../validation/valibot.js";
+import {c} from "../loader.js";
 import assert from "node:assert/strict";
 
 describe("schemes validation", () => {
