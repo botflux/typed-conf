@@ -4,6 +4,9 @@ import {AjvSchemaValidator} from "../../validation/ajv.js";
 import {inlineCatchSync} from "../../utils.js";
 import {FileParsingError} from "./file-parsing.error.js";
 import {type FileSystem, regularFs} from "./file-system.js";
+import {ref} from "../../schemes/ref.js";
+import {string} from "../../schemes/string.js";
+import type {EvaluatorFunction} from "../../indirection/default-evaluator.js";
 
 export type FileSourceOpts = {
   file: string
@@ -38,6 +41,41 @@ class FileSource implements Source<"file", FileSourceDeps> {
 
     return parsed as Record<string, unknown>
   }
+  
+  getEvaluatorFunction(loaded: Record<string, unknown>, deps: FileSourceDeps): EvaluatorFunction {
+    return {
+      name: 'file',
+      params: [
+        {
+          name: 'path',
+          type: 'string',
+          required: true,
+        }
+      ],
+      fn: async args => {
+        if (!('path' in args)) {
+          throw new Error("Not implemented at line 57 in files.ts")
+        }
+        
+        if (typeof args.path !== 'string') {
+          throw new Error("Not implemented at line 61 in files.ts")
+        }
+
+        const fs = deps.fs ?? regularFs
+        const content = await fs.readFile(args.path, 'utf-8')
+
+        return content
+      }
+    }
+  }
+}
+
+export function file(format: string) {
+  return ref(
+    string(),
+    'file',
+    ref1 => ({})
+  )
 }
 
 export function fileSource(opts: FileSourceOpts): Source<"file", FileSourceDeps> {
