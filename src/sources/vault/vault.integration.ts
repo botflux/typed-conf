@@ -1,7 +1,7 @@
 import {after, before, describe, it, test} from "node:test";
 import {expect} from "expect";
 import {c} from "../../loader.js";
-import {vaultConfig, vaultDynamicSecret, vaultSource} from "./vault.js";
+import {renewSecret, vaultConfig, type VaultDynamicSecret, vaultDynamicSecret, vaultSource} from "./vault.js";
 import vault from "node-vault";
 import {envSource} from "../envs.js";
 import assert from "node:assert/strict";
@@ -85,7 +85,7 @@ describe('vault', function () {
     }, {})
 
     // When
-    const result = await fn?.fn({ path: "secret/data/my-secret", key: 'foo' })
+    const result = await fn?.fn({path: "secret/data/my-secret", key: 'foo'})
 
     // Then
     expect(result).toEqual('bar')
@@ -99,7 +99,7 @@ describe('vault', function () {
         endpoint: vaultContainer.getAddress(),
         token
       }
-    }, { clock })
+    }, {clock})
 
     // When
     const result = await fn?.fn({
@@ -117,6 +117,44 @@ describe('vault', function () {
       },
       renewable: true,
       request_id: expect.any(String)
+    })
+  })
+
+  it('should be able to renew a dynamic secret', async function () {
+    // Given
+    const start = Date.now()
+    const clock = new FakeClock(start)
+
+    const fn = vaultSource().getEvaluatorFunction?.({
+      vault: {
+        endpoint: vaultContainer.getAddress(),
+        token
+      },
+    }, {clock})
+
+    const creds = await fn?.fn({
+      path: "database/creds/my-role",
+    })
+
+    clock.add(1_000)
+
+    // When
+    await renewSecret({
+      endpoint: vaultContainer.getAddress(),
+      token
+    }, creds as VaultDynamicSecret<unknown>, 120, clock)
+
+    // Then
+    expect(creds).toMatchObject({
+      lease_duration: 120,
+      lease_id: expect.any(String),
+      data: expect.objectContaining({
+        username: expect.any(String),
+        password: expect.any(String)
+      }),
+      renewable: true,
+      request_id: expect.any(String),
+      expiresAt: start + 1_000 + 120_000,
     })
   })
 })
