@@ -15,9 +15,17 @@ export class AjvSchemaValidator implements SchemaValidator {
   }
 
   #formatError(errorObjects: ErrorObject[], toValidate: unknown, name: string) {
+    // console.log(errorObjects)
     return errorObjects.map(error => {
       const path = error.instancePath.replace(/^\//, ".").substring(1)
-      return `${path} (${name}) ${error.message}, got '${getValueAtPath(toValidate as Record<string, unknown>, path.split("."))}'`
+
+      const value = path === ""
+        ? toValidate
+        : getValueAtPath(toValidate as Record<string, unknown>, error.instancePath.substring(1).split('/'))
+
+      return path === ''
+        ? `${name} ${error.message}, got '${value}'`
+        : `${path} (${name}) ${error.message}, got '${value}'`
     }).join(", ")
   }
 }

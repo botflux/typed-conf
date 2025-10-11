@@ -112,10 +112,6 @@ class FileSource implements Source<"file", FileSourceDeps> {
       throw new FileParsingError(this.#opts.file, 'JSON', { cause: error })
     }
 
-    if (typeof parsed !== "object" || parsed === null) {
-      throw new Error("Not implemented at line 106 in files.ts")
-    }
-
     this.#validator.validate(schema.schema, parsed, `file ${this.#opts.file}`)
 
     return parsed as Record<string, unknown>
