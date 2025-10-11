@@ -41,4 +41,22 @@ describe('string', function () {
     // Then
     expect(schema.schema.aliases).toEqual([ envAlias('FOO') ])
   })
+
+  it('should be able to declare a string as a secret', function () {
+    // Given
+    // When
+    const schema = c.string().secret()
+
+    // Then
+    expect(schema.schema.secret).toBe(true)
+  })
+
+  it('should not be a secret by default', function () {
+    // Given
+    // When
+    const schema = c.string()
+
+    // Then
+    expect(schema.schema.secret).toBe(false)
+  })
 })
