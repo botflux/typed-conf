@@ -52,3 +52,11 @@ export function getValueAtPath(o: Record<string, unknown>, path: string[]): unkn
 
   return tmp[key] as unknown
 }
+
+export function inlineCatchSync<T>(fn: () => T) {
+  try {
+    return [fn(), undefined] as const
+  } catch (error: unknown) {
+    return [undefined, error] as const
+  }
+}

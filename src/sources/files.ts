@@ -6,6 +6,8 @@ import * as fs from "node:fs";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 import {AjvSchemaValidator} from "../validation/ajv.js";
 import type {Clock} from "../clock/clock.interface.js";
+import {inlineCatchSync} from "../utils.js";
+import {FileParsingError} from "./file-parsing.error.js";
 
 export interface FileSystem {
   readFile: typeof readFile
@@ -104,7 +106,11 @@ class FileSource implements Source<"file", FileSourceDeps> {
     const fs = deps?.fs ?? regularFs
     const file = await fs.readFile(this.#opts.file, "utf-8")
 
-    const parsed = JSON.parse(file)
+    const [ parsed, error ] = inlineCatchSync(() => JSON.parse(file) as unknown)
+
+    if (error !== undefined) {
+      throw new FileParsingError(this.#opts.file, 'JSON', { cause: error })
+    }
 
     if (typeof parsed !== "object" || parsed === null) {
       throw new Error("Not implemented at line 106 in files.ts")
@@ -112,7 +118,7 @@ class FileSource implements Source<"file", FileSourceDeps> {
 
     this.#validator.validate(schema.schema, parsed, `file ${this.#opts.file}`)
 
-    return parsed
+    return parsed as Record<string, unknown>
   }
 }
 

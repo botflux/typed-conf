@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {getValueAtPath, setValueAtPath} from "./utils.js";
+import {getValueAtPath, inlineCatchSync, setValueAtPath} from "./utils.js";
 import {expect} from "expect";
 
 describe('utils#getValueAtPath', function () {
@@ -128,5 +128,29 @@ describe('utils#setValueAtPath', function () {
     // When
     // Then
     expect(() => setValueAtPath(o, ["foo", "bar"], "foo")).toThrow(new Error("Cannot set value at path 'foo.bar' because the intermediate property \"foo\" is not an object"))
+  })
+})
+
+describe('utils#inlineCatchSync', function () {
+  it('should be able to return the value in a tuple', function () {
+    // Given
+    // When
+    const result = inlineCatchSync(() => 'foo')
+
+    // Then
+    expect(result).toEqual([ 'foo', undefined ])
+  })
+
+  it('should be able to return the error as the second element of a tuple', function () {
+    // Given
+    const error = new Error('oops')
+
+    // When
+    const result = inlineCatchSync(() => {
+      throw error
+    })
+
+    // Then
+    expect(result).toEqual([ undefined, error ])
   })
 })
