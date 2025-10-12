@@ -11,7 +11,7 @@ import {boolean} from "../schemes/boolean.js";
 import {integer} from "../schemes/integer.js";
 import {float} from "../schemes/float.js";
 import {secret} from "../schemes/secret.js";
-import {object, type ObjectSchema, ObjectSchemaBuilder} from "../schemes/object.js";
+import {object, ObjectSchemaBuilder} from "../schemes/object.js";
 import type {RefSchema} from "../schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
 import type {Clock} from "../clock/clock.interface.js";
@@ -30,8 +30,6 @@ export const c = {
 export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
-
-export type Static<T extends BaseSchemaBuilder<BaseSchema<unknown>>> = T["schema"][typeof kType]
 
 export type LoadOpts<Sources extends Source<string, never>[]> = {
   sources: SourcesToRecord<Sources>

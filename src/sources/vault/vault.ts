@@ -1,6 +1,6 @@
 import type {BaseDeps, Source} from "../source.js";
 import vault from "node-vault"
-import {c, type Static} from "../../loader/loader.js";
+import {c} from "../../loader/loader.js";
 import type {EvaluatorFunction} from "../../indirection/default-evaluator.js";
 import {string} from "../../schemes/string.js";
 import {secret} from "../../schemes/secret.js";
@@ -12,6 +12,7 @@ import {NativeClock} from "../../clock/native-clock.js";
 import {getValueAtPath} from "../../utils.js";
 import {ValidationError} from "../../validation/validation.error.js";
 import {formatError} from "../../validation/ajv.js";
+import type {Static} from "../../schemes/base.js";
 
 export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
   return ref(object({

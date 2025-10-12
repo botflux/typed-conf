@@ -34,3 +34,5 @@ export function flatten(config: ObjectSchema<ObjectSpec>, base: string[] = []): 
     ? flatten(value.schema, [...base, k])
     : {key: [...base, k], value: value.schema} as Entry)
 }
+
+export type Static<T extends BaseSchemaBuilder<BaseSchema<unknown>>> = T["schema"][typeof kType]
