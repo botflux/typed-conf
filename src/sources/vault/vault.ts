@@ -9,6 +9,7 @@ import {ref} from "../../schemes/ref.js";
 import {Ajv} from "ajv";
 import type {Clock} from "../../clock/clock.interface.js";
 import {NativeClock} from "../../clock/native-clock.js";
+import {getValueAtPath} from "../../utils.js";
 
 export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
   return ref(object({
@@ -141,7 +142,7 @@ class VaultSource implements Source<"vault", VaultDeps> {
         const secret = await this.loadSecret(path, loaded, deps.clock ?? new NativeClock())
 
         if (typeof key === "string") {
-          return getAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
+          return getValueAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
         }
 
         return secret as Record<string, unknown>
@@ -179,35 +180,6 @@ function validateSecret(ajv: Ajv, secret: unknown): asserts secret is VaultDynam
   if (!isValid(secret)) {
     throw new Error('Invalid secret returned by vault')
   }
-}
-
-function getAtPath(loaded: Record<string, unknown>, path: string[]): unknown {
-  let tmp: Record<string, unknown> = loaded
-
-  const intermediateObjectPath = path.slice(0, -1)
-  const key = path.at(-1)
-
-  if (key === undefined) {
-    throw new Error("Not implemented at line 46 in vault.ts")
-  }
-
-  for (const chunk of intermediateObjectPath) {
-    if (typeof tmp !== "object" || tmp === null) {
-      return undefined
-    }
-
-    if (!(chunk in tmp) || tmp[chunk] === undefined) {
-      return undefined
-    }
-
-    tmp = tmp[chunk] as Record<string, unknown>
-  }
-
-  if (!(key in tmp) || tmp[key] === undefined) {
-    return undefined
-  }
-
-  return tmp[key]
 }
 
 function extractVaultConfig(loaded: Record<string, unknown>): VaultConfig {
