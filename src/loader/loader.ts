@@ -5,14 +5,14 @@ import {compileIndirectionExpression} from "../indirection/compiler.js";
 import {DefaultEvaluator} from "../indirection/default-evaluator.js";
 import {isIndirection} from "../indirection/is-indirection.js";
 import {ValibotValidator} from "../validation/valibot.js";
-import {type BaseSchema, type BaseSchemaBuilder, flatten, kType} from "../schemes/base.js";
+import {type BaseSchemaBuilder, flatten, kType} from "../schemes/base.js";
 import {string} from "../schemes/string.js";
 import {boolean} from "../schemes/boolean.js";
 import {integer} from "../schemes/integer.js";
 import {float} from "../schemes/float.js";
 import {secret} from "../schemes/secret.js";
 import {object, ObjectSchemaBuilder} from "../schemes/object.js";
-import type {RefSchema} from "../schemes/ref.js";
+import {isRef} from "../schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
 import type {Clock} from "../clock/clock.interface.js";
 import {NativeClock} from "../clock/native-clock.js";
@@ -146,10 +146,6 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
       setValueAtPath(previouslyLoaded, key, resolved)
     }
   }
-}
-
-function isRef (schema: BaseSchema<unknown>): schema is RefSchema<unknown> {
-  return "type" in schema && schema.type === "ref"
 }
 
 function config<Schema extends ObjectSchemaBuilder<Record<string, any>>, Sources extends Source<string, never>[]>(configOpts: ConfigOpts<Schema, Sources>): ConfigLoader<Schema, Sources> {

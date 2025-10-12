@@ -59,3 +59,7 @@ export class RefSchemaBuilderCls<T> implements RefSchemaBuilder<T> {
 export function ref<T>(target: BaseSchemaBuilder<BaseSchema<T>>, sourceName: string, toSourceParams: (ref: string) => Record<string, unknown>): RefSchemaBuilder<T> {
   return new RefSchemaBuilderCls(target, sourceName, toSourceParams)
 }
+
+export function isRef(schema: BaseSchema<unknown>): schema is RefSchema<unknown> {
+  return "type" in schema && schema.type === "ref"
+}
