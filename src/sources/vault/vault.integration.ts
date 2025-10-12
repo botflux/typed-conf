@@ -120,6 +120,13 @@ describe('vault', function () {
     })
   })
 
+  // This test case should verify that an error is thrown when the loaded secret from 'loadSecret' is invalid.
+  it.todo('should be able to throw given the vault response is misshaped', function () {
+    // Given
+    // When
+    // Then
+  })
+
   describe('dynamic secret renewal', function () {
     it('should be able to renew a dynamic secret', async function () {
       // Given
