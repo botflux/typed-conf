@@ -1,21 +1,21 @@
-import type {Source, SourcesToRecord} from "./sources/source.js";
+import type {Source, SourcesToRecord} from "../sources/source.js";
 import {merge} from "merge-anything";
-import {type IndirectionEvaluator} from "./indirection/evaluator.js";
-import {compileIndirectionExpression} from "./indirection/compiler.js";
-import {DefaultEvaluator} from "./indirection/default-evaluator.js";
-import {isIndirection} from "./indirection/is-indirection.js";
-import {ValibotValidator} from "./validation/valibot.js";
-import {type BaseSchema, type BaseSchemaBuilder, flatten, kType} from "./schemes/base.js";
-import {string} from "./schemes/string.js";
-import {boolean} from "./schemes/boolean.js";
-import {integer} from "./schemes/integer.js";
-import {float} from "./schemes/float.js";
-import {secret} from "./schemes/secret.js";
-import {object, type ObjectSchema, ObjectSchemaBuilder} from "./schemes/object.js";
-import type {RefSchema} from "./schemes/ref.js";
-import {getValueAtPath, setValueAtPath} from "./utils.js";
-import type {Clock} from "./clock/clock.interface.js";
-import {NativeClock} from "./clock/native-clock.js";
+import {type IndirectionEvaluator} from "../indirection/evaluator.js";
+import {compileIndirectionExpression} from "../indirection/compiler.js";
+import {DefaultEvaluator} from "../indirection/default-evaluator.js";
+import {isIndirection} from "../indirection/is-indirection.js";
+import {ValibotValidator} from "../validation/valibot.js";
+import {type BaseSchema, type BaseSchemaBuilder, flatten, kType} from "../schemes/base.js";
+import {string} from "../schemes/string.js";
+import {boolean} from "../schemes/boolean.js";
+import {integer} from "../schemes/integer.js";
+import {float} from "../schemes/float.js";
+import {secret} from "../schemes/secret.js";
+import {object, type ObjectSchema, ObjectSchemaBuilder} from "../schemes/object.js";
+import type {RefSchema} from "../schemes/ref.js";
+import {getValueAtPath, setValueAtPath} from "../utils.js";
+import type {Clock} from "../clock/clock.interface.js";
+import {NativeClock} from "../clock/native-clock.js";
 
 export const c = {
   config,

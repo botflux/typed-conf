@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {c} from "../loader.js";
+import {c} from "../loader/loader.js";
 import {expect} from "expect";
 import {envAlias} from "../sources/envs/envs.js";
 

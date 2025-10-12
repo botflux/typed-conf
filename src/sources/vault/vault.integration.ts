@@ -1,6 +1,6 @@
 import {after, before, describe, it, test} from "node:test";
 import {expect} from "expect";
-import {c} from "../../loader.js";
+import {c} from "../../loader/loader.js";
 import {renewSecret, vaultConfig, type VaultDynamicSecret, vaultDynamicSecret, vaultSource} from "./vault.js";
 import vault from "node-vault";
 import {envSource} from "../envs/envs.js";

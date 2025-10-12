@@ -1,6 +1,6 @@
 import {describe, it} from "node:test";
 import {fileSource} from "./files.js";
-import {c} from "../../loader.js";
+import {c} from "../../loader/loader.js";
 import {expect} from "expect";
 import {FileParsingError} from "./file-parsing.error.js";
 import {ValidationError} from "../../validation/validation.error.js";
