@@ -1,6 +1,6 @@
 import type {BaseDeps, Source} from "../source.js";
 import vault from "node-vault"
-import {c} from "../../loader/loader.js";
+import {c} from "../../loader/default-loader.js";
 import type {EvaluatorFunction} from "../../indirection/default-evaluator.js";
 import {string} from "../../schemes/string.js";
 import {secret} from "../../schemes/secret.js";

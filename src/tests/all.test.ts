@@ -1,6 +1,6 @@
 import {after, before, describe, it, test} from "node:test"
 import assert from "node:assert/strict"
-import {c} from "../loader/loader.js"
+import {c} from "../loader/default-loader.js"
 import {envAlias, envSource} from "../sources/envs/envs.js";
 import {file, fileSource} from "../sources/files/files.js";
 import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";

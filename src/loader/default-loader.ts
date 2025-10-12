@@ -1,11 +1,11 @@
-import type {Source, SourcesToRecord} from "../sources/source.js";
+import type {Source} from "../sources/source.js";
 import {merge} from "merge-anything";
 import {type IndirectionEvaluator} from "../indirection/evaluator.js";
 import {compileIndirectionExpression} from "../indirection/compiler.js";
 import {DefaultEvaluator} from "../indirection/default-evaluator.js";
 import {isIndirection} from "../indirection/is-indirection.js";
 import {ValibotValidator} from "../validation/valibot.js";
-import {type BaseSchemaBuilder, flatten, kType} from "../schemes/base.js";
+import {flatten, kType} from "../schemes/base.js";
 import {string} from "../schemes/string.js";
 import {boolean} from "../schemes/boolean.js";
 import {integer} from "../schemes/integer.js";
@@ -14,8 +14,8 @@ import {secret} from "../schemes/secret.js";
 import {object, ObjectSchemaBuilder} from "../schemes/object.js";
 import {isRef} from "../schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
-import type {Clock} from "../clock/clock.interface.js";
 import {NativeClock} from "../clock/native-clock.js";
+import type {ConfigLoader, LoadOpts, Prettify} from "./interface.js";
 
 export const c = {
   config,
@@ -25,26 +25,6 @@ export const c = {
   integer,
   float,
   secret
-}
-
-export type Prettify<T> = {
-  [K in keyof T]: T[K];
-} & {};
-
-export type LoadOpts<Sources extends Source<string, never>[]> = {
-  sources: SourcesToRecord<Sources>
-
-  /**
-   * A clock implementation.
-   * This option is meant to be used in tests to mock the time.
-   */
-  clock?: Clock
-}
-
-export interface ConfigLoader<ConfigSchema extends ObjectSchemaBuilder<Record<string, BaseSchemaBuilder<any>>>, Sources extends Source<string, never>[]> {
-  configSchema: ConfigSchema
-  sources: Sources
-  load(opts: LoadOpts<Sources>): Promise<Prettify<ConfigSchema["schema"][typeof kType]>>
 }
 
 export type ConfigOpts<Schema extends ObjectSchemaBuilder<Record<string, any>>, Sources extends Source<string, never>[]> = {
