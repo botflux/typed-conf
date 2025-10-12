@@ -120,41 +120,49 @@ describe('vault', function () {
     })
   })
 
-  it('should be able to renew a dynamic secret', async function () {
-    // Given
-    const start = Date.now()
-    const clock = new FakeClock(start)
+  describe('dynamic secret renewal', function () {
+    it('should be able to renew a dynamic secret', async function () {
+      // Given
+      const start = Date.now()
+      const clock = new FakeClock(start)
 
-    const fn = vaultSource().getEvaluatorFunction?.({
-      vault: {
+      const fn = vaultSource().getEvaluatorFunction?.({
+        vault: {
+          endpoint: vaultContainer.getAddress(),
+          token
+        },
+      }, {clock})
+
+      const creds = await fn?.fn({
+        path: "database/creds/my-role",
+      })
+
+      clock.add(1_000)
+
+      // When
+      await renewSecret({
         endpoint: vaultContainer.getAddress(),
         token
-      },
-    }, {clock})
+      }, creds as VaultDynamicSecret<unknown>, 120, clock)
 
-    const creds = await fn?.fn({
-      path: "database/creds/my-role",
+      // Then
+      expect(creds).toMatchObject({
+        lease_duration: 120,
+        lease_id: expect.any(String),
+        data: expect.objectContaining({
+          username: expect.any(String),
+          password: expect.any(String)
+        }),
+        renewable: true,
+        request_id: expect.any(String),
+        expiresAt: start + 1_000 + 120_000,
+      })
     })
 
-    clock.add(1_000)
-
-    // When
-    await renewSecret({
-      endpoint: vaultContainer.getAddress(),
-      token
-    }, creds as VaultDynamicSecret<unknown>, 120, clock)
-
-    // Then
-    expect(creds).toMatchObject({
-      lease_duration: 120,
-      lease_id: expect.any(String),
-      data: expect.objectContaining({
-        username: expect.any(String),
-        password: expect.any(String)
-      }),
-      renewable: true,
-      request_id: expect.any(String),
-      expiresAt: start + 1_000 + 120_000,
+    it.todo('should be able to throw an error given the response returned by vault is misshaped', function () {
+      // Given
+      // When
+      // Then
     })
   })
 })
