@@ -1,7 +1,7 @@
 import {describe, it} from "node:test";
 import {object} from "../../schemes/object.js";
 import {string} from "../../schemes/string.js";
-import {vaultDynamicSecret} from "./vault.js";
+import {vaultDynamicSecret, vaultSource} from "./vault.js";
 import {expect} from "expect";
 
 describe('vaultDynamicSecret', function () {
@@ -33,5 +33,18 @@ describe('vaultDynamicSecret', function () {
       additionalProperties: false,
       required: ['lease_duration', 'lease_id', 'renewable', 'request_id', 'data', 'expiresAt'],
     })
+  })
+})
+
+describe('evaluator function', function () {
+  it('should be able to throw given the path argument is not a string', async function () {
+    // Given
+    const fn = vaultSource().getEvaluatorFunction?.({}, {})
+
+    // When
+    const p = fn?.fn({ path: 2341 })
+
+    // Then
+    await expect(p).rejects.toThrow(new Error('Expect argument "path" to be a string, got "2341"'))
   })
 })

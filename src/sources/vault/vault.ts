@@ -135,7 +135,7 @@ class VaultSource implements Source<"vault", VaultDeps> {
         const { path, key } = args
 
         if (typeof path !== "string") {
-          throw new Error(`Invalid argument "${path}" in vault.`)
+          throw new Error(`Expect argument "path" to be a string, got "${path}"`)
         }
 
         const secret = await this.loadSecret(path, loaded, deps.clock ?? new NativeClock())
