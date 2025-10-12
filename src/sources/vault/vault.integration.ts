@@ -3,7 +3,7 @@ import {expect} from "expect";
 import {c} from "../../loader.js";
 import {renewSecret, vaultConfig, type VaultDynamicSecret, vaultDynamicSecret, vaultSource} from "./vault.js";
 import vault from "node-vault";
-import {envSource} from "../envs.js";
+import {envSource} from "../envs/envs.js";
 import assert from "node:assert/strict";
 import {Network, StartedNetwork} from "testcontainers";
 import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";

@@ -1,7 +1,7 @@
 import {describe, it, test} from "node:test";
 import {c} from "../loader.js";
 import {expect} from "expect";
-import {envAlias} from "../sources/envs.js";
+import {envAlias} from "../sources/envs/envs.js";
 
 describe('boolean', function () {
   it('should be able to create a boolean schema', function () {

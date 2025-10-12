@@ -1,7 +1,7 @@
 import {describe, it} from "node:test";
 import {c} from "../loader.js";
 import {expect} from "expect";
-import {envAlias} from "../sources/envs.js";
+import {envAlias} from "../sources/envs/envs.js";
 
 describe('integer', function () {
   it('should be able to declare an integer', function () {

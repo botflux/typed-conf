@@ -3,7 +3,7 @@ import {isObject, object} from "./object.js";
 import {string} from "./string.js";
 import {integer} from "./integer.js";
 import {expect} from "expect";
-import {envAlias} from "../sources/envs.js";
+import {envAlias} from "../sources/envs/envs.js";
 
 describe('object', function () {
   it('should be able to declare an object', function () {

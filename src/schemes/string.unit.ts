@@ -1,7 +1,7 @@
 import {describe, it} from "node:test";
 import {c} from "../loader.js";
 import {expect} from "expect";
-import {envAlias} from "../sources/envs.js";
+import {envAlias} from "../sources/envs/envs.js";
 
 describe('string', function () {
   it('should be able to declare a string schema', function () {
