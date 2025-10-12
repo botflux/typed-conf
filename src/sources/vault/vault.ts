@@ -98,7 +98,7 @@ class VaultSource implements Source<"vault", VaultDeps> {
   #ajv = new Ajv()
 
   async loadSecret(path: string, loaded: Record<string, unknown>, clock: Clock) {
-    const vaultConfig = extractVaultConfig(loaded)
+    const vaultConfig = extractVaultConfig(loaded, 'vault')
 
     const client = vault({
         endpoint: vaultConfig.endpoint,
@@ -182,37 +182,37 @@ function validateSecret(ajv: Ajv, secret: unknown): asserts secret is VaultDynam
   }
 }
 
-function extractVaultConfig(loaded: Record<string, unknown>): VaultConfig {
-  if (!("vault" in loaded)) {
-    throw new Error("vault config not found")
+export function extractVaultConfig(loaded: Record<string, unknown>, key: string): VaultConfig {
+  if (!(key in loaded)) {
+    throw new Error(`Expect the configuration to contain a "${key}" property holding the vault configuration`)
   }
 
-  if (typeof loaded.vault !== "object") {
+  if (typeof loaded[key] !== "object") {
     throw new Error("vault config is not an object")
   }
 
-  if (loaded.vault === null) {
+  if (loaded[key] === null) {
     throw new Error("vault config is null")
   }
 
-  if (!("token" in loaded.vault)) {
+  if (!("token" in loaded[key])) {
     throw new Error("vault token not found")
   }
 
-  if (typeof loaded.vault.token !== "string") {
+  if (typeof loaded[key].token !== "string") {
     throw new Error("vault token is not a string")
   }
 
-  if (!("endpoint" in loaded.vault)) {
+  if (!("endpoint" in loaded[key])) {
     throw new Error("vault endpoint not found")
   }
 
-  if (typeof loaded.vault.endpoint !== "string") {
+  if (typeof loaded[key].endpoint !== "string") {
     throw new Error("vault endpoint is not a string")
   }
 
   return {
-    endpoint: loaded.vault.endpoint,
-    token: loaded.vault.token
+    endpoint: loaded[key].endpoint,
+    token: loaded[key].token
   }
 }

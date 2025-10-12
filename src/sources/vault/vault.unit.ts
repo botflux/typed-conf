@@ -1,7 +1,7 @@
 import {describe, it} from "node:test";
 import {object} from "../../schemes/object.js";
 import {string} from "../../schemes/string.js";
-import {vaultDynamicSecret, vaultSource} from "./vault.js";
+import {extractVaultConfig, vaultDynamicSecret, vaultSource} from "./vault.js";
 import {expect} from "expect";
 
 describe('vaultDynamicSecret', function () {
@@ -46,5 +46,33 @@ describe('evaluator function', function () {
 
     // Then
     await expect(p).rejects.toThrow(new Error('Expect argument "path" to be a string, got "2341"'))
+  })
+})
+
+describe('extractVaultConfig', function () {
+  it('should be able to able to extract the vault configuration from an object', function () {
+    // Given
+    const config = {
+      vault: {
+        endpoint: 'http://localhost:3000',
+        token: 'my token'
+      }
+    }
+
+    // When
+    const result = extractVaultConfig(config, 'vault')
+
+    // Then
+    expect(result).toEqual({ endpoint: 'http://localhost:3000', token: 'my token' })
+  })
+
+  it('should be able to throw an error given the vault configuration is not present', function () {
+    // Given
+    const config = {}
+
+    // When
+    // Then
+    expect(() => extractVaultConfig(config, 'vault'))
+      .toThrow(new Error('Expect the configuration to contain a "vault" property holding the vault configuration'))
   })
 })
