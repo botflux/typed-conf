@@ -10,6 +10,8 @@ import {Ajv} from "ajv";
 import type {Clock} from "../../clock/clock.interface.js";
 import {NativeClock} from "../../clock/native-clock.js";
 import {getValueAtPath} from "../../utils.js";
+import {ValidationError} from "../../validation/validation.error.js";
+import {formatError} from "../../validation/ajv.js";
 
 export function vaultDynamicSecret<S extends ObjectSpec> (spec: S) {
   return ref(object({
@@ -97,8 +99,8 @@ class VaultSource implements Source<"vault", VaultDeps> {
   key: "vault" = "vault"
   #ajv = new Ajv()
 
-  async loadSecret(path: string, loaded: Record<string, unknown>, clock: Clock) {
-    const vaultConfig = extractVaultConfig(loaded, 'vault')
+  async loadSecret(path: string, loaded: Record<string, unknown>, clock: Clock, ajv: Ajv) {
+    const vaultConfig = extractVaultConfig(ajv, loaded, 'vault')
 
     const client = vault({
         endpoint: vaultConfig.endpoint,
@@ -139,7 +141,7 @@ class VaultSource implements Source<"vault", VaultDeps> {
           throw new Error(`Expect argument "path" to be a string, got "${path}"`)
         }
 
-        const secret = await this.loadSecret(path, loaded, deps.clock ?? new NativeClock())
+        const secret = await this.loadSecret(path, loaded, deps.clock ?? new NativeClock(), deps.ajv ?? this.#ajv)
 
         if (typeof key === "string") {
           return getValueAtPath(secret as Record<string, unknown>, [ "data", "data", key ])
@@ -182,37 +184,21 @@ function validateSecret(ajv: Ajv, secret: unknown): asserts secret is VaultDynam
   }
 }
 
-export function extractVaultConfig(loaded: Record<string, unknown>, key: string): VaultConfig {
-  if (!(key in loaded)) {
-    throw new Error(`Expect the configuration to contain a "${key}" property holding the vault configuration`)
+export function extractVaultConfig(ajv: Ajv, loaded: Record<string, unknown>, key: string): VaultConfig {
+  const schema = {
+    type: 'object',
+    additionalProperties: true,
+    properties: {
+      [key]: vaultConfig.schema.schema
+    },
+    required: [ key ]
+  } as const
+
+  const isValid = ajv.compile(schema)
+
+  if (!isValid(loaded)) {
+    throw new ValidationError(formatError(isValid.errors ?? [], schema, 'vault'))
   }
 
-  if (typeof loaded[key] !== "object") {
-    throw new Error("vault config is not an object")
-  }
-
-  if (loaded[key] === null) {
-    throw new Error("vault config is null")
-  }
-
-  if (!("token" in loaded[key])) {
-    throw new Error("vault token not found")
-  }
-
-  if (typeof loaded[key].token !== "string") {
-    throw new Error("vault token is not a string")
-  }
-
-  if (!("endpoint" in loaded[key])) {
-    throw new Error("vault endpoint not found")
-  }
-
-  if (typeof loaded[key].endpoint !== "string") {
-    throw new Error("vault endpoint is not a string")
-  }
-
-  return {
-    endpoint: loaded[key].endpoint,
-    token: loaded[key].token
-  }
+  return loaded[key] as VaultConfig
 }

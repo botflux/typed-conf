@@ -3,6 +3,7 @@ import {object} from "../../schemes/object.js";
 import {string} from "../../schemes/string.js";
 import {extractVaultConfig, vaultDynamicSecret, vaultSource} from "./vault.js";
 import {expect} from "expect";
+import {Ajv} from "ajv";
 
 describe('vaultDynamicSecret', function () {
   it('should be able to create a ref holding a vault dynamic secret', function () {
@@ -50,6 +51,8 @@ describe('evaluator function', function () {
 })
 
 describe('extractVaultConfig', function () {
+  const ajv = new Ajv()
+
   it('should be able to able to extract the vault configuration from an object', function () {
     // Given
     const config = {
@@ -60,7 +63,7 @@ describe('extractVaultConfig', function () {
     }
 
     // When
-    const result = extractVaultConfig(config, 'vault')
+    const result = extractVaultConfig(ajv, config, 'vault')
 
     // Then
     expect(result).toEqual({ endpoint: 'http://localhost:3000', token: 'my token' })
@@ -72,7 +75,21 @@ describe('extractVaultConfig', function () {
 
     // When
     // Then
-    expect(() => extractVaultConfig(config, 'vault'))
-      .toThrow(new Error('Expect the configuration to contain a "vault" property holding the vault configuration'))
+    expect(() => extractVaultConfig(ajv, config, 'vault'))
+      .toThrow(new Error("vault must have required property 'vault', got '[object Object]'"))
+  })
+
+  it('should be able to throw an error given the configuration is misshaped', function () {
+    // Given
+    const config = {
+      vault: {
+        endpoint: 124,
+      }
+    }
+
+    // When
+    // Then
+    expect(() => extractVaultConfig(ajv, config, 'vault'))
+      .toThrow(new Error("vault (vault) must have required property 'token', got 'undefined'"))
   })
 })
