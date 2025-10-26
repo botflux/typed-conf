@@ -73,6 +73,6 @@ function schemaToJSONSchema(schema: ObjectSpec, afterRef: boolean): JSONSchema {
     type: "object",
     additionalProperties: false,
     properties: Object.fromEntries(props),
-    required
+    required: afterRef ? required : undefined
   }
 }

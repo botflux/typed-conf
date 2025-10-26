@@ -12,9 +12,13 @@ export function formatError(errorObjects: ErrorObject[], toValidate: unknown, na
       ? toValidate
       : getValueAtPath(toValidate as Record<string, unknown>, error.instancePath.substring(1).split('/'))
 
+    const stringifiedValue = typeof value === "object"
+      ? JSON.stringify(value)
+      : value
+
     return path === ''
-      ? `${name} ${error.message}, got '${value}'`
-      : `${path} (${name}) ${error.message}, got '${value}'`
+      ? `${name} ${error.message}, got '${stringifiedValue}'`
+      : `${path} (${name}) ${error.message}, got '${stringifiedValue}'`
   }).join(", ")
 }
 
