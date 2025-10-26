@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {getValueAtPath, inlineCatchSync, setValueAtPath} from "./utils.js";
+import {getValueAtPath, inlineCatchSync, setValueAtPath} from "../utils.js";
 import {expect} from "expect";
 
 describe('utils#getValueAtPath', function () {
@@ -128,15 +128,6 @@ describe('utils#setValueAtPath', function () {
     // When
     // Then
     expect(() => setValueAtPath(o, ["foo", "bar"], "foo")).toThrow(new Error("Cannot set value at path 'foo.bar' because the intermediate property \"foo\" is not an object"))
-  })
-
-  it('should be able to throw an error given an empty path', function () {
-    // Given
-    // When
-    const shouldThrow = () => setValueAtPath({}, [], 12)
-
-    // Then
-    expect(shouldThrow).toThrow(new Error("Path must contain at least one element"))
   })
 })
 

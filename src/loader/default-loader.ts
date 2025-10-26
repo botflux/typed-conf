@@ -13,7 +13,7 @@ import {float} from "../schemes/float.js";
 import {secret} from "../schemes/secret.js";
 import {object, ObjectSchemaBuilder} from "../schemes/object.js";
 import {isRef} from "../schemes/ref.js";
-import {getValueAtPath, setValueAtPath} from "../utils/utils.js";
+import {getValueAtPath, setValueAtPath} from "../utils.js";
 import {NativeClock} from "../clock/native-clock.js";
 import type {ConfigLoader, LoadOpts, Prettify} from "./interface.js";
 
