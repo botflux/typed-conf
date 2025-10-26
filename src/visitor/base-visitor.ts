@@ -4,7 +4,6 @@ import type {StringSchema} from "../schemes/string.js";
 import type {BooleanSchema} from "../schemes/boolean.js";
 import type {IntegerSchema} from "../schemes/integer.js";
 import type {FloatSchema} from "../schemes/float.js";
-import type {SecretSchema} from "../schemes/secret.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 import type {RefSchema} from "../schemes/ref.js";
 
@@ -14,7 +13,6 @@ export abstract class BaseVisitor<R> implements Visitor<R> {
     abstract visitFloat(schema: FloatSchema): R
     abstract visitBoolean(schema: BooleanSchema): R
     abstract visitObject(schema: ObjectSchema<ObjectSpec>): R
-    abstract visitSecret(schema: SecretSchema): R
     abstract visitRef(schema: RefSchema<unknown>): R
 
     visit(schema: BaseSchema<unknown>): R {
@@ -28,7 +26,6 @@ export abstract class BaseVisitor<R> implements Visitor<R> {
         case "float": return this.visitFloat(schema as FloatSchema)
         case "boolean": return this.visitBoolean(schema as BooleanSchema)
         case "object": return this.visitObject(schema as ObjectSchema<ObjectSpec>)
-        case "secret": return this.visitSecret(schema as SecretSchema)
         case "ref": return this.visitRef(schema as RefSchema<unknown>)
         default: throw new Error(
           `Unknown type '${schema.type}'`

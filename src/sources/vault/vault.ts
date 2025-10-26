@@ -3,7 +3,7 @@ import vault from "node-vault"
 import {c} from "../../loader/default-loader.js";
 import type {EvaluatorFunction} from "../../indirection/default-evaluator.js";
 import {string} from "../../schemes/string.js";
-import {secret} from "../../schemes/secret.js";
+
 import {object, type ObjectSchema, type ObjectSpec} from "../../schemes/object.js";
 import {ref} from "../../schemes/ref.js";
 import {Ajv} from "ajv";
@@ -89,7 +89,7 @@ export async function renewSecret<T>(config: VaultConfig, secret: VaultDynamicSe
 
 export const vaultConfig = object({
   endpoint: string(),
-  token: secret()
+  token: string().secret()
 })
 
 export type VaultConfig = Static<typeof vaultConfig>

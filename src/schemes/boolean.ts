@@ -1,18 +1,11 @@
 import {type Alias, type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
 import type {Visitor} from "../visitor/visitor.js";
 
-export interface BooleanSchemaBuilder extends BaseSchemaBuilder<BooleanSchema> {
-  optional(): this
-
-  aliases(...aliases: Alias[]): this
-  secret(): this
-}
-
 export type BooleanSchema = {
   type: "boolean"
 } & BaseSchema<boolean>
 
-class BooleanSchemaCls implements BooleanSchemaBuilder {
+class BooleanSchemaCls implements BaseSchemaBuilder<BooleanSchema> {
   schema: BooleanSchema = {
     [kType]: false as true,
     optional: false,
@@ -55,6 +48,6 @@ class BooleanSchemaCls implements BooleanSchemaBuilder {
   }
 }
 
-export function boolean(): BooleanSchemaBuilder {
+export function boolean(): BaseSchemaBuilder<BooleanSchema> {
   return new BooleanSchemaCls()
 }

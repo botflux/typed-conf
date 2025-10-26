@@ -17,8 +17,8 @@ export interface BaseSchemaBuilder<S extends BaseSchema<unknown>> {
   schema: S
 
   optional(): this
-
   aliases(...aliases: Alias[]): this
+  secret(): this
 }
 
 export type Alias = { id: string, sourceKey: string }

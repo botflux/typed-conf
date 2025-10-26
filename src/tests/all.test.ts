@@ -237,7 +237,7 @@ describe('hashicorp vault secret loading', function () {
     // Given
     const configSpec = c.config({
       schema: c.object({
-        secret: c.secret().optional(),
+        secret: c.string().secret().optional(),
         vault: vaultConfig
       }),
       sources: [
@@ -502,7 +502,7 @@ describe("testing", () => {
     // Given
     const configSpec = c.config({
       schema: c.object({
-        dbPassword: c.secret()
+        dbPassword: c.string().secret()
       }),
       sources: [
         envSource({loadSecrets: true})
@@ -556,7 +556,7 @@ describe("testing", () => {
       // Given
       const configSpec = c.config({
         schema: c.object({
-          password: c.secret().optional()
+          password: c.string().secret().optional()
         }),
         sources: [
           envSource()
@@ -849,65 +849,6 @@ describe("testing", () => {
 
         // Then
         await assert.rejects(promise, new ValidationError("port (file config.json) must be integer, got 'not-an-integer'"))
-      })
-    })
-  })
-
-  describe('hashicorp vault', function () {
-    test("should be able to load secrets from hashicorp vault", async (t) => {
-      // Given
-      const token = "my-token"
-      const image = "hashicorp/vault:1.20"
-      const secretValue = "my-secret-value"
-
-      const container = await new VaultContainer(image)
-        .withVaultToken(token)
-        .withReuse()
-        .start()
-
-      const client = vault({
-        apiVersion: "v1",
-        token: container.getRootToken()!,
-        endpoint: container.getAddress()
-      })
-
-      await client.write("secret/data/secret", {
-        data: {
-          value: secretValue
-        }
-      })
-
-      const configSpec = c.config({
-        schema: c.object({
-          secret: c.secret(),
-          vault: vaultConfig
-        }),
-        sources: [
-          envSource({loadSecrets: true}),
-          vaultSource()
-        ]
-      })
-
-      // When
-      const config = await configSpec.load({
-        sources: {
-          envs: {
-            envs: {
-              VAULT_TOKEN: container.getRootToken(),
-              VAULT_ENDPOINT: container.getAddress(),
-              SECRET: "%vault('secret/data/secret', 'value')"
-            },
-          },
-        }
-      })
-
-      // Then
-      assert.deepStrictEqual(config, {
-        vault: {
-          endpoint: container.getAddress(),
-          token: container.getRootToken()
-        },
-        secret: secretValue
       })
     })
   })

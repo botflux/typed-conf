@@ -6,7 +6,6 @@ import type {StringSchema} from "../schemes/string.js";
 import type {BooleanSchema} from "../schemes/boolean.js";
 import type {IntegerSchema} from "../schemes/integer.js";
 import type {FloatSchema} from "../schemes/float.js";
-import type {SecretSchema} from "../schemes/secret.js";
 import type {ObjectSchema, ObjectSpec} from "../schemes/object.js";
 import type {RefSchema} from "../schemes/ref.js";
 
@@ -16,6 +15,10 @@ class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue
   }
 
   visitString(schema: StringSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
+    if (schema.optional) {
+      return v.optional(v.string())
+    }
+
     return v.string()
   }
 
@@ -44,14 +47,6 @@ class SchemaBuilder extends BaseVisitor<v.BaseSchema<unknown, unknown, BaseIssue
       .map(([key, value]) => [ key, this.visit(value.schema) ] as const)
 
     return v.object(Object.fromEntries(props))
-  }
-
-  visitSecret(schema: SecretSchema): v.BaseSchema<unknown, unknown, BaseIssue<unknown>> {
-    if (schema.optional) {
-      return v.pipe(v.optional(v.string()), v.undefined())
-    }
-
-    return v.string()
   }
 }
 

@@ -10,7 +10,6 @@ import {string} from "../schemes/string.js";
 import {boolean} from "../schemes/boolean.js";
 import {integer} from "../schemes/integer.js";
 import {float} from "../schemes/float.js";
-import {secret} from "../schemes/secret.js";
 import {object, ObjectSchemaBuilder} from "../schemes/object.js";
 import {isRef} from "../schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
@@ -24,7 +23,6 @@ export const c = {
   boolean,
   integer,
   float,
-  secret
 }
 
 export type ConfigOpts<Schema extends ObjectSchemaBuilder<Record<string, any>>, Sources extends Source<string, never>[]> = {

@@ -2,7 +2,6 @@ import type {BaseDeps, Source} from "../source.js";
 import type {EvaluatorFunction} from "../../indirection/default-evaluator.js";
 import {setValueAtPath} from "../../utils.js";
 import {type Alias, type BaseSchema, type Entry, flatten} from "../../schemes/base.js";
-import type {SecretSchema} from "../../schemes/secret.js";
 import type {ObjectSchema, ObjectSpec} from "../../schemes/object.js";
 import {AjvSchemaValidator} from "../../validation/ajv.js";
 import type {JSONSchema} from "json-schema-to-typescript";
@@ -145,6 +144,6 @@ export function envAlias(id: string): Alias {
   }
 }
 
-function isSecret(schema: BaseSchema<unknown>): schema is SecretSchema {
-  return "type" in schema && schema.type === "secret"
+function isSecret(schema: BaseSchema<unknown>): boolean {
+  return schema.secret
 }
