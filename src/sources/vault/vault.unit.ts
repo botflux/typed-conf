@@ -14,7 +14,7 @@ describe('vaultDynamicSecret', function () {
     })
 
     // Then
-    expect(schema.schema.targetSchema.schema.schema).toEqual({
+    expect(schema.schema.targetSchema.schema.afterRefSchema).toEqual({
       type: 'object',
       properties: {
         data: {
@@ -76,7 +76,7 @@ describe('extractVaultConfig', function () {
     // When
     // Then
     expect(() => extractVaultConfig(ajv, config, 'vault'))
-      .toThrow(new Error("vault must have required property 'vault', got '[object Object]'"))
+      .toThrow(new Error("vault must have required property 'vault'"))
   })
 
   it('should be able to throw an error given the configuration is misshaped', function () {
@@ -90,6 +90,6 @@ describe('extractVaultConfig', function () {
     // When
     // Then
     expect(() => extractVaultConfig(ajv, config, 'vault'))
-      .toThrow(new Error("vault (vault) must have required property 'token', got 'undefined'"))
+      .toThrow(new Error("vault/endpoint (vault) must be string, got 'undefined'"))
   })
 })

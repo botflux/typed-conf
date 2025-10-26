@@ -7,7 +7,7 @@
     "test:only": "borp --only *.test.ts",
     "test:unit": "borp **/*.unit.ts",
     "test:integration": "borp **/*.integration.ts",
-    "test:all": "borp **/*.unit.ts **/*.integration.ts",
+    "test:all": "borp **/*.unit.ts **/*.integration.ts **/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],

@@ -15,7 +15,7 @@ describe('object', function () {
     })
 
     // Then
-    expect(schema.schema.schema).toEqual({
+    expect(schema.schema.afterRefSchema).toEqual({
       type: 'object',
       properties: {
         host: { type: 'string' },
@@ -35,7 +35,7 @@ describe('object', function () {
     })
 
     // Then
-    expect(schema.schema.schema).toEqual({
+    expect(schema.schema.afterRefSchema).toEqual({
       type: 'object',
       properties: {
         host: { type: 'string' },
