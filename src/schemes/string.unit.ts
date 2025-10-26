@@ -2,6 +2,8 @@ import {describe, it} from "node:test";
 import {c} from "../loader/default-loader.js";
 import {expect} from "expect";
 import {envAlias} from "../sources/envs/envs.js";
+import {AjvSchemaValidator} from "../validation/ajv.js";
+import {string} from "./string.js";
 
 describe('string', function () {
   it('should be able to declare a string schema', function () {
@@ -58,5 +60,31 @@ describe('string', function () {
 
     // Then
     expect(schema.schema.secret).toBe(false)
+  })
+
+  describe('minLength/maxLength', function () {
+    const ajv = new AjvSchemaValidator()
+
+    it('should be able to declare a min length', function () {
+      // Given
+      const schema = string().minLength(3)
+
+      // When
+      const throws = () => ajv.validate(schema.schema.schema, "f", "foo")
+
+      // Then
+      expect(throws).toThrow(new Error("foo must NOT have fewer than 3 characters, got 'f'"))
+    })
+
+    it('should be able to declare a max length', function () {
+      // Given
+      const schema = string().maxLength(4)
+
+      // When
+      const throws = () => ajv.validate(schema.schema.schema, "foobar", "foo")
+
+      // Then
+      expect(throws).toThrow(new Error("foo must NOT have more than 4 characters, got 'foobar'"))
+    })
   })
 })

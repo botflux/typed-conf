@@ -6,7 +6,20 @@ export type StringSchema = {
   secret: boolean
 } & BaseSchema<string>
 
-class StringSchemaCls implements BaseSchemaBuilder<StringSchema> {
+export interface StringSchemaBuilder extends BaseSchemaBuilder<StringSchema> {
+  minLength(minLength: number): this
+  maxLength(maxLength: number): this;
+}
+
+class StringSchemaCls implements StringSchemaBuilder {
+  maxLength(maxLength: number): this {
+    this.schema.schema.maxLength = maxLength
+    return this
+  }
+  minLength(minLength: number): this {
+    this.schema.schema.minLength = minLength
+    return this
+  }
   schema: StringSchema = {
     [kType]: "string" as const,
     secret: false,
@@ -37,6 +50,6 @@ class StringSchemaCls implements BaseSchemaBuilder<StringSchema> {
   }
 }
 
-export function string(): BaseSchemaBuilder<StringSchema> {
+export function string(): StringSchemaBuilder {
   return new StringSchemaCls()
 }
