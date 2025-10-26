@@ -312,7 +312,7 @@ describe('hashicorp vault secret loading', function () {
     })
   })
 
-  test("should be able to load dynamic secrets", {only: true}, async (t) => {
+  test("should be able to load dynamic secrets", async (t) => {
     // Given
     const clock = new FakeClock(Date.now())
 
