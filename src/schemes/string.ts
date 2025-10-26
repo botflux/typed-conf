@@ -1,17 +1,12 @@
 import {type Alias, type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
 import type {Visitor} from "../visitor/visitor.js";
 
-export interface StringSchemaBuilder extends BaseSchemaBuilder<StringSchema> {
-
-  secret(): this
-}
-
 export type StringSchema = {
   type: "string"
   secret: boolean
 } & BaseSchema<string>
 
-class StringSchemaCls implements StringSchemaBuilder {
+class StringSchemaCls implements BaseSchemaBuilder<StringSchema> {
   schema: StringSchema = {
     [kType]: "string" as const,
     secret: false,
@@ -42,6 +37,6 @@ class StringSchemaCls implements StringSchemaBuilder {
   }
 }
 
-export function string(): StringSchemaBuilder {
+export function string(): BaseSchemaBuilder<StringSchema> {
   return new StringSchemaCls()
 }

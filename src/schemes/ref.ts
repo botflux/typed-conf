@@ -8,11 +8,8 @@ export type RefSchema<T> = {
   toSourceParams: (ref: string) => Record<string, unknown>
 } & BaseSchema<T>
 
-export interface RefSchemaBuilder<T> extends BaseSchemaBuilder<RefSchema<T>> {
-  secret(): this
-}
 
-export class RefSchemaBuilderCls<T> implements RefSchemaBuilder<T> {
+export class RefSchemaBuilderCls<T> implements BaseSchemaBuilder<RefSchema<T>> {
   schema: RefSchema<T>
 
 
@@ -56,7 +53,7 @@ export class RefSchemaBuilderCls<T> implements RefSchemaBuilder<T> {
 
 }
 
-export function ref<T>(target: BaseSchemaBuilder<BaseSchema<T>>, sourceName: string, toSourceParams: (ref: string) => Record<string, unknown>): RefSchemaBuilder<T> {
+export function ref<T>(target: BaseSchemaBuilder<BaseSchema<T>>, sourceName: string, toSourceParams: (ref: string) => Record<string, unknown>): BaseSchemaBuilder<RefSchema<T>> {
   return new RefSchemaBuilderCls(target, sourceName, toSourceParams)
 }
 

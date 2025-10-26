@@ -1,18 +1,11 @@
 import {type Alias, type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
 import type {Visitor} from "../visitor/visitor.js";
 
-export interface IntegerSchemaBuilder extends BaseSchemaBuilder<IntegerSchema> {
-  optional(): this
-
-  aliases(...aliases: Alias[]): this
-  secret(): this
-}
-
 export type IntegerSchema = {
   type: "integer"
 } & BaseSchema<number>
 
-class IntegerSchemaCls implements IntegerSchemaBuilder {
+class IntegerSchemaCls implements BaseSchemaBuilder<IntegerSchema> {
   schema: IntegerSchema = {
     [kType]: 0,
     optional: false,
@@ -56,6 +49,6 @@ class IntegerSchemaCls implements IntegerSchemaBuilder {
   }
 }
 
-export function integer(): IntegerSchemaBuilder {
+export function integer(): BaseSchemaBuilder<IntegerSchema> {
   return new IntegerSchemaCls()
 }
