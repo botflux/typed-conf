@@ -6,9 +6,7 @@ export type IntegerSchema = {
 } & BaseSchema<number>
 
 export interface IntegerSchemaBuilder extends BaseSchemaBuilder<IntegerSchema> {
-
   min(number: number): this
-
   max(number: number): this;
 }
 
@@ -59,6 +57,7 @@ class IntegerSchemaCls implements IntegerSchemaBuilder {
     this.schema.schema.maximum = max
     return this
   }
+
   min(min: number): this {
     this.schema.schema.minimum = min
     return this
