@@ -1,6 +1,7 @@
 import {type Alias, type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
 import type {Visitor} from "../visitor/visitor.js";
 import type {JSONSchema} from "json-schema-to-typescript";
+import {after} from "node:test";
 
 export type ObjectSchema<T extends ObjectSpec> = {
   type: "object"
@@ -24,7 +25,8 @@ export class ObjectSchemaBuilder<T extends ObjectSpec> implements BaseSchemaBuil
         return visitor.visitObject(this)
       },
       spec,
-      schema: schemaToJSONSchema(spec),
+      schema: schemaToJSONSchema(spec, false),
+      afterRefSchema: schemaToJSONSchema(spec, true),
       secret: false
     }
   }
@@ -53,12 +55,14 @@ export function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<Ob
   return "type" in schema && schema.type === "object"
 }
 
-function schemaToJSONSchema(schema: ObjectSpec): JSONSchema {
+function schemaToJSONSchema(schema: ObjectSpec, afterRef: boolean): JSONSchema {
   const entries = Object.entries(schema)
 
   const props = entries.map(([key, schema ]) => [
     key,
-    schema.schema.schema
+    afterRef
+      ? schema.schema.afterRefSchema ?? schema.schema.schema
+      : schema.schema.schema
   ])
 
   const required = entries

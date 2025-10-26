@@ -31,7 +31,10 @@ export class RefSchemaBuilderCls<T> implements BaseSchemaBuilder<RefSchema<T>> {
       },
       targetSchema,
       sourceName,
-      toSourceParams
+      toSourceParams,
+      get afterRefSchema() {
+        return this.targetSchema.schema.schema
+      }
     };
   }
 

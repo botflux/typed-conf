@@ -4,12 +4,45 @@ import {isObject, type ObjectSchema, type ObjectSpec} from "./object.js";
 
 export const kType = Symbol("type")
 export type BaseSchema<T> = {
+  /**
+   * A property holding the schema underlying type.
+   */
   [kType]: T
+
+  /**
+   * A coercion function.
+   * No coercion is done if undefined.
+   *
+   * @param value
+   */
   coerce?: (value: unknown) => unknown
+
+  /**
+   * A list of alias from which the current schema can be loaded.
+   */
   aliases: Alias[]
+
+  /**
+   * True if the current schema is optional.
+   */
   optional: boolean
+
   accept<R>(visitor: Visitor<R>): R
+
+  /**
+   * The JSON schema that validates this schema.
+   * This JSON schema validates the configuration as returned by the sources.
+   */
   schema: JSONSchema
+
+  /**
+   * The JSON that validates this schema after all the refs are resolved.
+   */
+  afterRefSchema?: JSONSchema
+
+  /**
+   * True if the current schema is a secret.
+   */
   secret: boolean
 }
 

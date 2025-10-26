@@ -15,6 +15,7 @@ import {isRef} from "../schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
 import {NativeClock} from "../clock/native-clock.js";
 import type {ConfigLoader, LoadOpts, Prettify} from "./interface.js";
+import {AjvSchemaValidator} from "../validation/ajv.js";
 
 export const c = {
   config,
@@ -35,7 +36,7 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
   configSchema: Schema
   sources: Sources
 
-  #validator = new ValibotValidator()
+  #validator = new AjvSchemaValidator()
 
   constructor(configSchema: Schema, sources: Sources) {
     this.configSchema = configSchema;
@@ -73,7 +74,13 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
     await this.#resolveIndirection(previouslyLoaded, evaluator)
     await this.#resolveRefs(previouslyLoaded, evaluator)
 
-    return this.#validator.validate(this.configSchema.schema, previouslyLoaded) as Prettify<Schema["schema"][typeof kType]>
+    this.#validator.validate(
+      this.configSchema.schema.afterRefSchema ?? this.configSchema.schema,
+      previouslyLoaded,
+      'config'
+    )
+
+    return previouslyLoaded as Prettify<Schema["schema"][typeof kType]>
   }
 
   async #resolveIndirection(obj: Record<string, unknown>, evaluator: IndirectionEvaluator): Promise<void> {
