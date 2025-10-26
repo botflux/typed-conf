@@ -96,5 +96,16 @@ describe('float', function () {
       // Then
       expect(throws).toThrow(new Error("foo must be >= 10, got '5'"))
     })
+
+    it('should be able to define a max', function () {
+      // Given
+      const schema = c.float().max(10)
+
+      // When
+      const throws = () => ajv.validate(schema.schema.schema, 15, 'foo')
+
+      // Then
+      expect(throws).toThrow(new Error("foo must be <= 10, got '15'"))
+    })
   })
 })

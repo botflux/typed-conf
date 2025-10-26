@@ -7,6 +7,7 @@ export type FloatSchema = {
 
 export interface FloatSchemaBuilder extends BaseSchemaBuilder<FloatSchema> {
   min(min: number): this
+  max(number: number): this
 }
 
 class FloatSchemaCls implements FloatSchemaBuilder {
@@ -54,6 +55,11 @@ class FloatSchemaCls implements FloatSchemaBuilder {
 
   min(min: number): this {
     this.schema.schema.minimum = min
+    return this
+  }
+
+  max(max: number): this {
+    this.schema.schema.maximum = max
     return this
   }
 }
