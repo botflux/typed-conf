@@ -1,6 +1,6 @@
 import type {BaseDeps, Source} from "../source.js";
 import type {EvaluatorFunction} from "../../indirection/default-evaluator.js";
-import {setValueAtPath} from "../../utils.js";
+import {setValueAtPath} from "../../utils/utils.js";
 import {type Alias, type BaseSchema, type Entry, flatten} from "../../schemes/base.js";
 import type {SecretSchema} from "../../schemes/secret.js";
 import type {ObjectSchema, ObjectSpec} from "../../schemes/object.js";

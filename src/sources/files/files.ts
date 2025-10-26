@@ -1,7 +1,7 @@
 import type {BaseDeps, Source} from "../source.js";
 import type {ObjectSchema, ObjectSpec} from "../../schemes/object.js";
 import {AjvSchemaValidator} from "../../validation/ajv.js";
-import {inlineCatchSync} from "../../utils.js";
+import {inlineCatchSync} from "../../utils/utils.js";
 import {FileParsingError} from "./file-parsing.error.js";
 import {type FileSystem, regularFs} from "./file-system.js";
 import {ref} from "../../schemes/ref.js";

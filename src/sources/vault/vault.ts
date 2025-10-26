@@ -9,7 +9,7 @@ import {ref} from "../../schemes/ref.js";
 import {Ajv} from "ajv";
 import type {Clock} from "../../clock/clock.interface.js";
 import {NativeClock} from "../../clock/native-clock.js";
-import {getValueAtPath} from "../../utils.js";
+import {getValueAtPath} from "../../utils/utils.js";
 import {ValidationError} from "../../validation/validation.error.js";
 import {formatError} from "../../validation/ajv.js";
 import type {Static} from "../../schemes/base.js";

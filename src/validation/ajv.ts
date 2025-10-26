@@ -1,7 +1,7 @@
 import type { JSONSchema } from "json-schema-to-typescript";
 import type {SchemaValidator} from "./validator.js";
 import {Ajv, type ErrorObject, type Schema} from "ajv";
-import {getValueAtPath} from "../utils.js";
+import {getValueAtPath} from "../utils/utils.js";
 import {ValidationError} from "./validation.error.js";
 
 export function formatError(errorObjects: ErrorObject[], toValidate: unknown, name: string) {
