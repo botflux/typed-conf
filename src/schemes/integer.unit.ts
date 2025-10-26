@@ -2,6 +2,7 @@ import {describe, it} from "node:test";
 import {c} from "../loader/default-loader.js";
 import {expect} from "expect";
 import {envAlias} from "../sources/envs/envs.js";
+import {AjvSchemaValidator} from "../validation/ajv.js";
 
 describe('integer', function () {
   it('should be able to declare an integer', function () {
@@ -80,5 +81,31 @@ describe('integer', function () {
 
     // Then
     expect(schema.schema.secret).toBe(false)
+  })
+
+  describe('min/max', function () {
+    const ajv = new AjvSchemaValidator()
+
+    it('should be able to define a minimum', function () {
+      // Given
+      const schema = c.integer().min(10)
+
+      // When
+      const throws = () => ajv.validate(schema.schema.schema, 5, 'foo')
+
+      // Then
+      expect(throws).toThrow(new Error("foo must be >= 10, got '5'"))
+    })
+
+    it('should be able to define a maximum', function () {
+      // Given
+      const schema = c.integer().max(10)
+
+      // When
+      const throws = () => ajv.validate(schema.schema.schema, 15, 'foo')
+
+      // Then
+      expect(throws).toThrow(new Error("foo must be <= 10, got '15'"))
+    })
   })
 })

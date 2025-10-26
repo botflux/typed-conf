@@ -5,7 +5,14 @@ export type IntegerSchema = {
   type: "integer"
 } & BaseSchema<number>
 
-class IntegerSchemaCls implements BaseSchemaBuilder<IntegerSchema> {
+export interface IntegerSchemaBuilder extends BaseSchemaBuilder<IntegerSchema> {
+
+  min(number: number): this
+
+  max(number: number): this;
+}
+
+class IntegerSchemaCls implements IntegerSchemaBuilder {
   schema: IntegerSchema = {
     [kType]: 0,
     optional: false,
@@ -47,8 +54,17 @@ class IntegerSchemaCls implements BaseSchemaBuilder<IntegerSchema> {
     this.schema.secret = true
     return this
   }
+
+  max(max: number): this {
+    this.schema.schema.maximum = max
+    return this
+  }
+  min(min: number): this {
+    this.schema.schema.minimum = min
+    return this
+  }
 }
 
-export function integer(): BaseSchemaBuilder<IntegerSchema> {
+export function integer(): IntegerSchemaBuilder {
   return new IntegerSchemaCls()
 }
