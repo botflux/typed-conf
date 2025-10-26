@@ -4,7 +4,6 @@ import {type IndirectionEvaluator} from "../indirection/evaluator.js";
 import {compileIndirectionExpression} from "../indirection/compiler.js";
 import {DefaultEvaluator} from "../indirection/default-evaluator.js";
 import {isIndirection} from "../indirection/is-indirection.js";
-import {ValibotValidator} from "../validation/valibot.js";
 import {flatten, kType} from "../schemes/base.js";
 import {string} from "../schemes/string.js";
 import {boolean} from "../schemes/boolean.js";
