@@ -8,7 +8,6 @@ export type RefSchema<T> = {
   toSourceParams: (ref: string) => Record<string, unknown>
 } & BaseSchema<T>
 
-
 export class RefSchemaBuilderCls<T> implements BaseSchemaBuilder<RefSchema<T>> {
   schema: RefSchema<T>
 
