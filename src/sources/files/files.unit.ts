@@ -94,36 +94,36 @@ describe('fileSource', function () {
       await expect(p).rejects.toThrow(new ValidationError("port (file file.json) must be integer, got 'foo'"))
     })
   })
-  //
-  // describe('evaluator function', function () {
-  //   it('should be able to load a file in a property', async function () {
-  //     // Given
-  //     const fs = new FakeFileSystem()
-  //       .addFile('my-private-key.txt', 'private key')
-  //       .addFile('config.json', `{ "key": "my-private-key.txt" }`)
-  //
-  //     const loader = c.config({
-  //       schema: c.object({
-  //         key: file('txt')
-  //       }),
-  //       sources: [
-  //         fileSource({ file: 'config.json' })
-  //       ]
-  //     })
-  //
-  //     // When
-  //     const config = await loader.load({
-  //       sources: {
-  //         file: {
-  //           fs
-  //         }
-  //       }
-  //     })
-  //
-  //     // Then
-  //     expect(config).toEqual({
-  //       key: 'private key'
-  //     })
-  //   })
-  // })
+
+  describe('evaluator function', function () {
+    it('should be able to load a file in a property', async function () {
+      // Given
+      const fs = new FakeFileSystem()
+        .addFile('my-private-key.txt', 'private key')
+        .addFile('config.json', `{ "key": "my-private-key.txt" }`)
+
+      const loader = c.config({
+        schema: c.object({
+          key: file('txt')
+        }),
+        sources: [
+          fileSource({ file: 'config.json' })
+        ]
+      })
+
+      // When
+      const config = await loader.load({
+        sources: {
+          file: {
+            fs
+          }
+        }
+      })
+
+      // Then
+      expect(config).toEqual({
+        key: 'private key'
+      })
+    })
+  })
 })
