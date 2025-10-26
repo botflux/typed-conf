@@ -1,6 +1,6 @@
 import type {Validator} from "./validator.js";
 import * as v from "valibot"
-import {type BaseIssue, undefined} from "valibot"
+import {type BaseIssue} from "valibot"
 import {BaseVisitor} from "../visitor/base-visitor.js";
 import type {StringSchema} from "../schemes/string.js";
 import type {BooleanSchema} from "../schemes/boolean.js";
