@@ -5,7 +5,11 @@ export type FloatSchema = {
   type: "float"
 } & BaseSchema<number>
 
-class FloatSchemaCls implements BaseSchemaBuilder<FloatSchema> {
+export interface FloatSchemaBuilder extends BaseSchemaBuilder<FloatSchema> {
+  min(min: number): this
+}
+
+class FloatSchemaCls implements FloatSchemaBuilder {
   schema: FloatSchema = {
     type: "float",
     [kType]: 0,
@@ -47,8 +51,13 @@ class FloatSchemaCls implements BaseSchemaBuilder<FloatSchema> {
     this.schema.secret = true
     return this
   }
+
+  min(min: number): this {
+    this.schema.schema.minimum = min
+    return this
+  }
 }
 
-export function float(): BaseSchemaBuilder<FloatSchema> {
+export function float(): FloatSchemaBuilder {
   return new FloatSchemaCls()
 }
