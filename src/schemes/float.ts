@@ -1,19 +1,11 @@
 import {type Alias, type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
 import type {Visitor} from "../visitor/visitor.js";
 
-export interface FloatSchemaBuilder extends BaseSchemaBuilder<FloatSchema> {
-  optional(): this
-
-  aliases(...aliases: Alias[]): this
-
-  secret(): this
-}
-
 export type FloatSchema = {
   type: "float"
 } & BaseSchema<number>
 
-class FloatSchemaCls implements FloatSchemaBuilder {
+class FloatSchemaCls implements BaseSchemaBuilder<FloatSchema> {
   schema: FloatSchema = {
     type: "float",
     [kType]: 0,
@@ -57,6 +49,6 @@ class FloatSchemaCls implements FloatSchemaBuilder {
   }
 }
 
-export function float(): FloatSchemaBuilder {
+export function float(): BaseSchemaBuilder<FloatSchema> {
   return new FloatSchemaCls()
 }
