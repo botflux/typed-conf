@@ -452,11 +452,34 @@ describe('merging configurations', function () {
     })
   })
 
-  test.todo("should be able to throw an error if the a config property is missing", (t) => {
+  test("should be able to throw an error if the a config property is missing", async (t) => {
     // Given
+    const fs = new FakeFileSystem().addFile("config.json", JSON.stringify({port: 8080}))
+    const loader = c.config({
+      schema: c.object({
+        port: c.integer(),
+        host: c.string()
+      }),
+      sources: [
+        envSource(),
+        fileSource({ file: 'config.json' })
+      ]
+    })
 
     // When
+    const promise = loader.load({
+      sources: {
+        file: {
+          fs,
+        },
+        envs: {
+          envs: {}
+        }
+      }
+    })
+
     // Then
+    await expect(promise).rejects.toThrow(new Error('config must have required property \'host\''))
   })
 })
 
