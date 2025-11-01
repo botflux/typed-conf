@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {file, fileSource} from "./files.js";
+import {plainTextFile, fileSource} from "./files.js";
 import {c} from "../../loader/default-loader.js";
 import {expect} from "expect";
 import {FileParsingError} from "./file-parsing.error.js";
@@ -104,7 +104,7 @@ describe('fileSource', function () {
 
       const loader = c.config({
         schema: c.object({
-          key: file('txt')
+          key: plainTextFile()
         }),
         sources: [
           fileSource({ file: 'config.json' })

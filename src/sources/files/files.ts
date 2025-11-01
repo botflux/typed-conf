@@ -74,7 +74,7 @@ class FileSource implements Source<"file", FileSourceDeps> {
   }
 }
 
-export function file(format: string) {
+export function plainTextFile() {
   return ref(
     string(),
     'file',

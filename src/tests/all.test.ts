@@ -2,7 +2,7 @@ import {after, before, describe, it, test} from "node:test"
 import assert from "node:assert/strict"
 import {c} from "../loader/default-loader.js"
 import {envAlias, envSource} from "../sources/envs/envs.js";
-import {file, fileSource} from "../sources/files/files.js";
+import {plainTextFile, fileSource} from "../sources/files/files.js";
 import {StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
 import {renewSecret, vaultConfig, vaultDynamicSecret, vaultSource} from "../sources/vault/vault.js";
 import vault from "node-vault"
@@ -148,7 +148,7 @@ describe('file config loading', function () {
     const fs = new FakeFileSystem()
     const configSpec = c.config({
       schema: c.object({
-        key: file('txt')
+        key: plainTextFile()
       }),
       sources: [
         fileSource({file: 'config.json'}),
