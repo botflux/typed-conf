@@ -125,5 +125,34 @@ describe('fileSource', function () {
         key: 'private key'
       })
     })
+
+    it('should be able to load file optionally', async function () {
+      // Given
+      const fs = new FakeFileSystem()
+        .addFile('config.json', `{ "key": "my-private-key.txt" }`)
+
+      const loader = c.config({
+        schema: c.object({
+          key: plainTextFile().optional()
+        }),
+        sources: [
+          fileSource({ file: 'config.json' })
+        ]
+      })
+
+      // When
+      const config = await loader.load({
+        sources: {
+          file: {
+            fs
+          }
+        }
+      })
+
+      // Then
+      expect(config).toEqual({
+        key: undefined,
+      })
+    })
   })
 })

@@ -17,14 +17,14 @@ export class DefaultEvaluator implements IndirectionEvaluator {
   #functions = new Map<string, EvaluatorFunction>()
 
   async evaluate(indirection: IndirectionExpression, loaded: Record<string, unknown>): Promise<unknown> {
-    const { source, namedArgs = {}, args } = indirection
+    const { source, namedArgs = {}, args = [] } = indirection
     const mFunction = this.#functions.get(source)
 
     if (mFunction === undefined) {
       throw new Error(`Unknown function '${source}', available functions are: ${Array.from(this.#functions.keys()).join(", ")}`)
     }
 
-    const functionArgs=  this.#extractArgs(mFunction, namedArgs, args)
+    const functionArgs = this.#extractArgs(mFunction, namedArgs, args)
 
     return mFunction.fn(functionArgs)
   }
@@ -34,7 +34,7 @@ export class DefaultEvaluator implements IndirectionEvaluator {
     return this
   }
 
-  #extractArgs(f: EvaluatorFunction, namedArgs: Record<string, string>, positionalArgs: string[]) {
+  #extractArgs(f: EvaluatorFunction, namedArgs: Record<string, unknown>, positionalArgs: string[]) {
     const hasPositional = positionalArgs.length > 0
 
     return hasPositional
@@ -64,15 +64,15 @@ export class DefaultEvaluator implements IndirectionEvaluator {
     }, {} as Record<string, string | undefined>)
   }
 
-  #getArgsFromNamed(f: EvaluatorFunction, namedArgs: Record<string, string>) {
-    return f.params.reduce((args: Record<string, string>, p)=> {
+  #getArgsFromNamed(f: EvaluatorFunction, namedArgs: Record<string, unknown>) {
+    return f.params.reduce((args: Record<string, unknown>, p)=> {
       const param = namedArgs[p.name]
 
-      if (param === undefined) {
+      if (param === undefined && p.required) {
         throw new Error(`Named argument '${p.name}' is missing for function 'hello'`)
       }
 
       return { ...args, [p.name]: param }
-    }, {} as Record<string, string>)
+    }, {} as Record<string, unknown>)
   }
 }

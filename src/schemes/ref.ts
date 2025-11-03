@@ -44,6 +44,7 @@ export class RefSchemaBuilderCls<T> implements BaseSchemaBuilder<RefSchema<T>> {
   }
 
   optional(): this {
+    this.schema.targetSchema.optional()
     this.schema.optional = true
     return this
   }

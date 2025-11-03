@@ -122,9 +122,12 @@ class DefaultConfigLoader<Schema extends ObjectSchemaBuilder<Record<string, any>
         throw new Error(`Cannot resolve ref '${key}' because the value is not a string (${mValue})`)
       }
 
+      const namedArgs = value.toSourceParams(mValue)
+
       const resolved = await evaluator.evaluate({
         source: value.sourceName,
-        args: [ mValue ]
+        // args: [ mValue ],
+        namedArgs
       }, previouslyLoaded)
 
       setValueAtPath(previouslyLoaded, key, resolved)

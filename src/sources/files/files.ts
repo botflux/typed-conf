@@ -54,6 +54,11 @@ class FileSource implements Source<"file", FileSourceDeps> {
           name: 'path',
           type: 'string',
           required: true,
+        },
+        {
+          name: 'optional',
+          type: 'boolean',
+          required: false,
         }
       ],
       fn: async args => {
@@ -65,20 +70,34 @@ class FileSource implements Source<"file", FileSourceDeps> {
           throw new Error("Not implemented at line 61 in files.ts")
         }
 
-        const fs = deps.fs ?? regularFs
-        const content = await fs.readFile(args.path, 'utf-8')
+        const optional = (args.optional ?? false) as boolean
 
-        return content
+        const fs = deps.fs ?? regularFs
+
+        try {
+          return await fs.readFile(args.path, 'utf-8')
+        } catch (error) {
+          if (typeof error === "object" && error !== null && "code" in error && typeof error.code === "string" && error.code === "ENOENT" && optional) {
+            return undefined
+          }
+
+          throw error
+        }
       }
     }
   }
 }
 
 export function plainTextFile() {
+  const innerSchema = string()
+
   return ref(
-    string(),
+    innerSchema,
     'file',
-    ref1 => ({})
+    ref => ({
+      path: ref,
+      optional: innerSchema.schema.optional
+    })
   )
 }
 

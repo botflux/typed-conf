@@ -1,7 +1,7 @@
 export type IndirectionExpression = {
   source: string
-  args: string[]
-  namedArgs?: Record<string, string>
+  args?: string[]
+  namedArgs?: Record<string, unknown>
 }
 
 type Token = {
