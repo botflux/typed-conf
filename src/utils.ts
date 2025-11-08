@@ -60,3 +60,15 @@ export function inlineCatchSync<T>(fn: () => T) {
     return [undefined, error] as const
   }
 }
+
+export async function inlineCatch<T>(promise: Promise<Awaited<T>>): Promise<[T, undefined] | [undefined, unknown]> {
+  try {
+    return [await promise, undefined] as const
+  } catch (error: unknown) {
+    return [undefined, error] as const
+  }
+}
+
+export function isError(input: unknown): input is Error {
+  return input instanceof Error
+}

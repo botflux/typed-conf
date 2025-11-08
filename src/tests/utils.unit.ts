@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {getValueAtPath, inlineCatchSync, setValueAtPath} from "../utils.js";
+import {getValueAtPath, inlineCatch, inlineCatchSync, isError, setValueAtPath} from "../utils.js";
 import {expect} from "expect";
 
 describe('utils#getValueAtPath', function () {
@@ -153,4 +153,47 @@ describe('utils#inlineCatchSync', function () {
     // Then
     expect(result).toEqual([ undefined, error ])
   })
+})
+
+describe('utils#inlineCatch', function () {
+  it('should be able to return the underlying value as first item of a tuple', async function () {
+    // Given
+    // When
+    const result = await inlineCatch(Promise.resolve('foo'))
+
+    // Then
+    expect(result).toEqual(['foo', undefined])
+  })
+
+  it('should be able to return the underlying error as second item of a tuple', async function () {
+    // Given
+    // When
+    const result = await inlineCatch(Promise.reject(new Error('oops')))
+
+    // Then
+    expect(result).toEqual([undefined, new Error('oops')])
+  })
+})
+
+describe('isError', function () {
+  const cases = [
+    { input: false, expected: false, case: 'a boolean' },
+    { input: 'foo', expected: false, case: 'a string' },
+    { input: {}, expected: false, case: 'an object' },
+    { input: null, expected: false, case: 'null' },
+    { input: undefined, expected: false, case: 'undefined' },
+    { input: new Error('foo'), expected: true, case: 'an error instance' },
+  ]
+
+  for (const { input, expected, case: c } of cases) {
+    it(`should be able to return ${expected} given ${c}`, function () {
+      // Given
+      // When
+      const result = isError(input)
+
+      // Then
+      expect(result).toBe(expected)
+
+    })
+  }
 })

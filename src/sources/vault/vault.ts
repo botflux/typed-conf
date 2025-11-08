@@ -9,7 +9,7 @@ import {ref} from "../../schemes/ref.js";
 import {Ajv} from "ajv";
 import type {Clock} from "../../clock/clock.interface.js";
 import {NativeClock} from "../../clock/native-clock.js";
-import {getValueAtPath} from "../../utils.js";
+import {getValueAtPath, inlineCatch, isError} from "../../utils.js";
 import {ValidationError} from "../../validation/validation.error.js";
 import {formatError} from "../../validation/ajv.js";
 import type {Static} from "../../schemes/base.js";
@@ -108,7 +108,20 @@ class VaultSource implements Source<"vault", VaultDeps> {
         token: vaultConfig.token,
     })
 
-    const secret = await client.read(path) as unknown
+    const [ secret, error ] = await inlineCatch(client.read(path) as Promise<unknown>)
+
+    if (error !== undefined) {
+      if (!isError(error)) {
+        throw error
+      }
+
+      if (error.message !== 'Status 404') {
+        throw error
+      }
+
+      throw new Error(`Vault secret "${path}" not found`)
+    }
+
     validateSecret(this.#ajv, secret);
 
     return Object.assign(secret, {
