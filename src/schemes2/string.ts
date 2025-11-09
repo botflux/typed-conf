@@ -1,62 +1,44 @@
 import type {Alias} from "../schemes/base.js";
-import type {JSONSchema} from "json-schema-to-typescript";
+import {type BaseSchema, kType} from "./base.js";
 
-export const kType = Symbol('kType')
-
-export interface BaseSchema<T> {
-  [kType]: T
-  schema: JSONSchema
-  optional: boolean
-  aliases: Alias[]
-  secret: boolean
+export interface StringSchema<T> extends BaseSchema<T> {
+  type: 'string'
 }
 
-export interface BaseSchemaBuilder<T> {
-  plain: BaseSchema<T>
-
+export interface StringSchemaBuilder<T> {
+  plain: StringSchema<T>
   optional(): StringSchemaBuilder<T | undefined>
   secret(): StringSchemaBuilder<T>
   aliases(...aliases: Alias[]): StringSchemaBuilder<T>
+  minLength(minLength: number): StringSchemaBuilder<T>
+  maxLength(maxLength: number): StringSchemaBuilder<T>
 }
 
-export class BaseBuilder<T> implements BaseSchemaBuilder<T> {
+class StringBuilder<T> implements StringSchemaBuilder<T> {
   plain: StringSchema<T>
 
   constructor(plain: StringSchema<T>) {
     this.plain = plain
   }
 
-  optional(): StringSchemaBuilder<T | undefined> {
+  maxLength(maxLength: number): StringSchemaBuilder<T> {
     return new StringBuilder({
       ...this.plain,
-      optional: true,
+      schema: {
+        ...this.plain.schema,
+        maxLength
+      },
     })
   }
 
-  secret(): StringSchemaBuilder<T> {
+  minLength(minLength: number): StringSchemaBuilder<T> {
     return new StringBuilder({
       ...this.plain,
-      secret: true,
+      schema: {
+        ...this.plain.schema,
+        minLength
+      },
     })
-  }
-
-  aliases(...aliases: Alias[]): StringSchemaBuilder<T> {
-    return new StringBuilder({
-      ...this.plain,
-      aliases: [...this.plain.aliases, ...aliases],
-    })
-  }
-}
-
-export interface StringSchema<T> extends BaseSchema<T> {
-  type: 'string'
-}
-
-export interface StringSchemaBuilder<T> extends BaseSchemaBuilder<T> {}
-
-class StringBuilder<T> extends BaseBuilder<T> implements StringSchemaBuilder<T> {
-  constructor(plain: StringSchema<T>) {
-    super(plain)
   }
 
   optional(): StringSchemaBuilder<T | undefined> {
