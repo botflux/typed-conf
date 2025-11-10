@@ -31,7 +31,6 @@ class FloatBuilder<T> implements FloatSchemaBuilder<T> {
   secret(): FloatSchemaBuilder<T> {
     return new FloatBuilder({
       ...this.plain,
-      secret: true,
     })
   }
 
@@ -45,7 +44,6 @@ class FloatBuilder<T> implements FloatSchemaBuilder<T> {
   optional(): FloatSchemaBuilder<T | undefined> {
     return new FloatBuilder({
       ...this.plain,
-      optional: true,
     })
   }
 
@@ -84,9 +82,7 @@ export function float(): FloatSchemaBuilder<number> {
       type: 'number'
     },
     [kType]: 0 as number,
-    optional: false,
     aliases: [],
-    secret: false,
     type: 'float',
   })
 }

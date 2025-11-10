@@ -23,17 +23,6 @@ describe('array', function () {
     }))
   })
 
-  it('should be required by default', function () {
-    // Given
-    // When
-    const schema = array(string())
-
-    // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
-      optional: false
-    }))
-  })
-
   it('should have no aliases by default', function () {
     // Given
     // When
@@ -45,17 +34,6 @@ describe('array', function () {
     }))
   })
 
-  it('should be a clear text value by default', function () {
-    // Given
-    // When
-    const schema = array(string())
-
-    // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
-      secret: false
-    }))
-  })
-
   it('should be typed correctly', function () {
     // Given
     // When
@@ -63,67 +41,6 @@ describe('array', function () {
 
     // Then
     expectTypeOf(schema.plain[kType]).toEqualTypeOf<string[]>()
-  })
-
-  describe('optional method', function () {
-    it('should be able to declare an optional array', function () {
-      // Given
-      // When
-      const schema = array(string()).optional()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        optional: true
-      }))
-    })
-
-    it('should be able to type the underlying type as undefined', function () {
-      // Given
-      // When
-      const schema = array(string()).optional()
-
-      // Then
-      expectTypeOf(schema.plain[kType]).toEqualTypeOf<string[] | undefined>()
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = array(string())
-
-      // When
-      schema.optional()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        optional: false
-      }))
-    })
-  })
-
-  describe('secret method', function () {
-    it('should be able to declare a secret array', function () {
-      // Given
-      // When
-      const schema = array(string()).secret()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        secret: true
-      }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = array(string())
-
-      // When
-      schema.secret()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        secret: false
-      }))
-    })
   })
 
   it('should have no min length by default', function () {

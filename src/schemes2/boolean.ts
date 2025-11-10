@@ -7,11 +7,6 @@ export type BooleanSchema<T> = BaseSchema<T> & {
 
 export interface BooleanSchemaBuilder<T> {
   plain: BooleanSchema<T>
-
-  optional(): BooleanSchemaBuilder<T | undefined>
-
-  secret(): BooleanSchemaBuilder<T>;
-
   aliases(...aliases: Alias[]): BooleanSchemaBuilder<T>;
 }
 
@@ -28,20 +23,6 @@ class BooleanBuilder<T> implements BooleanSchemaBuilder<T> {
       aliases: [...this.plain.aliases, ...aliases],
     })
   }
-
-  optional(): BooleanSchemaBuilder<T | undefined> {
-    return new BooleanBuilder({
-      ...this.plain,
-      optional: true,
-    })
-  }
-
-  secret(): BooleanSchemaBuilder<T> {
-    return new BooleanBuilder({
-      ...this.plain,
-      secret: true,
-    })
-  }
 }
 
 export function boolean(): BooleanSchemaBuilder<boolean> {
@@ -50,9 +31,7 @@ export function boolean(): BooleanSchemaBuilder<boolean> {
     schema: {
       type: 'boolean'
     },
-    optional: false,
     aliases: [],
-    secret: false,
     [kType]: true
   })
 }

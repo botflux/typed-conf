@@ -25,21 +25,6 @@ describe('ref', function () {
     }))
   })
 
-  it('should be required by default', function () {
-    // Given
-    // When
-    const schema = ref(
-      integer(),
-      'envs',
-      r => ({key: r})
-    )
-
-    // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
-      optional: false,
-    }))
-  })
-
   it('should have no aliases by default', function () {
     // Given
     // When
@@ -52,21 +37,6 @@ describe('ref', function () {
     // Then
     expect(schema.plain).toEqual(expect.objectContaining({
       aliases: []
-    }))
-  })
-
-  it('should be a clear text value by default', function () {
-    // Given
-    // When
-    const schema = ref(
-      integer(),
-      'envs',
-      r => ({key: r})
-    )
-
-    // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
-      secret: false
     }))
   })
 
@@ -84,9 +54,7 @@ describe('ref', function () {
       refSchema: expect.objectContaining({
         plain: {
           type: 'integer',
-          optional: false,
           aliases: [],
-          secret: false,
           schema: {
             type: 'integer'
           },
@@ -137,117 +105,6 @@ describe('ref', function () {
     expect(schema.plain).toEqual(expect.objectContaining({
       sourceName: 'envs'
     }))
-  })
-
-  describe('optional method', function () {
-    it('should be able to declare an optional ref', function () {
-      // Given
-      // When
-      const schema = ref(
-        integer(),
-        'envs',
-        r => ({key: r})
-      ).optional()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        optional: true,
-        refSchema: expect.objectContaining({
-          plain: expect.objectContaining({
-            optional: true,
-          })
-        })
-      }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = ref(
-        integer(),
-        'envs',
-        r => ({key: r})
-      )
-
-      // When
-      schema.optional()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        optional: false
-      }))
-    })
-
-    it('should be able to change the underlying type', function () {
-      // Given
-      // When
-      const optional = ref(
-        integer(),
-        'envs',
-        r => ({key: r})
-      ).optional()
-
-      // Then
-      expectTypeOf(optional.plain[kType]).toEqualTypeOf<number | undefined>()
-    })
-
-    it('should be able to make the underlying schema optional', function () {
-      // Given
-      // When
-      const optional = ref(
-        integer().optional(),
-        'envs',
-        r => ({key: r})
-      ).optional()
-
-      // Then
-      expect(optional.plain.refSchema.plain).toEqual(expect.objectContaining({
-        optional: true
-      }))
-    })
-  })
-
-  describe('secret method', function () {
-    it('should be able to declare a secret ref', function () {
-      // Given
-      // When
-      const schema = ref(
-        integer(),
-        'envs',
-        r => ({key: r})
-      ).secret()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        secret: false,
-        refSchema: expect.objectContaining({
-          plain: expect.objectContaining({
-            secret: true,
-          })
-        })
-      }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = ref(
-        integer(),
-        'envs',
-        r => ({key: r})
-      )
-
-      // When
-      schema.secret()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        secret: false,
-        refSchema: expect.objectContaining({
-          plain: expect.objectContaining({
-            secret: false,
-          })
-        })
-      }))
-    })
   })
 
   describe('aliases', function () {

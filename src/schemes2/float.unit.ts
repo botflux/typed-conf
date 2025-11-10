@@ -28,17 +28,6 @@ describe('float', function () {
     expectTypeOf(schema.plain[kType]).toEqualTypeOf<number>()
   })
 
-  it('should be optional by default', function () {
-    // Given
-    // When
-    const schema = float()
-
-    // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
-      optional: false
-    }))
-  })
-
   it('should have to aliases by default', function () {
     // Given
     // When
@@ -48,52 +37,6 @@ describe('float', function () {
     expect(schema.plain).toEqual(expect.objectContaining({
       aliases: []
     }))
-  })
-
-  it('should not be a secret by default', function () {
-    // Given
-    // When
-    const schema = float()
-
-    // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
-      secret: false
-    }))
-  })
-
-  describe('optional method', function () {
-    it('should be able to declare an optional float', function () {
-      // Given
-      // When
-      const schema = float().optional()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        optional: true
-      }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = float()
-
-      // When
-      schema.optional()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        optional: false
-      }))
-    })
-
-    it('should be able to change the underlying type', function () {
-      // Given
-      // When
-      const optional = float().optional()
-
-      // Then
-      expectTypeOf(optional.plain[kType]).toEqualTypeOf<number | undefined>()
-    })
   })
 
   describe('aliases method', function () {
@@ -253,32 +196,6 @@ describe('float', function () {
 
       // Then
       expect(throws).toThrow(new Error('max must be >= min, got 5'))
-    })
-  })
-
-  describe('secret method', function () {
-    it('should be able to declare a secret', function () {
-      // Given
-      // When
-      const schema = float().secret()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        secret: true
-      }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = float()
-
-      // When
-      schema.secret()
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        secret: false
-      }))
     })
   })
 })

@@ -38,20 +38,6 @@ class ArrayBuilder<T> implements ArraySchemaBuilder<T> {
       }
     })
   }
-
-  secret(): ArraySchemaBuilder<T> {
-    return new ArrayBuilder({
-      ...this.plain,
-      secret: true
-    })
-  }
-
-  optional(): ArraySchemaBuilder<T> {
-    return new ArrayBuilder({
-      ...this.plain,
-      optional: true
-    })
-  }
 }
 
 export function array<T>(item: BaseSchemaBuilder<BaseSchema<T>>): ArraySchemaBuilder<T[]> {
@@ -60,11 +46,9 @@ export function array<T>(item: BaseSchemaBuilder<BaseSchema<T>>): ArraySchemaBui
       type: 'array',
       items: item.plain.schema
     },
-    secret: false,
     aliases: [],
     items: item,
     type: 'array',
-    optional: false,
     [kType]: [] as T[]
   })
 }

@@ -7,9 +7,6 @@ export type IntegerSchema<T> = BaseSchema<T> & {
 
 export interface IntegerSchemaBuilder<T> {
   plain: IntegerSchema<T>
-  optional: () => IntegerSchemaBuilder<T | undefined>
-
-  secret(): IntegerSchemaBuilder<T>;
   aliases(...alias: Alias[]): IntegerSchemaBuilder<T>
   min(minimum: number): IntegerSchemaBuilder<T>;
   max(maximum: number): IntegerSchemaBuilder<T>;
@@ -50,24 +47,10 @@ class IntegerBuilder<T> implements IntegerSchemaBuilder<T> {
     })
   }
 
-  secret(): IntegerSchemaBuilder<T> {
-    return new IntegerBuilder({
-      ...this.plain,
-      secret: true,
-    })
-  }
-
   aliases(...alias: Alias[]): IntegerSchemaBuilder<T> {
     return new IntegerBuilder({
       ...this.plain,
       aliases: [...this.plain.aliases, ...alias],
-    })
-  }
-
-  optional(): IntegerSchemaBuilder<T | undefined> {
-    return new IntegerBuilder({
-      ...this.plain,
-      optional: true
     })
   }
 }
@@ -80,7 +63,5 @@ export function integer(): IntegerSchemaBuilder<number> {
     schema: {
       type: 'integer'
     },
-    secret: false,
-    optional: false
   })
 }

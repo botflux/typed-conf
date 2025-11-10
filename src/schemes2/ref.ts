@@ -9,10 +9,6 @@ export type RefSchema<T> = BaseSchema<T> & {
 }
 
 export interface RefSchemaBuilder<T> extends BaseSchemaBuilder<RefSchema<T>> {
-  optional(): RefSchemaBuilder<T | undefined>
-
-  secret(): RefSchemaBuilder<T>
-
   aliases(...aliases: Alias[]): RefSchemaBuilder<T>
 }
 
@@ -21,21 +17,6 @@ class RefBuilder<T> implements RefSchemaBuilder<T> {
 
   constructor(plain: RefSchema<T>) {
     this.plain = plain;
-  }
-
-  optional(): RefSchemaBuilder<T | undefined> {
-    return new RefBuilder({
-      ...this.plain,
-      optional: true,
-      refSchema: this.plain.refSchema.optional()
-    })
-  }
-
-  secret(): RefSchemaBuilder<T> {
-    return new RefBuilder({
-      ...this.plain,
-      refSchema: this.plain.refSchema.secret()
-    })
   }
 
   aliases(...aliases: Alias[]): RefSchemaBuilder<T> {
@@ -58,9 +39,7 @@ export function ref<T>(
     schema: {
       type: 'string'
     },
-    optional: false,
     aliases: [],
-    secret: false,
     refSchema: schema,
     refToSourceParams,
   })

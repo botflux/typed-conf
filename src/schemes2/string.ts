@@ -7,8 +7,6 @@ export interface StringSchema<T> extends BaseSchema<T> {
 
 export interface StringSchemaBuilder<T> {
   plain: StringSchema<T>
-  optional(): StringSchemaBuilder<T | undefined>
-  secret(): StringSchemaBuilder<T>
   aliases(...aliases: Alias[]): StringSchemaBuilder<T>
   minLength(minLength: number): StringSchemaBuilder<T>
   maxLength(maxLength: number): StringSchemaBuilder<T>
@@ -41,20 +39,6 @@ class StringBuilder<T> implements StringSchemaBuilder<T> {
     })
   }
 
-  optional(): StringSchemaBuilder<T | undefined> {
-    return new StringBuilder({
-      ...this.plain,
-      optional: true,
-    })
-  }
-
-  secret(): StringSchemaBuilder<T> {
-    return new StringBuilder({
-      ...this.plain,
-      secret: true,
-    })
-  }
-
   aliases(...aliases: Alias[]): StringSchemaBuilder<T> {
     return new StringBuilder({
       ...this.plain,
@@ -70,8 +54,6 @@ export function string(): StringSchemaBuilder<string> {
     schema: {
       type: 'string'
     },
-    optional: false,
     aliases: [],
-    secret: false
   })
 }

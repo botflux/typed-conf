@@ -9,11 +9,9 @@ export type OptionalSchema<S extends BaseSchema<unknown>> = BaseSchema<SchemaTyp
 export function optional<S extends BaseSchema<unknown>>(schema: BaseSchemaBuilder<S>): OptionalSchema<S> {
   return {
     type: 'optional',
-    optional: true,
     inner: schema,
     schema: schema.plain.schema,
     [kType]: '' as unknown as (SchemaType<S> | undefined),
-    secret: false,
     aliases: []
   }
 }
