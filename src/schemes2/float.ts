@@ -5,84 +5,27 @@ export type FloatSchema<T> = BaseSchema<T> & {
   type: 'float'
 }
 
-export interface FloatSchemaBuilder<T> {
-  plain: FloatSchema<T>
-
-  optional(): FloatSchemaBuilder<T | undefined>
-
-  aliases(...aliases: Alias[]): FloatSchemaBuilder<T>
-
-  min(minimum: number): FloatSchemaBuilder<T>;
-
-  max(maximum: number): FloatSchemaBuilder<T>;
-
-  secret(): FloatSchemaBuilder<T>;
+export type FloatOpts = {
+  min?: number
+  max?: number
+  aliases?: Alias[]
 }
 
-class FloatBuilder<T> implements FloatSchemaBuilder<T> {
-  plain: FloatSchema<T>
+export function float(opts: FloatOpts = {}): FloatSchema<number> {
+  const { aliases = [], min, max } = opts
 
-  constructor(
-    plain: FloatSchema<T>
-  ) {
-    this.plain = plain
+  if (min !== undefined && max !== undefined && min > max) {
+    throw new Error(`min must be <= max, got min ${min} and max ${max}`)
   }
 
-  secret(): FloatSchemaBuilder<T> {
-    return new FloatBuilder({
-      ...this.plain,
-    })
-  }
-
-  aliases(...aliases: Alias[]): FloatSchemaBuilder<T> {
-    return new FloatBuilder({
-      ...this.plain,
-      aliases: [...this.plain.aliases, ...aliases],
-    })
-  }
-
-  optional(): FloatSchemaBuilder<T | undefined> {
-    return new FloatBuilder({
-      ...this.plain,
-    })
-  }
-
-  min(minimum: number): FloatSchemaBuilder<T> {
-    if (this.plain.schema.maximum !== undefined && this.plain.schema.maximum && minimum > this.plain.schema.maximum) {
-      throw new Error(`min must be <= max, got ${minimum}`)
-    }
-
-    return new FloatBuilder({
-      ...this.plain,
-      schema: {
-        ...this.plain.schema,
-        minimum,
-      },
-    })
-  }
-
-  max(maximum: number): FloatSchemaBuilder<T> {
-    if (this.plain.schema.minimum !== undefined && this.plain.schema.minimum && maximum < this.plain.schema.minimum) {
-      throw new Error(`max must be >= min, got ${maximum}`)
-    }
-
-    return new FloatBuilder({
-      ...this.plain,
-      schema: {
-        ...this.plain.schema,
-        maximum,
-      },
-    })
-  }
-}
-
-export function float(): FloatSchemaBuilder<number> {
-  return new FloatBuilder({
+  return {
     schema: {
-      type: 'number'
+      type: 'number',
+      minimum: min,
+      maximum: max,
     },
     [kType]: 0 as number,
-    aliases: [],
+    aliases,
     type: 'float',
-  })
+  }
 }

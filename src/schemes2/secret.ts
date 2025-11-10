@@ -5,7 +5,7 @@ import {type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
  *
  * @param schema
  */
-export function secret<S extends BaseSchema<unknown>>(schema: BaseSchemaBuilder<S>) {
+export function secret<S extends BaseSchema<unknown>>(schema: S) {
   return {
     type: 'secret',
     inner: schema,

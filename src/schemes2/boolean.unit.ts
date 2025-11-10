@@ -12,7 +12,7 @@ describe('boolean', function () {
     const schema = boolean()
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       schema: {
         type: 'boolean'
       }
@@ -25,7 +25,7 @@ describe('boolean', function () {
     const schema = boolean()
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       aliases: []
     }))
   })
@@ -36,54 +36,32 @@ describe('boolean', function () {
     const schema = boolean()
 
     // Then
-    expectTypeOf(schema.plain[kType]).toEqualTypeOf<boolean>()
+    expectTypeOf(schema[kType]).toEqualTypeOf<boolean>()
   })
 
-  describe('aliases method', function () {
-    it('should be able to declare an  alias', function () {
-      // Given
-      // When
-      const schema = boolean().aliases(envAlias('FOO'))
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        aliases: [envAlias('FOO')]
-      }))
+  it('should be able to declare an alias', function () {
+    // Given
+    // When
+    const schema = boolean({
+      aliases: [ envAlias('FOO') ]
     })
 
-    it('should be able to declare multiple aliases', function () {
-      // Given
-      // When
-      const schema = boolean().aliases(envAlias('FOO'), envAlias('BAR'))
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      aliases: [envAlias('FOO')]
+    }))
+  })
 
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        aliases: [envAlias('FOO'), envAlias('BAR')]
-      }))
+  it('should be able to declare multiple aliases', function () {
+    // Given
+    // When
+    const schema = boolean({
+      aliases: [ envAlias('FOO'), envAlias('BAR') ]
     })
 
-    it('should be immutable', function () {
-      // Given
-      const schema = boolean()
-
-      // When
-      schema.aliases(envAlias('FOO'))
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        aliases: []
-      }))
-    })
-
-    it('should be able to append aliases', function () {
-      // Given
-      // When
-      const schema = boolean().aliases(envAlias('FOO')).aliases(envAlias('BAR'))
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        aliases: [envAlias('FOO'), envAlias('BAR')]
-      }))
-    })
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      aliases: [envAlias('FOO'), envAlias('BAR')]
+    }))
   })
 })

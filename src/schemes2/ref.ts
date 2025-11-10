@@ -5,42 +5,28 @@ export type RefSchema<T> = BaseSchema<T> & {
   type: 'ref'
   sourceName: string
   refToSourceParams: (ref: string) => Record<string, unknown>
-  refSchema: BaseSchemaBuilder<BaseSchema<T>>
+  refSchema: BaseSchema<T>
 }
 
-export interface RefSchemaBuilder<T> extends BaseSchemaBuilder<RefSchema<T>> {
-  aliases(...aliases: Alias[]): RefSchemaBuilder<T>
-}
-
-class RefBuilder<T> implements RefSchemaBuilder<T> {
-  plain: RefSchema<T>;
-
-  constructor(plain: RefSchema<T>) {
-    this.plain = plain;
-  }
-
-  aliases(...aliases: Alias[]): RefSchemaBuilder<T> {
-    return new RefBuilder({
-      ...this.plain,
-      aliases: [...this.plain.aliases, ...aliases]
-    })
-  }
-}
-
-export function ref<T>(
-  schema: BaseSchemaBuilder<BaseSchema<T>>,
-  sourceName: string,
+export type RefOpts<S extends BaseSchema<unknown>> = {
+  schema: S
+  sourceName: string
   refToSourceParams: (ref: string) => Record<string, unknown>
-): RefSchemaBuilder<T> {
-  return new RefBuilder({
-    [kType]: schema.plain[kType] as T,
+  aliases?: Alias[]
+}
+
+export function ref<S extends BaseSchema<unknown>>(opts: RefOpts<S>): RefSchema<S[typeof kType]> {
+  const { aliases = [], refToSourceParams, sourceName, schema } = opts
+
+  return {
+    [kType]: schema[kType] as unknown as S[typeof kType],
     type: 'ref',
     sourceName,
     schema: {
       type: 'string'
     },
-    aliases: [],
+    aliases,
     refSchema: schema,
     refToSourceParams,
-  })
+  }
 }

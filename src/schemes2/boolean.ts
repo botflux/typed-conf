@@ -5,33 +5,19 @@ export type BooleanSchema<T> = BaseSchema<T> & {
   type: 'boolean'
 }
 
-export interface BooleanSchemaBuilder<T> {
-  plain: BooleanSchema<T>
-  aliases(...aliases: Alias[]): BooleanSchemaBuilder<T>;
+export type BooleanOpts = {
+  aliases?: Alias[]
 }
 
-class BooleanBuilder<T> implements BooleanSchemaBuilder<T> {
-  plain: BooleanSchema<T>
+export function boolean(opts: BooleanOpts = {}): BooleanSchema<boolean> {
+  const { aliases = [] } = opts
 
-  constructor(plain: BooleanSchema<T>) {
-    this.plain = plain;
-  }
-
-  aliases(...aliases: Alias[]): BooleanSchemaBuilder<T> {
-    return new BooleanBuilder({
-      ...this.plain,
-      aliases: [...this.plain.aliases, ...aliases],
-    })
-  }
-}
-
-export function boolean(): BooleanSchemaBuilder<boolean> {
-  return new BooleanBuilder({
+  return {
     type: 'boolean',
     schema: {
       type: 'boolean'
     },
-    aliases: [],
+    aliases,
     [kType]: true
-  })
+  }
 }

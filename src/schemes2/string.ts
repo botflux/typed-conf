@@ -47,13 +47,23 @@ class StringBuilder<T> implements StringSchemaBuilder<T> {
   }
 }
 
-export function string(): StringSchemaBuilder<string> {
-  return new StringBuilder({
+export type StringOpts = {
+  minLength?: number
+  maxLength?: number
+  aliases?: Alias[]
+}
+
+export function string(opts: StringOpts = {}): StringSchema<string> {
+  const { aliases = [], minLength, maxLength } = opts
+
+  return {
     [kType]: '' as unknown as string,
     type: 'string',
     schema: {
-      type: 'string'
+      type: 'string',
+      minLength,
+      maxLength,
     },
-    aliases: [],
-  })
+    aliases,
+  }
 }

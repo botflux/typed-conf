@@ -1,16 +1,16 @@
-import {type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
+import {type BaseSchema, kType} from "./base.js";
 
 export type SchemaType<S> = S extends BaseSchema<infer T> ? T : never
 export type OptionalSchema<S extends BaseSchema<unknown>> = BaseSchema<SchemaType<S> | undefined> & {
   type: 'optional'
-  inner: BaseSchemaBuilder<S>
+  inner: S
 }
 
-export function optional<S extends BaseSchema<unknown>>(schema: BaseSchemaBuilder<S>): OptionalSchema<S> {
+export function optional<S extends BaseSchema<unknown>>(schema: S): OptionalSchema<S> {
   return {
     type: 'optional',
     inner: schema,
-    schema: schema.plain.schema,
+    schema: schema.schema,
     [kType]: '' as unknown as (SchemaType<S> | undefined),
     aliases: []
   }

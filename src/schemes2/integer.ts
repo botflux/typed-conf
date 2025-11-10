@@ -5,63 +5,27 @@ export type IntegerSchema<T> = BaseSchema<T> & {
   type: 'integer'
 }
 
-export interface IntegerSchemaBuilder<T> {
-  plain: IntegerSchema<T>
-  aliases(...alias: Alias[]): IntegerSchemaBuilder<T>
-  min(minimum: number): IntegerSchemaBuilder<T>;
-  max(maximum: number): IntegerSchemaBuilder<T>;
+export type IntegerOpts = {
+  min?: number
+  max?: number
+  aliases?: Alias[]
 }
 
-class IntegerBuilder<T> implements IntegerSchemaBuilder<T> {
-  plain: IntegerSchema<T>
+export function integer(opts: IntegerOpts = {}): IntegerSchema<number> {
+  const { aliases = [], min, max } = opts
 
-  constructor(plain: IntegerSchema<T>) {
-    this.plain = plain;
+  if (min !== undefined && max !== undefined && min > max) {
+    throw new Error(`min must be <= max, got min ${min} and max ${max}`)
   }
 
-  max(maximum: number): IntegerSchemaBuilder<T> {
-    if (this.plain.schema.minimum && maximum < this.plain.schema.minimum) {
-      throw new Error(`max must be >= min, got ${maximum}`)
-    }
-
-    return new IntegerBuilder({
-      ...this.plain,
-      schema: {
-        ...this.plain.schema,
-        maximum
-      }
-    })
-  }
-
-  min(minimum: number): IntegerSchemaBuilder<T> {
-    if (this.plain.schema.maximum && minimum > this.plain.schema.maximum) {
-      throw new Error(`min must be <= max, got ${minimum}`)
-    }
-
-    return new IntegerBuilder({
-      ...this.plain,
-      schema: {
-        ...this.plain.schema,
-        minimum
-      }
-    })
-  }
-
-  aliases(...alias: Alias[]): IntegerSchemaBuilder<T> {
-    return new IntegerBuilder({
-      ...this.plain,
-      aliases: [...this.plain.aliases, ...alias],
-    })
-  }
-}
-
-export function integer(): IntegerSchemaBuilder<number> {
-  return new IntegerBuilder({
+  return {
     type: 'integer',
     [kType]: 0,
-    aliases: [],
+    aliases,
     schema: {
-      type: 'integer'
+      type: 'integer',
+      minimum: min,
+      maximum: max,
     },
-  })
+  }
 }

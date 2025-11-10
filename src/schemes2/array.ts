@@ -1,8 +1,9 @@
 import {type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
+import type {Alias} from "../schemes/base.js";
 
 export type ArraySchema<T> = BaseSchema<T> & {
   type: 'array'
-  items: BaseSchemaBuilder<BaseSchema<ItemOf<T>>>
+  items: BaseSchema<ItemOf<T>>
 }
 export type ItemOf<T> = T extends Array<infer U> ? U : T;
 
@@ -40,15 +41,26 @@ class ArrayBuilder<T> implements ArraySchemaBuilder<T> {
   }
 }
 
-export function array<T>(item: BaseSchemaBuilder<BaseSchema<T>>): ArraySchemaBuilder<T[]> {
-  return new ArrayBuilder({
+export type ArrayOpts<T> = {
+  item: BaseSchema<T>
+  minItems?: number
+  maxItems?: number
+  aliases?: Alias[]
+}
+
+export function array<T>(opts: ArrayOpts<T>): ArraySchema<T[]> {
+  const { item, aliases = [], maxItems, minItems } = opts
+
+  return {
     schema: {
       type: 'array',
-      items: item.plain.schema
+      items: item.schema,
+      minItems,
+      maxItems
     },
-    aliases: [],
+    aliases,
     items: item,
     type: 'array',
     [kType]: [] as T[]
-  })
+  }
 }

@@ -1,4 +1,4 @@
-import {type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
+import {type BaseSchema, kType} from "./base.js";
 
 /**
  * Mark a value as clear text.
@@ -6,7 +6,7 @@ import {type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
  *
  * @param schema
  */
-export function clear<S extends BaseSchema<unknown>>(schema: BaseSchemaBuilder<S>) {
+export function clear<S extends BaseSchema<unknown>>(schema: S) {
   return {
     type: 'clear',
     inner: schema,

@@ -12,7 +12,7 @@ describe('float', function () {
     const schema = float()
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       schema: {
         type: 'number'
       }
@@ -25,7 +25,7 @@ describe('float', function () {
     const schema = float()
 
     // Then
-    expectTypeOf(schema.plain[kType]).toEqualTypeOf<number>()
+    expectTypeOf(schema[kType]).toEqualTypeOf<number>()
   })
 
   it('should have to aliases by default', function () {
@@ -34,7 +34,7 @@ describe('float', function () {
     const schema = float()
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       aliases: []
     }))
   })
@@ -43,10 +43,12 @@ describe('float', function () {
     it('should be able to declare an alias', function () {
       // Given
       // When
-      const schema = float().aliases(envAlias('FOO'))
+      const schema = float({
+        aliases: [envAlias('FOO')]
+      })
 
       // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
+      expect(schema).toEqual(expect.objectContaining({
         aliases: [envAlias('FOO')]
       }))
     })
@@ -54,36 +56,12 @@ describe('float', function () {
     it('should be able to declare multiple aliases', function () {
       // Given
       // When
-      const schema = float().aliases(envAlias('FOO'), envAlias('BAR'))
+      const schema = float({
+        aliases: [ envAlias('FOO'), envAlias('BAR') ],
+      })
 
       // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        aliases: [envAlias('FOO'), envAlias('BAR')]
-      }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = float()
-
-      // When
-      schema.aliases(envAlias('FOO'))
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        aliases: []
-      }))
-    })
-
-    it('should be able to append new aliases', function () {
-      // Given
-      const schema = float().aliases(envAlias('FOO'))
-
-      // When
-      const schema2 = schema.aliases(envAlias('BAR'))
-
-      // Then
-      expect(schema2.plain).toEqual(expect.objectContaining({
+      expect(schema).toEqual(expect.objectContaining({
         aliases: [envAlias('FOO'), envAlias('BAR')]
       }))
     })
@@ -95,7 +73,7 @@ describe('float', function () {
     const schema = float()
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       schema: {
         type: 'number',
       }
@@ -106,28 +84,13 @@ describe('float', function () {
     it('should be able to declare a min', function () {
       // Given
       // When
-      const schema = float().min(10)
+      const schema = float({ min: 10 })
 
       // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
+      expect(schema).toEqual(expect.objectContaining({
         schema: {
           type: 'number',
           minimum: 10
-        }
-      }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = float()
-
-      // When
-      schema.min(10)
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        schema: {
-          type: 'number',
         }
       }))
     })
@@ -139,7 +102,7 @@ describe('float', function () {
     const schema = float()
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       schema: {
         type: 'number',
       }
@@ -147,13 +110,11 @@ describe('float', function () {
 
     it('should be able to throw if min is above the current max', function () {
       // Given
-      const schema = float().max(10)
-
       // When
-      const throws = () => schema.min(20)
+      const throws = () => float({ max: 10, min: 20 })
 
       // Then
-      expect(throws).toThrow(new Error('min must be <= max, got 20'))
+      expect(throws).toThrow(new Error('min must be <= max, got min 20 and max 10'))
     })
   })
 
@@ -161,41 +122,15 @@ describe('float', function () {
     it('should be able to declare a max', function () {
       // Given
       // When
-      const schema = float().max(10)
+      const schema = float({ max: 10 })
 
       // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
+      expect(schema).toEqual(expect.objectContaining({
         schema: {
           type: 'number',
           maximum: 10
         }
       }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = float()
-
-      // When
-      schema.max(10)
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        schema: {
-          type: 'number',
-        }
-      }))
-    })
-
-    it('should be able to throw if max is below the current min', function () {
-      // Given
-      const schema = float().min(10)
-
-      // When
-      const throws = () => schema.max(5)
-
-      // Then
-      expect(throws).toThrow(new Error('max must be >= min, got 5'))
     })
   })
 })

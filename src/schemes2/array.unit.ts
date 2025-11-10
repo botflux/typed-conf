@@ -9,10 +9,10 @@ describe('array', function () {
   it('should be able to declare an array', function () {
     // Given
     // When
-    const schema = array(string())
+    const schema = array({ item: string() })
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       type: 'array',
       schema: {
         type: 'array',
@@ -26,10 +26,10 @@ describe('array', function () {
   it('should have no aliases by default', function () {
     // Given
     // When
-    const schema = array(string())
+    const schema = array({ item: string() })
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       aliases: []
     }))
   })
@@ -37,19 +37,19 @@ describe('array', function () {
   it('should be typed correctly', function () {
     // Given
     // When
-    const schema = array(string())
+    const schema = array({ item: string() })
 
     // Then
-    expectTypeOf(schema.plain[kType]).toEqualTypeOf<string[]>()
+    expectTypeOf(schema[kType]).toEqualTypeOf<string[]>()
   })
 
   it('should have no min length by default', function () {
     // Given
     // When
-    const schema = array(string())
+    const schema = array({ item: string() })
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       schema: {
         type: 'array',
         items: {
@@ -59,50 +59,30 @@ describe('array', function () {
     }))
   })
 
-  describe('minLength method', function () {
-    it('should be able to declare a min length', function () {
-      // Given
-      // When
-      const schema = array(string()).minLength(10)
+  it('should be able to declare a min length', function () {
+    // Given
+    // When
+    const schema = array({ item: string(), minItems: 10 })
 
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        schema: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          minLength: 10
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      schema: {
+        type: 'array',
+        items: {
+          type: 'string',
         },
-      }))
-    })
-
-    it('should be immutable', function () {
-      // Given
-      const schema = array(string())
-
-      // When
-      schema.minLength(10)
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        schema: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-        },
-      }))
-    })
+        minItems: 10
+      },
+    }))
   })
 
   it('should have no max length by default', function () {
     // Given
     // When
-    const schema = array(string())
+    const schema = array({ item: string() })
 
     // Then
-    expect(schema.plain).toEqual(expect.objectContaining({
+    expect(schema).toEqual(expect.objectContaining({
       schema: {
         type: 'array',
         items: {
@@ -112,40 +92,23 @@ describe('array', function () {
     }))
   })
 
-  describe('maxLength method', function () {
-    it('should be able to declare a max length', function () {
-      // Given
-      // When
-      const schema = array(string()).maxLength(10)
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        schema: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          maxLength: 10
-        },
-      }))
+  it('should be able to declare a max length', function () {
+    // Given
+    // When
+    const schema = array({
+      item: string(),
+      maxItems: 10
     })
 
-    it('should be immutable', function () {
-      // Given
-      const schema = array(string())
-
-      // When
-      schema.maxLength(10)
-
-      // Then
-      expect(schema.plain).toEqual(expect.objectContaining({
-        schema: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      schema: {
+        type: 'array',
+        items: {
+          type: 'string',
         },
-      }))
-    })
+        maxItems: 10
+      },
+    }))
   })
 })
