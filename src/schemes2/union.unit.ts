@@ -4,6 +4,8 @@ import {integer} from "./integer.js";
 import {expect} from "expect";
 import {envAlias} from "../sources/envs/envs.js";
 import {union} from "./union.js";
+import {expectTypeOf} from "expect-type";
+import {kType} from "./base.js";
 
 describe('union', function () {
   it('should be able to declare an union', function () {
@@ -58,5 +60,14 @@ describe('union', function () {
     expect(schema).toEqual(expect.objectContaining({
       aliases: [envAlias('FOO')]
     }))
+  })
+
+  it('should be typed correctly', function () {
+    // Given
+    // When
+    const schema = union([ string(), integer() ])
+
+    // Then
+    expectTypeOf(schema[kType]).toEqualTypeOf<string | number>()
   })
 })
