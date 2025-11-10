@@ -2,33 +2,8 @@ import {describe, it} from "node:test";
 import {string} from "./string.js";
 import {integer} from "./integer.js";
 import {expect} from "expect";
-import {type BaseSchema, kType} from "./base.js";
 import {envAlias} from "../sources/envs/envs.js";
-import type {Alias} from "../schemes/base.js";
-
-export type UnionSchema<S extends BaseSchema<unknown>> = BaseSchema<S[typeof kType]> & {
-  type: 'union'
-  schemes: S[]
-}
-
-export type UnionOpts = {
-  aliases?: Alias[];
-}
-
-function union<S extends BaseSchema<unknown>>(schemes: S[], opts: UnionOpts = {}): UnionSchema<S> {
-  const { aliases = [] } = opts;
-
-  return {
-    type: 'union',
-    schemes,
-    [kType]: '' as unknown as S[typeof kType],
-    schema: {
-      type: 'object',
-      oneOf: schemes.map(s => s.schema)
-    },
-    aliases
-  }
-}
+import {union} from "./union.js";
 
 describe('union', function () {
   it('should be able to declare an union', function () {
