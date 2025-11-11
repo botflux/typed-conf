@@ -1,4 +1,4 @@
-import {type BaseSchema, type BaseSchemaBuilder, kType} from "./base.js";
+import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../schemes/base.js";
 
 export type RefSchema<T> = BaseSchema<T> & {

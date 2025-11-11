@@ -9,7 +9,3 @@ export interface BaseSchema<T> {
   schema: JSONSchema
   aliases: Alias[]
 }
-
-export interface BaseSchemaBuilder<S extends BaseSchema<unknown>> {
-  plain: S
-}
