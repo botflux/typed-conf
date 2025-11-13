@@ -2,6 +2,11 @@ import type { Alias } from "../schemes/base.js";
 import {type BaseSchema, kType} from "./base.js";
 import {hasOptionalSchemaInChain} from "./optional.js";
 
+export function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<Record<string, BaseSchema<unknown>>> {
+  return 'type' in schema && schema.type === 'object'
+}
+
+
 export type ObjectSchemaToType<P extends Record<string, BaseSchema<unknown>>> = {
   [K in keyof P]: P[K][typeof kType]
 }
