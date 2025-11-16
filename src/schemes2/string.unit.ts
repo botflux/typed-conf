@@ -1,9 +1,7 @@
 import {describe, it} from "node:test";
 import {expect} from "expect";
 import {string} from "./string.js";
-import {expectTypeOf} from "expect-type";
 import {envAlias} from "../sources/envs/envs.js";
-import {kType} from "./base.js";
 
 describe('strings', function () {
   it('should be able to create a string schema', function () {
@@ -100,5 +98,17 @@ describe('strings', function () {
         maxLength: 10
       }
     }))
+  })
+
+  describe('coercion', function () {
+    // there's nothing to do with strings
+    it('should be able to do nothing', function () {
+      // Given
+      // When
+      const schema = string().coerce?.('foo')
+
+      // Then
+      expect(schema).toEqual('foo')
+    })
   })
 })

@@ -11,6 +11,10 @@ export type StringOpts = {
   aliases?: Alias[]
 }
 
+function coerce(value: unknown): unknown {
+  return value
+}
+
 export function string(opts: StringOpts = {}): StringSchema<string> {
   const { aliases = [], minLength, maxLength } = opts
 
@@ -23,5 +27,6 @@ export function string(opts: StringOpts = {}): StringSchema<string> {
       maxLength,
     },
     aliases,
+    coerce
   }
 }
