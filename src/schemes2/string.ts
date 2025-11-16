@@ -5,48 +5,6 @@ export interface StringSchema<T> extends BaseSchema<T> {
   type: 'string'
 }
 
-export interface StringSchemaBuilder<T> {
-  plain: StringSchema<T>
-  aliases(...aliases: Alias[]): StringSchemaBuilder<T>
-  minLength(minLength: number): StringSchemaBuilder<T>
-  maxLength(maxLength: number): StringSchemaBuilder<T>
-}
-
-class StringBuilder<T> implements StringSchemaBuilder<T> {
-  plain: StringSchema<T>
-
-  constructor(plain: StringSchema<T>) {
-    this.plain = plain
-  }
-
-  maxLength(maxLength: number): StringSchemaBuilder<T> {
-    return new StringBuilder({
-      ...this.plain,
-      schema: {
-        ...this.plain.schema,
-        maxLength
-      },
-    })
-  }
-
-  minLength(minLength: number): StringSchemaBuilder<T> {
-    return new StringBuilder({
-      ...this.plain,
-      schema: {
-        ...this.plain.schema,
-        minLength
-      },
-    })
-  }
-
-  aliases(...aliases: Alias[]): StringSchemaBuilder<T> {
-    return new StringBuilder({
-      ...this.plain,
-      aliases: [...this.plain.aliases, ...aliases],
-    })
-  }
-}
-
 export type StringOpts = {
   minLength?: number
   maxLength?: number
