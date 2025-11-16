@@ -4,6 +4,7 @@ import {expect} from "expect";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {array} from "./array.js";
+import {boolean} from "./boolean.js";
 
 describe('array', function () {
   it('should be able to declare an array', function () {
@@ -110,5 +111,29 @@ describe('array', function () {
         maxItems: 10
       },
     }))
+  })
+
+  describe('coercion', function () {
+    it('should be able to coerce all the nested items', function () {
+      // Given
+      const schema = array({ item: boolean() })
+
+      // When
+      const result = schema.coerce([ 'true', 'false' ])
+
+      // Then
+      expect(result).toEqual([ true, false ])
+    })
+
+    it('should be able to ignore any value that is not an array', function () {
+      // Given
+      const schema = array({ item: string() })
+
+      // When
+      const result = schema.coerce({ foo: 'bar' })
+
+      // Then
+      expect(result).toEqual({ foo: 'bar' })
+    })
   })
 })

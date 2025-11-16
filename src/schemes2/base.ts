@@ -8,4 +8,5 @@ export interface BaseSchema<T> {
   [kType]: T
   schema: JSONSchema
   aliases: Alias[]
+  coerce?: (value: unknown) => unknown
 }
