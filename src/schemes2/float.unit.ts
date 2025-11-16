@@ -133,5 +133,43 @@ describe('float', function () {
       }))
     })
   })
+
+  describe('coercion', function () {
+    it('should be able to coerce a string', function () {
+      // Given
+      // When
+      const result = float().coerce('200')
+
+      // Then
+      expect(result).toEqual(200)
+    })
+
+    it('should be able to ignore non-number strings', function () {
+      // Given
+      // When
+      const result = float().coerce('foo')
+
+      // Then
+      expect(result).toEqual('foo')
+    })
+
+    it('should be able to ignore anything that is not a string', function () {
+      // Given
+      // When
+      const result = float().coerce({ bar: 'baz' })
+
+      // Then
+      expect(result).toEqual({ bar: 'baz' })
+    })
+
+    it('should be able to parse string holding a float', function () {
+      // Given
+      // When
+      const result = float().coerce('12.34')
+
+      // Then
+      expect(result).toEqual(12.34)
+    })
+  })
 })
 
