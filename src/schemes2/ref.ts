@@ -8,6 +8,10 @@ export type RefSchema<T> = BaseSchema<T> & {
   refSchema: BaseSchema<T>
 }
 
+function coerce(value: unknown): unknown {
+  return value
+}
+
 export type RefOpts<S extends BaseSchema<unknown>> = {
   schema: S
   sourceName: string
@@ -28,5 +32,6 @@ export function ref<S extends BaseSchema<unknown>>(opts: RefOpts<S>): RefSchema<
     aliases,
     refSchema: schema,
     refToSourceParams,
+    coerce
   }
 }

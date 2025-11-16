@@ -131,4 +131,17 @@ describe('ref', function () {
       }))
     })
   })
+
+  describe('coercion', function () {
+    // the ref schema doesn't need to do any coercion because the refs are always string.
+    it('should be able to do no coercion', function () {
+      // Given
+      // When
+      const schema = ref({schema: integer(), refToSourceParams: r => ({}), sourceName: 'env'})
+        .coerce?.('foo')
+
+      // Then
+      expect(schema).toEqual('foo')
+    })
+  })
 })
