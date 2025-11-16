@@ -4,6 +4,7 @@ import {string} from "../schemes2/string.js";
 import {expect} from "expect";
 import {integer} from "../schemes2/integer.js";
 import {camelCaseToScreamingSnakeCase, envSource} from "./env-source.js";
+import {boolean} from "../schemes2/boolean.js";
 
 describe('env source', function () {
   describe('#load', function () {
@@ -92,6 +93,36 @@ describe('env source', function () {
         host: 'localhost',
         port: 3000,
       })
+    })
+  })
+
+  describe('#loadFromRef', function () {
+    it('should be able to load an env from a ref', async function () {
+      // Given
+      const source = envSource()
+      const envs = {
+        FOO_BAR: 'baz',
+      }
+
+      // When
+      const result = await source.loadFromRef('FOO_BAR', string(), { envs })
+
+      // Then
+      expect(result).toEqual('baz')
+    })
+
+    it('should be able to coerce the value', async function () {
+      // Given
+      const source = envSource()
+      const envs = {
+        FOO_BAR: 'false',
+      }
+
+      // When
+      const result = await source.loadFromRef('FOO_BAR', boolean(), { envs })
+
+      // Then
+      expect(result).toEqual(false)
     })
   })
 })

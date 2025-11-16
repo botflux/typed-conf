@@ -41,6 +41,17 @@ class EnvSource {
     return result
   }
 
+  async loadFromRef(ref: string, schema: BaseSchema<unknown>, opts: EnvSourceLoadOpts): Promise<unknown> {
+    const { envs = process.env } = opts
+    const envValue = envs[ref]
+
+    if (envValue === undefined) {
+      return envValue
+    }
+
+    return schema.coerce?.(envValue) ?? envValue
+  }
+
   #flattenObjectSchema(schema: BaseSchema<unknown>, prefix: string[] = []): [path: string[], schema: BaseSchema<unknown>][] {
     if (!isObject(schema)) {
       return [[prefix, schema] as const]
