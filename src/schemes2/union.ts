@@ -5,6 +5,19 @@ export type UnionSchema<S extends BaseSchema<unknown>> = BaseSchema<S[typeof kTy
   type: 'union'
   schemes: S[]
 }
+
+function coerce(this: UnionSchema<BaseSchema<unknown>>, value: unknown): unknown {
+  for (const schema of this.schemes) {
+    const coercedValue = schema.coerce?.(value)
+
+    if (value !== undefined && coercedValue !== value) {
+      return coercedValue
+    }
+  }
+
+  return value
+}
+
 export type UnionOpts = {
   aliases?: Alias[];
 }
@@ -20,6 +33,7 @@ export function union<S extends BaseSchema<unknown>>(schemes: S[], opts: UnionOp
       type: 'object',
       oneOf: schemes.map(s => s.schema)
     },
-    aliases
+    aliases,
+    coerce
   }
 }
