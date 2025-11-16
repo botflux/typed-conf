@@ -75,6 +75,24 @@ describe('env source', function () {
         })
       })
     })
+
+    it('should be able to add a prefix to all the envs loaded', async function () {
+      // Given
+      const source = envSource({ prefix: 'APP' })
+      const envs = {
+        APP_HOST: 'localhost',
+        APP_PORT: '3000',
+      }
+
+      // When
+      const result = await source.load(object({ host: string(), port: integer() }), { envs })
+
+      // Then
+      expect(result).toEqual({
+        host: 'localhost',
+        port: 3000,
+      })
+    })
   })
 })
 

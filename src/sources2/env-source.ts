@@ -7,6 +7,12 @@ export type EnvSourceLoadOpts = {
 }
 
 class EnvSource {
+  #opts: EnvSourceOpts
+
+  constructor(opts: EnvSourceOpts) {
+    this.#opts = opts;
+  }
+
   async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: EnvSourceLoadOpts) {
     const {envs = process.env} = opts
     const result: Record<string, unknown> = {}
@@ -15,7 +21,7 @@ class EnvSource {
     const seenEnvNames = new Map<string, string>()
 
     for (const [key, value] of flattened) {
-      const envName = camelCasePathToScreamingSnakeCase(key)
+      const envName = this.#addPrefixIfDefined(camelCasePathToScreamingSnakeCase(key))
       const mSeenEnvName = seenEnvNames.get(envName)
       const envValue = envs[envName]
 
@@ -45,10 +51,22 @@ class EnvSource {
       [...prefix, key]
     ))
   }
+
+  #addPrefixIfDefined(key: string): string {
+    if (this.#opts.prefix === undefined) {
+      return key
+    }
+
+    return `${this.#opts.prefix}_${key}`
+  }
 }
 
-export function envSource() {
-  return new EnvSource()
+export type EnvSourceOpts = {
+  prefix?: string
+}
+
+export function envSource(opts: EnvSourceOpts = {}) {
+  return new EnvSource(opts)
 }
 
 function camelCasePathToScreamingSnakeCase(path: string[]) {
