@@ -3,12 +3,27 @@ import type {Alias} from "../schemes/base.js";
 
 export type IntegerSchema<T> = BaseSchema<T> & {
   type: 'integer'
+  coerce(value: unknown): unknown
 }
 
 export type IntegerOpts = {
   min?: number
   max?: number
   aliases?: Alias[]
+}
+
+function coerce(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value
+  }
+
+  const parsed = Number.parseFloat(value)
+
+  if (Number.isNaN(parsed)) {
+    return value
+  }
+
+  return parsed
 }
 
 export function integer(opts: IntegerOpts = {}): IntegerSchema<number> {
@@ -24,8 +39,13 @@ export function integer(opts: IntegerOpts = {}): IntegerSchema<number> {
     aliases,
     schema: {
       type: 'integer',
-      minimum: min,
-      maximum: max,
+      ...min !== undefined && {
+        minimum: min,
+      },
+      ...max !== undefined && {
+        maximum: max,
+      }
     },
+    coerce
   }
 }

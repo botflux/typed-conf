@@ -54,7 +54,7 @@ describe('object', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      props: {port: optional(integer())},
+      props: { port: optional(integer()) },
       schema: {
         type: 'object',
         properties: {

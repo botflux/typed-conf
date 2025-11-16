@@ -116,4 +116,45 @@ describe('integer', function () {
       }
     }))
   })
+
+  describe('coercion', function () {
+    it('should be able to coerce a string', function () {
+      // Given
+      // When
+      const result = integer().coerce('200')
+
+      // Then
+      expect(result).toEqual(200)
+    })
+
+    it('should be able to ignore non-number strings', function () {
+      // Given
+      // When
+      const result = integer().coerce('foo')
+
+      // Then
+      expect(result).toEqual('foo')
+    })
+
+    it('should be able to ignore anything that is not a string', function () {
+      // Given
+      // When
+      const result = integer().coerce({ bar: 'baz' })
+
+      // Then
+      expect(result).toEqual({ bar: 'baz' })
+    })
+
+    // `integer().coerce() parses float correctly and not only integer.
+    // I think that it is the job of validation to throw an error because the
+    // number is not an integer.
+    it('should be able to parse string holding a float', function () {
+      // Given
+      // When
+      const result = integer().coerce('12.34')
+
+      // Then
+      expect(result).toEqual(12.34)
+    })
+  })
 })
