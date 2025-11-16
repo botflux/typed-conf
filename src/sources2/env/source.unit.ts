@@ -1,10 +1,10 @@
 import {describe, it} from 'node:test'
-import {object} from "../schemes2/object.js";
-import {string} from "../schemes2/string.js";
+import {object} from "../../schemes2/object.js";
+import {string} from "../../schemes2/string.js";
 import {expect} from "expect";
-import {integer} from "../schemes2/integer.js";
-import {camelCaseToScreamingSnakeCase, envSource} from "./env-source.js";
-import {boolean} from "../schemes2/boolean.js";
+import {integer} from "../../schemes2/integer.js";
+import {camelCaseToScreamingSnakeCase, envSource} from "./source.js";
+import {boolean} from "../../schemes2/boolean.js";
 
 describe('env source', function () {
   describe('#load', function () {

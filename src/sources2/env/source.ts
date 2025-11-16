@@ -1,13 +1,13 @@
-import {isObject, type ObjectSchema} from "../schemes2/object.js";
-import type {BaseSchema} from "../schemes2/base.js";
-import {setValueAtPath} from "../utils.js";
-import type {Loadable, LoadableRef} from "./source.js";
+import {isObject, type ObjectSchema} from "../../schemes2/object.js";
+import type {BaseSchema} from "../../schemes2/base.js";
+import {setValueAtPath} from "../../utils.js";
+import type {Loadable, LoadableRef} from "../source.js";
 
 export type EnvSourceLoadOpts = {
   envs?: NodeJS.ProcessEnv
 }
 
-class EnvSource implements Loadable<EnvSourceLoadOpts>, LoadableRef<EnvSourceLoadOpts> {
+class Source implements Loadable<EnvSourceLoadOpts>, LoadableRef<EnvSourceLoadOpts> {
   #opts: EnvSourceOpts
 
   constructor(opts: EnvSourceOpts) {
@@ -78,7 +78,7 @@ export type EnvSourceOpts = {
 }
 
 export function envSource(opts: EnvSourceOpts = {}) {
-  return new EnvSource(opts)
+  return new Source(opts)
 }
 
 function camelCasePathToScreamingSnakeCase(path: string[]) {
