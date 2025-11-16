@@ -5,6 +5,10 @@ export type SecretSchema<T> = BaseSchema<T> & {
   inner: BaseSchema<T>
 }
 
+function coerce(this: SecretSchema<BaseSchema<unknown>>, value: unknown): unknown {
+  return this.inner.coerce?.(value) ?? value
+}
+
 /**
  * Mark an underlying schema as secret.
  *
@@ -17,6 +21,7 @@ export function secret<S extends BaseSchema<unknown>>(schema: S): SecretSchema<S
     [kType]: '' as unknown as S[typeof kType],
     schema: schema.schema,
     aliases: [],
+    coerce
   }
 }
 
