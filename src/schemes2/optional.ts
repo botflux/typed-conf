@@ -2,9 +2,18 @@ import {type BaseSchema, kType} from "./base.js";
 import {isSecret} from "./secret.js";
 
 export type SchemaType<S> = S extends BaseSchema<infer T> ? T : never
+
 export type OptionalSchema<S extends BaseSchema<unknown>> = BaseSchema<SchemaType<S> | undefined> & {
   type: 'optional'
   inner: S
+}
+
+function coerce(this: OptionalSchema<BaseSchema<unknown>>, value: unknown): unknown {
+  if (value === undefined) {
+    return undefined
+  }
+
+  return this.inner.coerce?.(value)
 }
 
 export function optional<S extends BaseSchema<unknown>>(schema: S): OptionalSchema<S> {
@@ -13,7 +22,8 @@ export function optional<S extends BaseSchema<unknown>>(schema: S): OptionalSche
     inner: schema,
     schema: schema.schema,
     [kType]: '' as unknown as (SchemaType<S> | undefined),
-    aliases: []
+    aliases: [],
+    coerce
   }
 }
 
