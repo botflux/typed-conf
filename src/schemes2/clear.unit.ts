@@ -1,9 +1,10 @@
 import {describe, it} from "node:test";
-import {string} from "./string.js";
 import {expect} from "expect";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {clear} from "./clear.js";
+import {boolean} from "./boolean.js";
+import {string} from "./string.js";
 
 describe('clear', function () {
   it('should be able to declare a clear text schema', function () {
@@ -25,5 +26,18 @@ describe('clear', function () {
 
     // Then
     expectTypeOf(schema[kType]).toEqualTypeOf<string>()
+  })
+
+  describe('coercion', function () {
+    it('should be able to coerce using the underlying schema\'s coercion function', function () {
+      // Given
+      const schema = clear(boolean())
+
+      // When
+      const result = schema.coerce?.('true')
+
+      // Then
+      expect(result).toEqual(true)
+    })
   })
 })
