@@ -4,6 +4,7 @@ import {string} from "../schemes2/string.js";
 import {expect} from "expect";
 import type {BaseSchema} from "../schemes2/base.js";
 import {setValueAtPath} from "../utils.js";
+import {integer} from "../schemes2/integer.js";
 
 export type EnvSourceLoadOpts = {
   envs?: NodeJS.ProcessEnv
@@ -20,6 +21,7 @@ class EnvSource {
     for (const [key, value] of flattened) {
       const envName = camelCasePathToScreamingSnakeCase(key)
       const mSeenEnvName = seenEnvNames.get(envName)
+      const envValue = envs[envName]
 
       if (mSeenEnvName !== undefined) {
         throw new Error(`The props ${mSeenEnvName} and ${key.join('.')} resolves to the same env ${envName}`)
@@ -27,8 +29,10 @@ class EnvSource {
 
       seenEnvNames.set(envName, key.join('.'))
 
+      const coerced = value.coerce?.(envValue) ?? envValue
+
       if (envs[envName] !== undefined) {
-        setValueAtPath(result, key, envs[envName])
+        setValueAtPath(result, key, coerced)
       }
     }
 
@@ -102,6 +106,24 @@ describe('env source', function () {
 
       // Then
       await expect(promise).rejects.toThrow(new Error('The props fooBar and foo.bar resolves to the same env FOO_BAR'))
+    })
+
+    describe('coercion', function () {
+      it('should be able to coerce the value', async function () {
+        // Given
+        const source = envSource()
+        const envs = {PORT: '3000'}
+
+        // When
+        const result = await source.load(object({ port: integer() }), {
+          envs
+        })
+
+        // Then
+        expect(result).toEqual({
+          port: 3000
+        })
+      })
     })
   })
 })
