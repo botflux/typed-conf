@@ -3,6 +3,23 @@ import type {Alias} from "../schemes/base.js";
 
 export type BooleanSchema<T> = BaseSchema<T> & {
   type: 'boolean'
+  coerce: (value: unknown) => unknown
+}
+
+function coerce(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value
+  }
+
+  if (value === "true") {
+    return true
+  }
+
+  if (value === "false") {
+    return false
+  }
+
+  return value
 }
 
 export type BooleanOpts = {
@@ -18,6 +35,7 @@ export function boolean(opts: BooleanOpts = {}): BooleanSchema<boolean> {
       type: 'boolean'
     },
     aliases,
-    [kType]: true
+    [kType]: true,
+    coerce,
   }
 }

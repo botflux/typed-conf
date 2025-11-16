@@ -64,4 +64,42 @@ describe('boolean', function () {
       aliases: [envAlias('FOO'), envAlias('BAR')]
     }))
   })
+
+  describe('coercion', function () {
+    it('should be able to coerce "true" to true', function () {
+      // Given
+      // When
+      const result = boolean().coerce('true')
+
+      // Then
+      expect(result).toEqual(true)
+    })
+
+    it('should be able to coerce "false" to false', function () {
+      // Given
+      // When
+      const result = boolean().coerce('false')
+
+      // Then
+      expect(result).toEqual(false)
+    })
+
+    it('should be able to ignore strings others than "true" or "false"', function () {
+      // Given
+      // When
+      const result = boolean().coerce('foo')
+
+      // Then
+      expect(result).toEqual('foo')
+    })
+
+    it('should be able to ignore non strings', function () {
+      // Given
+      // When
+      const result = boolean().coerce({ hello: 'world' })
+
+      // Then
+      expect(result).toEqual({ hello: 'world' })
+    })
+  })
 })
