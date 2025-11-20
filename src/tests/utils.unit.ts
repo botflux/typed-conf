@@ -129,6 +129,18 @@ describe('utils#setValueAtPath', function () {
     // Then
     expect(() => setValueAtPath(o, ["foo", "bar"], "foo")).toThrow(new Error("Cannot set value at path 'foo.bar' because the intermediate property \"foo\" is not an object"))
   })
+
+  it('should be able to set a value given a symbol is in the path', function () {
+    // Given
+    const symbol = Symbol('foo')
+    const object = {}
+
+    // When
+    setValueAtPath(object, [ 'foo', symbol  ], 10)
+
+    // Then
+    expect(object).toEqual({ foo: { [symbol]: 10 } })
+  })
 })
 
 describe('utils#inlineCatchSync', function () {

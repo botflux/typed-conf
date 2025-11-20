@@ -1,4 +1,4 @@
-export function setValueAtPath(o: Record<string, unknown>, path: string[], value: unknown): void {
+export function setValueAtPath(o: Record<string | symbol, unknown>, path: (string | symbol)[], value: unknown): void {
   const intermediate = path.slice(0, -1)
   const last = path.at(-1)
 
@@ -14,7 +14,7 @@ export function setValueAtPath(o: Record<string, unknown>, path: string[], value
     }
 
     if (typeof tmp[chunk] !== "object" || tmp[chunk] === null) {
-      throw new Error(`Cannot set value at path '${path.join(".")}' because the intermediate property "${chunk}" is not an object`)
+      throw new Error(`Cannot set value at path '${path.join(".")}' because the intermediate property "${chunk.toString()}" is not an object`)
     }
 
     tmp = tmp[chunk] as Record<string, unknown>
