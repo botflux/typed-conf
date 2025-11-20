@@ -5,6 +5,7 @@ import {expect} from "expect";
 import {integer} from "../../schemes2/integer.js";
 import {camelCaseToScreamingSnakeCase, envSource} from "./source.js";
 import {boolean} from "../../schemes2/boolean.js";
+import {kOrigin} from "../../merging/merge.js";
 
 describe('env source', function () {
   describe('#load', function () {
@@ -17,7 +18,10 @@ describe('env source', function () {
       const result = await source.load(object({foo: string()}), {envs})
 
       // Then
-      expect(result).toEqual({foo: 'bar'})
+      expect(result).toEqual({
+        foo: 'bar',
+        [kOrigin]: { foo: 'env:FOO' }
+      })
     })
 
     it('should be able to load a property using the camel case naming convention', async function () {
@@ -29,7 +33,10 @@ describe('env source', function () {
       const result = await source.load(object({fooBar: string()}), {envs})
 
       // Then
-      expect(result).toEqual({fooBar: 'baz'})
+      expect(result).toEqual({
+        fooBar: 'baz',
+        [kOrigin]: { fooBar: 'env:FOO_BAR' }
+      })
     })
 
     it('should be able to load a nested property', async function () {
@@ -41,7 +48,12 @@ describe('env source', function () {
       const result = await source.load(object({foo: object({bar: string()})}), {envs})
 
       // Then
-      expect(result).toEqual({foo: {bar: 'foo'}})
+      expect(result).toEqual({
+        foo: {
+          bar: 'foo',
+          [kOrigin]: { bar: 'env:FOO_BAR' }
+        }
+      })
     })
 
     it('should be able to throw an error is there is an ambiguous env', async function () {
@@ -72,7 +84,8 @@ describe('env source', function () {
 
         // Then
         expect(result).toEqual({
-          port: 3000
+          port: 3000,
+          [kOrigin]: { port: 'env:PORT' }
         })
       })
     })
@@ -92,6 +105,7 @@ describe('env source', function () {
       expect(result).toEqual({
         host: 'localhost',
         port: 3000,
+        [kOrigin]: { host: 'env:APP_HOST', port: 'env:APP_PORT' }
       })
     })
   })

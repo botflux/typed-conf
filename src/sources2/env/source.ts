@@ -3,6 +3,7 @@ import type {BaseSchema} from "../../schemes2/base.js";
 import {setValueAtPath} from "../../utils.js";
 import type {Loadable, LoadableRef} from "../source.js";
 import {setOrigin} from "../../merging/origin-utils.js";
+import {kOrigin} from "../../merging/merge.js";
 
 export type EnvSourceLoadOpts = {
   envs?: NodeJS.ProcessEnv
@@ -37,6 +38,7 @@ class Source implements Loadable<EnvSourceLoadOpts>, LoadableRef<EnvSourceLoadOp
 
       if (envs[envName] !== undefined) {
         setValueAtPath(result, key, coerced)
+        setValueAtPath(result, this.#getOriginPath(key), `env:${envName}`)
       }
     }
 
@@ -44,7 +46,7 @@ class Source implements Loadable<EnvSourceLoadOpts>, LoadableRef<EnvSourceLoadOp
   }
 
   async loadFromRef(ref: string, schema: BaseSchema<unknown>, opts: EnvSourceLoadOpts): Promise<unknown> {
-    const { envs = process.env } = opts
+    const {envs = process.env} = opts
     const envValue = envs[ref]
 
     if (envValue === undefined) {
@@ -71,6 +73,16 @@ class Source implements Loadable<EnvSourceLoadOpts>, LoadableRef<EnvSourceLoadOp
     }
 
     return `${this.#opts.prefix}_${key}`
+  }
+
+  #getOriginPath(key: string[]): (string | symbol)[] {
+    const lastKey = key[key.length - 1]
+
+    if (lastKey === undefined) {
+      throw new Error('Path should not be empty')
+    }
+
+    return [...key.slice(0, -1), kOrigin, lastKey]
   }
 }
 
