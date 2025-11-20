@@ -8,8 +8,9 @@ import type {BaseSchema} from "../../schemes2/base.js";
 import {readFile} from "node:fs/promises";
 import {inlineCatch} from "../../utils.js";
 import {string} from "../../schemes2/string.js";
-import { parse } from 'yaml'
+import {parse} from 'yaml'
 import toml from 'toml'
+import {kOrigin, merge} from "../../merging/merge.js";
 
 export type ParserFn = (content: string) => unknown
 
@@ -44,22 +45,25 @@ class FileSource implements Loadable<FileSourceContext> {
 
   async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: FileSourceContext): Promise<Record<string, unknown>> {
     const files = this.#simplifyFileOpts(this.#opts.files)
-    const file = files[0]!
+    const configs: Record<string, unknown>[] = []
     const { fs = nativeFileSystem } = opts
 
-    const [content, err] = await inlineCatch(fs.readFile(file.file, "utf-8"))
+    for (const file of files) {
+      const [content, err] = await inlineCatch(fs.readFile(file.file, "utf-8"))
 
-    if (err !== undefined && this.#isFileDoesNotExistError(err)) {
-      return {}
+      if (err !== undefined && this.#isFileDoesNotExistError(err)) {
+        return {}
+      }
+
+      if (err !== undefined) {
+        throw err
+      }
+
+      const parsed = this.#parseFile(content as string, file.file)
+      configs.push(parsed as Record<string, unknown>)
     }
 
-    if (err !== undefined) {
-      throw err
-    }
-
-    const parsed = this.#parseFile(content as string, file.file)
-
-    return parsed as Record<string, unknown>
+    return configs.reduce(merge, {})
   }
 
   #simplifyFileOpts(files: (string | FileOpts)[]): FileOpts[] {
@@ -207,5 +211,31 @@ describe('fileSource', function () {
 
     // Then
     expect(result).toEqual({ port: 3000 })
+  })
+
+  it('should be able to load multiple files', {skip: true}, async function () {
+    // Given
+    const source = fileSource({
+      files: [ 'config.json', 'default.json' ]
+    })
+
+    const fs = new FakeFileSystem()
+      .addFile('config.json', `{ "port": 3000 }`)
+      .addFile('default.json', `{ "host": "localhost" }`)
+
+    const schema = object({
+      port: integer(),
+      host: string()
+    })
+
+    // When
+    const result = await source.load(schema, { fs })
+
+    // Then
+    expect(result).toEqual({ host: "localhost", port: 3000 })
+    expect(result[kOrigin as unknown as string]).toEqual({
+      host: 'default.json',
+      port: 'config.json'
+    })
   })
 })
