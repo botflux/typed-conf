@@ -1,35 +1,12 @@
 import {describe, it} from "node:test";
 import {expect} from "expect";
-
-export const kOrigin = Symbol('origin')
-
-export function localMerge (a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> {
-  for (const key in b) {
-    if (!(key in a) || a[key] === undefined) {
-      a[key] = b[key]
-    }
-
-    if (typeof a[key] === 'object' && typeof b[key] === 'object' && !Array.isArray(a[key]) && !Array.isArray(b[key])) {
-      localMerge(a[key] as Record<string, unknown>, b[key] as Record<string, unknown>)
-    }
-
-    if (Array.isArray(a[key]) && Array.isArray(b[key])) {
-      a[key] = [...a[key], ...b[key]]
-    }
-  }
-
-  if (kOrigin in a && kOrigin in b) {
-    localMerge(a[kOrigin] as Record<string, unknown>, b[kOrigin] as Record<string, unknown>)
-  }
-
-  return a
-}
+import {kOrigin, merge} from "./merge.js";
 
 describe('merge', function () {
   it('should be able to merge two objects', function () {
     // Given
     // When
-    const result = localMerge({ foo: 'bar' }, { baz: 'qux' })
+    const result = merge({ foo: 'bar' }, { baz: 'qux' })
 
     // Then
     expect(result).toEqual({
@@ -41,7 +18,7 @@ describe('merge', function () {
   it('should not be able to override existing properties', function () {
     // Given
     // When
-    const result = localMerge({ foo: 'bar' }, { foo: 'baz' })
+    const result = merge({ foo: 'bar' }, { foo: 'baz' })
 
     // Then
     expect(result).toEqual({
@@ -55,7 +32,7 @@ describe('merge', function () {
     const b = { foo: { qux: 'quux' } }
 
     // When
-    const result = localMerge(a, b)
+    const result = merge(a, b)
 
     // Then
     expect(result).toEqual({
@@ -72,7 +49,7 @@ describe('merge', function () {
     const b = { foo: { msg: "hello world" } }
 
     // When
-    const result = localMerge(a, b)
+    const result = merge(a, b)
 
     // Then
     expect(result).toEqual({
@@ -86,7 +63,7 @@ describe('merge', function () {
     const b = { foo: ['baz'] }
 
     // When
-    const result = localMerge(a, b)
+    const result = merge(a, b)
 
     // Then
     expect(result).toEqual({
@@ -100,7 +77,7 @@ describe('merge', function () {
     const b = { foo: [{ qux: 'quux' }] }
 
     // When
-    const result = localMerge(a, b)
+    const result = merge(a, b)
 
     // Then
     expect(result).toEqual({
@@ -114,7 +91,7 @@ describe('merge', function () {
     const b = { foo: 'bar' }
 
     // When
-    const result = localMerge(a, b)
+    const result = merge(a, b)
 
     // Then
     expect(result).toEqual({
@@ -128,7 +105,7 @@ describe('merge', function () {
     const b = { baz: 'qux' }
 
     // When
-    localMerge(a, b)
+    merge(a, b)
 
     // Then
     expect(a).toEqual({
@@ -142,7 +119,7 @@ describe('merge', function () {
     it('should be able to merge the origin symbol property', function () {
       // Given
       // When
-      const result = localMerge({ foo: 'bar', [kOrigin]: { foo: 'envs' } }, { baz: 'qux', [kOrigin]: { baz: 'cli' } })
+      const result = merge({ foo: 'bar', [kOrigin]: { foo: 'envs' } }, { baz: 'qux', [kOrigin]: { baz: 'cli' } })
 
       // Then
       expect(result[kOrigin as unknown as string]).toEqual({ foo: 'envs', baz: 'cli' })
@@ -151,7 +128,7 @@ describe('merge', function () {
     it('should be able to override existing properties', function () {
       // Given
       // When
-      const result = localMerge({ foo: 'bar', [kOrigin]: { foo: 'envs' } }, { foo: 'qux', [kOrigin]: { foo: 'cli' } })
+      const result = merge({ foo: 'bar', [kOrigin]: { foo: 'envs' } }, { foo: 'qux', [kOrigin]: { foo: 'cli' } })
 
       // Then
       expect(result[kOrigin as unknown as string]).toEqual({ foo: 'envs' })
@@ -163,7 +140,7 @@ describe('merge', function () {
       const b = { foo: ['baz'], [kOrigin]: { foo: ['cli'] } }
 
       // When
-      const result = localMerge(a, b)
+      const result = merge(a, b)
 
       // Then
       expect(result[kOrigin as unknown as string]).toEqual({
@@ -175,7 +152,7 @@ describe('merge', function () {
   it('should be able to merge even if kOrigin is a non-enumerable property', function () {
     // Given
     // When
-    const result = localMerge(
+    const result = merge(
       Object.defineProperty({ foo: 'bar' }, kOrigin, {
         enumerable: false,
         value: { foo: 'envs' }
