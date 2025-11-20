@@ -221,7 +221,7 @@ describe('fileSource', function () {
     })
   })
 
-  it('should be able to load multiple files', {skip: true}, async function () {
+  it('should be able to load multiple files', async function () {
     // Given
     const source = fileSource({
       files: [ 'config.json', 'default.json' ]
@@ -240,10 +240,10 @@ describe('fileSource', function () {
     const result = await source.load(schema, { fs })
 
     // Then
-    expect(result).toEqual({ host: "localhost", port: 3000 })
-    expect(getOrigin(result)).toEqual({
-      host: 'default.json',
-      port: 'config.json'
+    expect(result).toEqual({
+      host: "localhost",
+      port: 3000,
+      [kOrigin]: { port: 'config.json', host: 'default.json' }
     })
   })
 })
