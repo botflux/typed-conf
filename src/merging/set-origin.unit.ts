@@ -1,8 +1,9 @@
 import {describe, it} from "node:test";
 import {expect} from "expect";
 import {getOrigin, setOrigin} from "./origin-utils.js";
+import {kOrigin} from "./merge.js";
 
-describe('setOrigin', function () {
+describe('setOrigin', {only: true}, function () {
   it('should be able to attach origin metadata to an object', function () {
     // Given
     const obj = { foo: 'bar' }
@@ -35,5 +36,20 @@ describe('setOrigin', function () {
 
     // Then
     expect(getOrigin(obj)).toEqual({ foo: ['envs', 'envs'] })
+  })
+
+  it('should be able to attach metadata once', function () {
+    // Given
+    const obj = { foo: 1 }
+
+    // When
+    setOrigin(obj, 'envs')
+    setOrigin(obj, 'envs')
+
+    // Then
+    expect(obj).toEqual({
+      foo: 1,
+      [kOrigin]: { foo: 'envs' }
+    })
   })
 })

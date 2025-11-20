@@ -11,6 +11,7 @@ import {string} from "../../schemes2/string.js";
 import {parse} from 'yaml'
 import toml from 'toml'
 import {kOrigin, merge} from "../../merging/merge.js";
+import {getOrigin, setOrigin} from "../../merging/origin-utils.js";
 
 export type ParserFn = (content: string) => unknown
 
@@ -59,7 +60,8 @@ class FileSource implements Loadable<FileSourceContext> {
         throw err
       }
 
-      const parsed = this.#parseFile(content as string, file.file)
+      const parsed = this.#parseFile(content as string, file.file) as Record<string, unknown>
+      setOrigin(parsed, file.file)
       configs.push(parsed as Record<string, unknown>)
     }
 
@@ -99,7 +101,7 @@ function fileSource(opts: FileSourceOpts) {
 }
 
 describe('fileSource', function () {
-  it('should be able to load config from a file', async function () {
+  it('should be able to load config from a file', {only: true}, async function () {
     // Given
     const schema = object({
       port: integer()
@@ -112,7 +114,7 @@ describe('fileSource', function () {
     const result = await source.load(schema, {fs})
 
     // Then
-    expect(result).toEqual({port: 3000})
+    expect(result).toEqual({ port: 3000, [kOrigin]: { port: 'file.json' } })
   })
 
   it('should be able to load a file optionally', async function () {
@@ -172,7 +174,10 @@ describe('fileSource', function () {
     const result = await source.load(schema, { fs })
 
     // Then
-    expect(result).toEqual({ port: 3000 })
+    expect(result).toEqual({
+      port: 3000,
+      [kOrigin]: { port: 'config.yml' }
+    })
   })
 
   it('should be able to define custom parsers', function () {
@@ -210,7 +215,10 @@ describe('fileSource', function () {
     const result = await source.load(schema, { fs })
 
     // Then
-    expect(result).toEqual({ port: 3000 })
+    expect(result).toEqual({
+      port: 3000,
+      [kOrigin]: { port: 'config.toml' }
+    })
   })
 
   it('should be able to load multiple files', {skip: true}, async function () {
@@ -233,7 +241,7 @@ describe('fileSource', function () {
 
     // Then
     expect(result).toEqual({ host: "localhost", port: 3000 })
-    expect(result[kOrigin as unknown as string]).toEqual({
+    expect(getOrigin(result)).toEqual({
       host: 'default.json',
       port: 'config.json'
     })

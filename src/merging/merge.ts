@@ -11,8 +11,17 @@ export const kOrigin = Symbol('origin')
  * @param a
  * @param b
  */
-export function merge(a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> {
-  for (const key in b) {
+export function merge(a: Record<string | symbol, unknown>, b: Record<string | symbol, unknown>): Record<string | symbol, unknown> {
+  const keys = [ ...Object.keys(b), kOrigin ]
+
+  for (const key of keys) {
+    // this case is a but special
+    // If you look the top of the function, you'll see that we
+    // iterate over the keys, but also over kOrigin.
+    // But we don't need to loop over kOrigin while visiting the kOrigin value.
+    // Using this condition, we avoid the following result `{ Symbol(origin): { Symbol(origin): undefined } }`
+    if (!(key in a) && !(key in b)) continue
+
     if (!(key in a) || a[key] === undefined) {
       a[key] = b[key]
     }
@@ -24,10 +33,6 @@ export function merge(a: Record<string, unknown>, b: Record<string, unknown>): R
     if (Array.isArray(a[key]) && Array.isArray(b[key])) {
       a[key] = [...a[key], ...b[key]]
     }
-  }
-
-  if (kOrigin in a && kOrigin in b) {
-    merge(a[kOrigin] as Record<string, unknown>, b[kOrigin] as Record<string, unknown>)
   }
 
   return a
