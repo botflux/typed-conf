@@ -110,7 +110,7 @@ describe('env source', function () {
     })
   })
 
-  describe('#loadFromRef', function () {
+  describe('#loadFromParams', function () {
     it('should be able to load an env from a ref', async function () {
       // Given
       const source = envSource()
@@ -119,10 +119,14 @@ describe('env source', function () {
       }
 
       // When
-      const result = await source.loadFromRef('FOO_BAR', string(), { envs })
+      const result = await source.loadFromParams({ key: 'FOO_BAR' }, object({}), { envs })
 
       // Then
-      expect(result).toEqual('baz')
+      expect(result).toEqual({
+        origin: 'env:FOO_BAR',
+        type: 'non_mergeable',
+        value: 'baz'
+      })
     })
 
     it('should be able to coerce the value', async function () {
@@ -133,10 +137,14 @@ describe('env source', function () {
       }
 
       // When
-      const result = await source.loadFromRef('FOO_BAR', boolean(), { envs })
+      const result = await source.loadFromParams({ key: 'FOO_BAR' }, boolean(), { envs })
 
       // Then
-      expect(result).toEqual(false)
+      expect(result).toEqual({
+        origin: 'env:FOO_BAR',
+        type: 'non_mergeable',
+        value: false
+      })
     })
   })
 })

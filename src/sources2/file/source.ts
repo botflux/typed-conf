@@ -66,7 +66,7 @@ class FileSource implements Loadable<FileSourceContext>,
     return configs.reduce(merge, {})
   }
 
-  async loadFromParams(params: Params, schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: FileSourceContext): Promise<LoadResult> {
+  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: FileSourceContext): Promise<LoadResult> {
     const { fs = nativeFileSystem } = opts
     const { file, parse, encoding } = params
 

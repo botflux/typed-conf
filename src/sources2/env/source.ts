@@ -1,7 +1,7 @@
 import {isObject, type ObjectSchema} from "../../schemes2/object.js";
 import type {BaseSchema} from "../../schemes2/base.js";
 import {setValueAtPath} from "../../utils.js";
-import type {Loadable, LoadableRef} from "../source.js";
+import type {Loadable, LoadableFromParams, LoadableRef, LoadResult} from "../source.js";
 import {setOrigin} from "../../merging/origin-utils.js";
 import {kOrigin} from "../../merging/merge.js";
 
@@ -9,11 +9,41 @@ export type EnvSourceLoadOpts = {
   envs?: NodeJS.ProcessEnv
 }
 
-class Source implements Loadable<EnvSourceLoadOpts>, LoadableRef<EnvSourceLoadOpts> {
+export type Params = {
+  key: string
+}
+
+class Source implements Loadable<EnvSourceLoadOpts>, LoadableRef<EnvSourceLoadOpts>, LoadableFromParams<EnvSourceLoadOpts, Params> {
   #opts: EnvSourceOpts
 
   constructor(opts: EnvSourceOpts) {
     this.#opts = opts;
+  }
+
+  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: EnvSourceLoadOpts): Promise<LoadResult> {
+    const {envs = process.env} = opts
+    const { key } = params
+    const envValue = envs[key]
+
+    if (envValue === undefined) {
+      return {
+        type: 'non_mergeable',
+        origin: `env:${key}`,
+        value: envValue
+      }
+    }
+
+    const coerced = schema.coerce?.(envValue) ?? envValue
+
+    return {
+      type: 'non_mergeable',
+      origin: `env:${key}`,
+      value: coerced
+    }
+  }
+
+  areValidParams(params: Record<string, unknown>): params is Params {
+    throw new Error("Method not implemented.");
   }
 
   async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: EnvSourceLoadOpts) {
