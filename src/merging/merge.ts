@@ -1,4 +1,5 @@
 export const kOrigin = Symbol('origin')
+export const kMergeable = Symbol('mergeable')
 
 /**
  * Merge two objects recursively.
@@ -26,7 +27,10 @@ export function merge(a: Record<string | symbol, unknown>, b: Record<string | sy
       a[key] = b[key]
     }
 
-    if (typeof a[key] === 'object' && typeof b[key] === 'object' && !Array.isArray(a[key]) && !Array.isArray(b[key])) {
+    const aValue = a[key]
+    const bValue = b[key]
+
+    if (isObject(aValue) && isObject(bValue) && isMergeable(aValue) && isMergeable(bValue)) {
       merge(a[key] as Record<string, unknown>, b[key] as Record<string, unknown>)
     }
 
@@ -36,4 +40,12 @@ export function merge(a: Record<string | symbol, unknown>, b: Record<string | sy
   }
 
   return a
+}
+
+function isMergeable(obj: Record<string, unknown>): boolean {
+  return !(kMergeable in obj) || obj[kMergeable] !== false
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }

@@ -1,6 +1,6 @@
 import {describe, it} from "node:test";
 import {expect} from "expect";
-import {kOrigin, merge} from "./merge.js";
+import {kMergeable, kOrigin, merge} from "./merge.js";
 
 describe('merge', function () {
   it('should be able to merge two objects', function () {
@@ -115,6 +115,39 @@ describe('merge', function () {
     expect(b).toEqual({baz: 'qux'})
   })
 
+  it('should be able to mark objects as not mergeable', function () {
+    // Given
+    const a = {foo: {bar: 'baz', [kMergeable]: false }}
+    const b = {foo: {qux: 'quux'}}
+
+    // When
+    const result = merge(a, b)
+
+    // Then
+    expect(result).toEqual({
+      foo: {
+        bar: 'baz',
+        [kMergeable]: false
+      }
+    })
+  })
+
+  it('should be able to not merge if the second object is marked as not mergeable', function () {
+    // Given
+    const a = {foo: {bar: 'baz' }}
+    const b = {foo: {qux: 'quux', [kMergeable]: false}}
+
+    // When
+    const result = merge(a, b)
+
+    // Then
+    expect(result).toEqual({
+      foo: {
+        bar: 'baz',
+      }
+    })
+  })
+
   describe('custom origin symbol', function () {
     it('should be able to merge the origin symbol property', function () {
       // Given
@@ -176,6 +209,24 @@ describe('merge', function () {
 
       // Then
       expect(result[kOrigin as unknown as string]).toEqual({baz: 'cli'})
+    })
+
+    it('should be able to not merge origins of not mergeable objects', function () {
+      // Given
+      const a = {foo: {bar: 'baz', [kMergeable]: false, [kOrigin]: {bar: 'envs'} }}
+      const b = {foo: {qux: 'quux', [kOrigin]: {qux: 'cli'}}}
+
+      // When
+      const result = merge(a, b)
+
+      // Then
+      expect(result).toEqual({
+        foo: {
+          bar: 'baz',
+          [kMergeable]: false,
+          [kOrigin]: {bar: 'envs'}
+        }
+      })
     })
   })
 })

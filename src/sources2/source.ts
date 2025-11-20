@@ -8,3 +8,8 @@ export interface Loadable<Opts> {
 export interface LoadableRef<Opts> {
   loadFromRef(ref: string, schema: BaseSchema<unknown>, opts: Opts): Promise<unknown>
 }
+
+export interface LoadableFromParams<Opts, Params extends Record<string, unknown>> {
+  loadFromParams(params: Params, schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: Opts): Promise<Record<string, unknown>>
+  validateParams(params: Record<string, unknown>): params is Params
+}
