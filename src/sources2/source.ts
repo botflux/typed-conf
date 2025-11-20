@@ -9,7 +9,34 @@ export interface LoadableRef<Opts> {
   loadFromRef(ref: string, schema: BaseSchema<unknown>, opts: Opts): Promise<unknown>
 }
 
+export type NonMergeableResult = {
+  type: 'non_mergeable'
+  origin: string
+  value: unknown
+}
+
+export type MergeableResult = {
+  type: 'mergeable'
+  value: Record<string, unknown>
+}
+
+export type LoadResult = NonMergeableResult | MergeableResult
+
 export interface LoadableFromParams<Opts, Params extends Record<string, unknown>> {
-  loadFromParams(params: Params, schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: Opts): Promise<Record<string, unknown>>
-  validateParams(params: Record<string, unknown>): params is Params
+  /**
+   * Load a configuration from a source using params.
+   * This method is meant to be used to load refs.
+   *
+   * @param params
+   * @param schema
+   * @param opts
+   */
+  loadFromParams(params: Params, schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: Opts): Promise<LoadResult>
+
+  /**
+   * Validate the given params.
+   *
+   * @param params
+   */
+  areValidParams(params: Record<string, unknown>): params is Params
 }

@@ -157,16 +157,46 @@ describe('fileSource', function () {
     })
   })
 
-  // describe('#loadFromParams', function () {
-  //   it('should be able to load a file from params', async function () {
-  //     // Given
-  //     const source = fileSource({ files: [ 'config.json' ] })
-  //
-  //     // When
-  //     const result = await source.loadFromParams({ file: 'config.txt', encoding: 'utf8' })
-  //
-  //     // Then
-  //
-  //   })
-  // })
+  describe('#loadFromParams', function () {
+    it('should be able to load a file from params', async function () {
+      // Given
+      const source = fileSource({ files: [ 'config.json' ] })
+      const fs = new FakeFileSystem()
+        .addFile('config.txt', 'foo bar')
+
+      // When
+      const result = await source.loadFromParams({ file: 'config.txt', encoding: 'utf8' }, object({}), {
+        fs
+      })
+
+      // Then
+      expect(result).toEqual({
+        type: 'non_mergeable',
+        origin: 'config.txt',
+        value: 'foo bar'
+      })
+    })
+
+    it('should be able to parse a file loaded with params', async function () {
+      // Given
+      const source = fileSource({ files: [ 'config.json' ] })
+      const fs = new FakeFileSystem()
+        .addFile('nested.json', `{ "port": 3000 }`)
+
+      // When
+      const result = await source.loadFromParams({
+        file: 'nested.json',
+        encoding: 'utf8',
+        parse: true
+      }, object({ port: integer() }), {
+        fs
+      })
+
+      // Then
+      expect(result).toEqual({
+        type: 'mergeable',
+        value: { port: 3000, [kOrigin]: { port: 'nested.json' } }
+      })
+    })
+  })
 })

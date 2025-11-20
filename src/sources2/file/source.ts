@@ -1,5 +1,5 @@
 import {string} from "../../schemes2/string.js";
-import type {Loadable} from "../source.js";
+import type {Loadable, LoadableFromParams, LoadResult, MergeableResult} from "../source.js";
 import type {ObjectSchema} from "../../schemes2/object.js";
 import type {BaseSchema} from "../../schemes2/base.js";
 import {inlineCatch} from "../../utils.js";
@@ -28,7 +28,14 @@ const defaultParsers = new Map<string, ParserFn>()
   .set('.json', JSON.parse)
   .set('.yml', parse)
 
-class FileSource implements Loadable<FileSourceContext> {
+export type Params = {
+  encoding?: BufferEncoding
+  file: string
+  parse?: boolean
+}
+
+class FileSource implements Loadable<FileSourceContext>,
+  LoadableFromParams<FileSourceContext, Params>{
   #opts: FileSourceOpts
 
   constructor(opts: FileSourceOpts) {
@@ -57,6 +64,35 @@ class FileSource implements Loadable<FileSourceContext> {
     }
 
     return configs.reduce(merge, {})
+  }
+
+  async loadFromParams(params: Params, schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: FileSourceContext): Promise<LoadResult> {
+    const { fs = nativeFileSystem } = opts
+    const { file, parse, encoding } = params
+
+    const content = await fs.readFile(file, {
+      encoding
+    })
+
+    if (parse) {
+      const parsed = this.#parseFile(content.toString(), file) as Record<string, unknown>
+      setOrigin(parsed, file)
+
+      return {
+        type: 'mergeable',
+        value: parsed
+      } satisfies MergeableResult
+    }
+
+    return {
+      type: 'non_mergeable',
+      value: content,
+      origin: file,
+    }
+  }
+
+  areValidParams(params: Record<string, unknown>): params is Params {
+    throw new Error("Not implemented at line 69 in source.ts")
   }
 
   #simplifyFileOpts(files: (string | FileOpts)[]): FileOpts[] {
