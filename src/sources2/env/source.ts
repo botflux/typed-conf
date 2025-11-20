@@ -1,8 +1,7 @@
 import {isObject, type ObjectSchema} from "../../schemes2/object.js";
 import type {BaseSchema} from "../../schemes2/base.js";
 import {setValueAtPath} from "../../utils.js";
-import type {Loadable, LoadableFromParams, LoadableRef, LoadResult} from "../source.js";
-import {setOrigin} from "../../merging/origin-utils.js";
+import type {Loadable, LoadableFromParams, LoadResult} from "../source.js";
 import {kOrigin} from "../../merging/merge.js";
 
 export type EnvSourceLoadOpts = {
@@ -13,7 +12,7 @@ export type Params = {
   key: string
 }
 
-class Source implements Loadable<EnvSourceLoadOpts>, LoadableRef<EnvSourceLoadOpts>, LoadableFromParams<EnvSourceLoadOpts, Params> {
+class Source implements Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourceLoadOpts, Params> {
   #opts: EnvSourceOpts
 
   constructor(opts: EnvSourceOpts) {
