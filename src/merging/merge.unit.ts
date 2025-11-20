@@ -1,6 +1,8 @@
 import {describe, it} from "node:test";
 import {expect} from "expect";
 
+export const kOrigin = Symbol('origin')
+
 export function localMerge (a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> {
   for (const key in b) {
     if (!(key in a) || a[key] === undefined) {
@@ -14,6 +16,10 @@ export function localMerge (a: Record<string, unknown>, b: Record<string, unknow
     if (Array.isArray(a[key]) && Array.isArray(b[key])) {
       a[key] = [...a[key], ...b[key]]
     }
+  }
+
+  if (kOrigin in a && kOrigin in b) {
+    localMerge(a[kOrigin] as Record<string, unknown>, b[kOrigin] as Record<string, unknown>)
   }
 
   return a
@@ -130,5 +136,39 @@ describe('merge', function () {
       baz: 'qux'
     })
     expect(b).toEqual({ baz: 'qux' })
+  })
+
+  describe('custom origin symbol', function () {
+    it('should be able to merge the origin symbol property', function () {
+      // Given
+      // When
+      const result = localMerge({ foo: 'bar', [kOrigin]: { foo: 'envs' } }, { baz: 'qux', [kOrigin]: { baz: 'cli' } })
+
+      // Then
+      expect(result[kOrigin as unknown as string]).toEqual({ foo: 'envs', baz: 'cli' })
+    })
+
+    it('should be able to override existing properties', function () {
+      // Given
+      // When
+      const result = localMerge({ foo: 'bar', [kOrigin]: { foo: 'envs' } }, { foo: 'qux', [kOrigin]: { foo: 'cli' } })
+
+      // Then
+      expect(result[kOrigin as unknown as string]).toEqual({ foo: 'envs' })
+    })
+
+    it('should be able to merge arrays', function () {
+      // Given
+      const a = { foo: ['bar'], [kOrigin]: { foo: ['envs'] } }
+      const b = { foo: ['baz'], [kOrigin]: { foo: ['cli'] } }
+
+      // When
+      const result = localMerge(a, b)
+
+      // Then
+      expect(result[kOrigin as unknown as string]).toEqual({
+        foo: ['envs', 'cli']
+      })
+    })
   })
 })
