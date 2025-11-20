@@ -171,4 +171,22 @@ describe('merge', function () {
       })
     })
   })
+
+  it('should be able to merge even if kOrigin is a non-enumerable property', function () {
+    // Given
+    // When
+    const result = localMerge(
+      Object.defineProperty({ foo: 'bar' }, kOrigin, {
+        enumerable: false,
+        value: { foo: 'envs' }
+      }),
+      Object.defineProperty({ baz: 'qux' }, kOrigin, {
+        enumerable: false,
+        value: { baz: 'cli' }
+      })
+    )
+
+    // Then
+    expect(result[kOrigin as unknown as string]).toEqual({ foo: 'envs', baz: 'cli' })
+  })
 })
