@@ -1,22 +1,23 @@
 import type {Alias} from "../schemes/base.js";
-import {type BaseSchema, kType} from "./base.js";
+import {type BaseSchema, kType, type Mapping} from "./base.js";
 
-export interface StringSchema<T> extends BaseSchema<T> {
+export interface StringSchema<T, U> extends BaseSchema<T, U> {
   type: 'string'
 }
 
-export type StringOpts = {
+export type StringOpts<From> = {
   minLength?: number
   maxLength?: number
   aliases?: Alias[]
+  mapping?: Mapping<string, From>
 }
 
 function coerce(value: unknown): unknown {
   return value
 }
 
-export function string(opts: StringOpts = {}): StringSchema<string> {
-  const { aliases = [], minLength, maxLength } = opts
+export function string<U>(opts: StringOpts<U> = {}): StringSchema<string, U> {
+  const { aliases = [], minLength, maxLength, mapping } = opts
 
   return {
     [kType]: '' as unknown as string,
@@ -27,6 +28,7 @@ export function string(opts: StringOpts = {}): StringSchema<string> {
       maxLength,
     },
     aliases,
-    coerce
+    coerce,
+    ...mapping !== undefined && { mapping }
   }
 }

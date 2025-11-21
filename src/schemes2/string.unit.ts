@@ -2,6 +2,7 @@ import {describe, it} from "node:test";
 import {expect} from "expect";
 import {string} from "./string.js";
 import {envAlias} from "../sources/envs/envs.js";
+import {integer} from "./integer.js";
 
 describe('strings', function () {
   it('should be able to create a string schema', function () {
@@ -109,6 +110,29 @@ describe('strings', function () {
 
       // Then
       expect(schema).toEqual('foo')
+    })
+  })
+
+  describe('mappings', function () {
+    it('should be able to define a mapping', function () {
+      // Given
+      const map = (n: number) => n.toString()
+
+      // When
+      const schema = string({
+        mapping: {
+          baseSchema: integer(),
+          map
+        }
+      })
+
+      // Then
+      expect(schema).toEqual(expect.objectContaining({
+        mapping: expect.objectContaining({
+          baseSchema: integer(),
+          map
+        })
+      }))
     })
   })
 })
