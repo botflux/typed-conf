@@ -8,6 +8,6 @@ export function file() {
   return ref({
     schema: string(),
     sourceName: 'file',
-    refToSourceParams: (path: string) => ({path})
+    refToSourceParams: (path: string) => ({path, encoding: 'utf-8'})
   })
 }
