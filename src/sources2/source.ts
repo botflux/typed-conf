@@ -37,3 +37,7 @@ export interface LoadableFromParams<Opts, Params extends Record<string, unknown>
    */
   areValidParams(params: Record<string, unknown>): params is Params
 }
+
+export interface Source<Name extends string, InjectOpts, Params extends Record<string, unknown>> extends Partial<LoadableFromParams<InjectOpts, Params>>, Partial<Loadable<InjectOpts>> {
+  name: Name
+}

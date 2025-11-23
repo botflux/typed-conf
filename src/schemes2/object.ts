@@ -6,10 +6,10 @@ export function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<Re
   return 'type' in schema && schema.type === 'object'
 }
 
-
 export type ObjectSchemaToType<P extends Record<string, BaseSchema<unknown>>> = {
   [K in keyof P]: P[K][typeof kType]
 }
+
 export type ObjectSchema<P extends Record<string, BaseSchema<unknown>>> = BaseSchema<ObjectSchemaToType<P>> & {
   type: 'object',
   props: P,

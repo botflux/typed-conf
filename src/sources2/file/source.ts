@@ -1,5 +1,4 @@
-import {string} from "../../schemes2/string.js";
-import type {Loadable, LoadableFromParams, LoadResult, MergeableResult} from "../source.js";
+import type {Loadable, LoadableFromParams, LoadResult, MergeableResult, Source} from "../source.js";
 import type {ObjectSchema} from "../../schemes2/object.js";
 import type {BaseSchema} from "../../schemes2/base.js";
 import {inlineCatch} from "../../utils.js";
@@ -14,16 +13,18 @@ export type FileOpts = {
   file: string
   required?: boolean
 }
-export type FileSourceOpts = {
+export type FileSourceOpts<Name extends string> = {
+  name?: Name
   files: (string | FileOpts)[],
   parsers?: Map<string, ParserFn>
 }
-export type FileSourceContext = {
+export type InjectOpts = {
   fs?: FileSystem
 }
 const nativeFileSystem = {
   readFile
 }
+
 const defaultParsers = new Map<string, ParserFn>()
   .set('.json', JSON.parse)
   .set('.yml', parse)
@@ -34,15 +35,16 @@ export type Params = {
   parse?: boolean
 }
 
-class FileSource implements Loadable<FileSourceContext>,
-  LoadableFromParams<FileSourceContext, Params>{
-  #opts: FileSourceOpts
+class FileSource<Name extends string> implements Source<Name, InjectOpts, Params> {
+  #opts: FileSourceOpts<Name>
+  name: Name
 
-  constructor(opts: FileSourceOpts) {
+  constructor(name: Name, opts: FileSourceOpts<Name>) {
     this.#opts = opts;
+    this.name = name;
   }
 
-  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: FileSourceContext): Promise<Record<string, unknown>> {
+  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: InjectOpts): Promise<Record<string, unknown>> {
     const files = this.#simplifyFileOpts(this.#opts.files)
     const configs: Record<string, unknown>[] = []
     const {fs = nativeFileSystem} = opts
@@ -66,7 +68,7 @@ class FileSource implements Loadable<FileSourceContext>,
     return configs.reduce(merge, {})
   }
 
-  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: FileSourceContext): Promise<LoadResult> {
+  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
     const { fs = nativeFileSystem } = opts
     const { file, parse, encoding } = params
 
@@ -123,6 +125,6 @@ class FileSource implements Loadable<FileSourceContext>,
   }
 }
 
-export function fileSource(opts: FileSourceOpts) {
-  return new FileSource(opts)
+export function fileSource<Name extends string = "file">(opts: FileSourceOpts<Name>) {
+  return new FileSource(opts.name ?? "file" as Name, opts)
 }

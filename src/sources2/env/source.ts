@@ -1,10 +1,10 @@
 import {isObject, type ObjectSchema} from "../../schemes2/object.js";
 import type {BaseSchema} from "../../schemes2/base.js";
 import {setValueAtPath} from "../../utils.js";
-import type {Loadable, LoadableFromParams, LoadResult} from "../source.js";
+import type {Loadable, LoadableFromParams, LoadResult, Source} from "../source.js";
 import {kOrigin} from "../../merging/merge.js";
 
-export type EnvSourceLoadOpts = {
+export type InjectOpts = {
   envs?: NodeJS.ProcessEnv
 }
 
@@ -12,14 +12,16 @@ export type Params = {
   key: string
 }
 
-class Source implements Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourceLoadOpts, Params> {
-  #opts: EnvSourceOpts
+class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params> { // Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourceLoadOpts, Params>
+  name: Name
+  #opts: EnvSourceOpts<Name>
 
-  constructor(opts: EnvSourceOpts) {
+  constructor(name: Name, opts: EnvSourceOpts<Name>) {
     this.#opts = opts;
+    this.name = name;
   }
 
-  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: EnvSourceLoadOpts): Promise<LoadResult> {
+  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
     const {envs = process.env} = opts
     const { key } = params
     const envValue = envs[key]
@@ -45,7 +47,7 @@ class Source implements Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourc
     throw new Error("Method not implemented.");
   }
 
-  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: EnvSourceLoadOpts) {
+  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: InjectOpts) {
     const {envs = process.env} = opts
     const result: Record<string, unknown> = {}
     const flattened = this.#flattenObjectSchema(schema)
@@ -72,17 +74,6 @@ class Source implements Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourc
     }
 
     return result
-  }
-
-  async loadFromRef(ref: string, schema: BaseSchema<unknown>, opts: EnvSourceLoadOpts): Promise<unknown> {
-    const {envs = process.env} = opts
-    const envValue = envs[ref]
-
-    if (envValue === undefined) {
-      return envValue
-    }
-
-    return schema.coerce?.(envValue) ?? envValue
   }
 
   #flattenObjectSchema(schema: BaseSchema<unknown>, prefix: string[] = []): [path: string[], schema: BaseSchema<unknown>][] {
@@ -115,12 +106,13 @@ class Source implements Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourc
   }
 }
 
-export type EnvSourceOpts = {
+export type EnvSourceOpts<Name extends string> = {
   prefix?: string
+  name?: Name
 }
 
-export function envSource(opts: EnvSourceOpts = {}) {
-  return new Source(opts)
+export function envSource<Name extends string = "envs">(opts: EnvSourceOpts<Name> = {}): EnvSource<Name> {
+  return new EnvSource(opts.name ?? "envs" as Name, opts)
 }
 
 function camelCasePathToScreamingSnakeCase(path: string[]) {
