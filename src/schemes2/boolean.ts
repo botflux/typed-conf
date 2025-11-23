@@ -31,7 +31,7 @@ export function boolean(opts: BooleanOpts = {}): BooleanSchema<boolean> {
 
   return {
     type: 'boolean',
-    beforeRefSchema: {
+    jsonSchema: {
       type: 'boolean'
     },
     aliases,

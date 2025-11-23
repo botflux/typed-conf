@@ -27,7 +27,7 @@ describe('fatUnion', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'object',
         oneOf: [
           {

@@ -20,7 +20,7 @@ export function optional<S extends BaseSchema<unknown>>(schema: S): OptionalSche
   return {
     type: 'optional',
     inner: schema,
-    beforeRefSchema: schema.beforeRefSchema,
+    jsonSchema: schema.jsonSchema,
     [kType]: '' as unknown as (SchemaType<S> | undefined),
     aliases: [],
     coerce

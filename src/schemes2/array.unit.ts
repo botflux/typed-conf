@@ -15,7 +15,7 @@ describe('array', function () {
     // Then
     expect(schema).toEqual(expect.objectContaining({
       type: 'array',
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'array',
         items: {
           type: 'string',
@@ -51,7 +51,7 @@ describe('array', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'array',
         items: {
           type: 'string',
@@ -67,7 +67,7 @@ describe('array', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'array',
         items: {
           type: 'string',
@@ -84,7 +84,7 @@ describe('array', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'array',
         items: {
           type: 'string',
@@ -103,7 +103,7 @@ describe('array', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'array',
         items: {
           type: 'string',

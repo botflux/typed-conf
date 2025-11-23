@@ -23,7 +23,7 @@ describe('intersection', function () {
         object({ foo: string() }),
         object({ bar: string() }),
       ],
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'object',
         allOf: [
           {

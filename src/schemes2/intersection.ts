@@ -27,9 +27,9 @@ export function intersection<S extends BaseSchema<unknown>>(schemes: S[], opts: 
     schemes,
     aliases,
     [kType]: "" as unknown as UnionToIntersection<UnwrapSchemaType<S>>,
-    beforeRefSchema: {
+    jsonSchema: {
       type: 'object',
-      allOf: schemes.map(s => s.beforeRefSchema)
+      allOf: schemes.map(s => s.jsonSchema)
     },
   }
 }

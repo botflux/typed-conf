@@ -22,7 +22,7 @@ export function string<U>(opts: StringOpts<U> = {}): StringSchema<string, U> {
   return {
     [kType]: '' as unknown as string,
     type: 'string',
-    beforeRefSchema: {
+    jsonSchema: {
       type: 'string',
       ...minLength !== undefined && { minLength },
       ...maxLength !== undefined && { maxLength },

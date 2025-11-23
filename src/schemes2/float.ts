@@ -34,7 +34,7 @@ export function float(opts: FloatOpts = {}): FloatSchema<number> {
   }
 
   return {
-    beforeRefSchema: {
+    jsonSchema: {
       type: 'number',
       minimum: min,
       maximum: max,

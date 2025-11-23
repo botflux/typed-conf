@@ -24,7 +24,7 @@ describe('union', function () {
         string(),
         integer(),
       ],
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'object',
         oneOf: [
           {

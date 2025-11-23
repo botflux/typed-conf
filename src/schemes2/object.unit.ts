@@ -21,7 +21,7 @@ describe('object', function () {
     // Then
     expect(schema).toEqual(expect.objectContaining({
       props: {host: string(), port: integer()},
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'object',
         properties: {
           host: {type: 'string'},
@@ -55,7 +55,7 @@ describe('object', function () {
     // Then
     expect(schema).toEqual(expect.objectContaining({
       props: { port: optional(integer()) },
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'object',
         properties: {
           port: {type: 'integer'},
@@ -75,7 +75,7 @@ describe('object', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'object',
         properties: {
           dbCredentials: {type: 'string'},

@@ -26,13 +26,13 @@ export function object<P extends Record<string, BaseSchema<unknown>>>(props: P, 
     .filter(([, schema]) => !hasOptionalSchemaInChain(schema))
     .map(([key]) => key)
 
-  const beforeRefJsonSchemaProps = Object.fromEntries(Object.entries(props).map(([key, value]) => [key, value.beforeRefSchema]))
+  const beforeRefJsonSchemaProps = Object.fromEntries(Object.entries(props).map(([key, value]) => [key, value.jsonSchema]))
 
   return {
     type: 'object',
     props,
     aliases,
-    beforeRefSchema: {
+    jsonSchema: {
       type: 'object',
       properties: beforeRefJsonSchemaProps,
       required,

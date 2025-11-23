@@ -5,11 +5,7 @@ import {getOrigin} from "../merging/origin-utils.js";
 import {getValueAtPath} from "../utils.js";
 
 export function getPreRefJsonSchema(base: BaseSchema<unknown>): JSONSchema {
-  return base.beforeRefSchema
-}
-
-export function getPostRefJsonSchema(base: BaseSchema<unknown>): JSONSchema {
-  return base.afterRefSchema ?? base.beforeRefSchema
+  return base.jsonSchema
 }
 
 export class ValidationError extends AggregateError {

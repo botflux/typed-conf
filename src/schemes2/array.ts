@@ -27,9 +27,9 @@ export function array<T>(opts: ArrayOpts<T>): ArraySchema<T[]> {
   const { item, aliases = [], maxItems, minItems } = opts
 
   return {
-    beforeRefSchema: {
+    jsonSchema: {
       type: 'array',
-      items: item.beforeRefSchema,
+      items: item.jsonSchema,
       minItems,
       maxItems
     },

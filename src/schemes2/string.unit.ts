@@ -13,7 +13,7 @@ describe('strings', function () {
     // Then
     expect(schema).toEqual(expect.objectContaining({
       type: 'string',
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'string'
       },
     }))
@@ -50,7 +50,7 @@ describe('strings', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'string',
       }
     }))
@@ -65,7 +65,7 @@ describe('strings', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'string',
         minLength: 2
       }
@@ -79,7 +79,7 @@ describe('strings', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'string',
       }
     }))
@@ -94,7 +94,7 @@ describe('strings', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
+      jsonSchema: {
         type: 'string',
         maxLength: 10
       }

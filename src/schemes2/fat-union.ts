@@ -13,7 +13,7 @@ export function fatUnion<U extends Record<string, BaseSchema<unknown>>>(union: U
   const beforeRefOneOfs = Object.entries(union).map(([key, value]) => ({
     type: 'object',
     properties: {
-      [key]: value.beforeRefSchema
+      [key]: value.jsonSchema
     },
     required: [key],
     additionalProperties: false,
@@ -23,7 +23,7 @@ export function fatUnion<U extends Record<string, BaseSchema<unknown>>>(union: U
     type: 'fat_union',
     schemes: union,
     aliases,
-    beforeRefSchema: {
+    jsonSchema: {
       type: 'object',
       oneOf: beforeRefOneOfs
     },
