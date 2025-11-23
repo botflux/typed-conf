@@ -29,13 +29,13 @@ describe('utils#getValueAtPath', function () {
     expect(value).toBe("hello")
   })
 
-  it('should be able to throw if the path is empty', function () {
+  it('should be able to return the param given the path is empty', function () {
     // Given
-    const o = {}
+    const o = { foo: "bar" }
 
     // When
     // Then
-    expect(() => getValueAtPath(o, [])).toThrow(new Error("Path must contain at least one element"))
+    expect(getValueAtPath(o, [])).toEqual({ foo: 'bar' })
   })
 
   it('should be able to return undefined if the intermediate objects does not exist', function () {

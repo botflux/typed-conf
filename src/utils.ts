@@ -35,7 +35,7 @@ export function getValueAtPath(o: Record<string, unknown>, path: string[]): unkn
   const key = path.at(-1)
 
   if (key === undefined) {
-    throw new Error("Path must contain at least one element")
+    return o
   }
 
   for (const key of intermediateObjectPath) {
