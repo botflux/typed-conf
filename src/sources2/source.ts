@@ -26,8 +26,9 @@ export interface LoadableFromParams<Opts, Params extends Record<string, unknown>
    * @param params
    * @param schema
    * @param opts
+   * @param previous
    */
-  loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: Opts): Promise<LoadResult>
+  loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: Opts, previous: Record<string, unknown>): Promise<LoadResult>
 
   /**
    * Validate the given params.
