@@ -1,16 +1,9 @@
 import {isObject, type ObjectSchema} from "../../schemes2/object.js";
 import type {BaseSchema} from "../../schemes2/base.js";
 import {setValueAtPath} from "../../utils.js";
-import type {Loadable, LoadableFromParams, LoadResult, Source} from "../source.js";
+import type {LoadResult, Source} from "../source.js";
 import {kOrigin} from "../../merging/merge.js";
-
-export type InjectOpts = {
-  envs?: NodeJS.ProcessEnv
-}
-
-export type Params = {
-  key: string
-}
+import type {EnvSourceOpts, InjectOpts, Params} from "./types.js";
 
 class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params> { // Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourceLoadOpts, Params>
   name: Name
@@ -104,11 +97,6 @@ class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params>
 
     return [...key.slice(0, -1), kOrigin, lastKey]
   }
-}
-
-export type EnvSourceOpts<Name extends string> = {
-  prefix?: string
-  name?: Name
 }
 
 export function envSource<Name extends string = "envs">(opts: EnvSourceOpts<Name> = {}): Source<Name, InjectOpts, Params> {

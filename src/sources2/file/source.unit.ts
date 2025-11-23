@@ -6,7 +6,8 @@ import {expect} from "expect";
 import {string} from "../../schemes2/string.js";
 import toml from 'toml'
 import {kOrigin} from "../../merging/merge.js";
-import {fileSource, type ParserFn} from "./source.js";
+import {fileSource} from "./source.js";
+import type {ParserFn} from "./types.js";
 
 describe('fileSource', function () {
   describe('#load', function () {

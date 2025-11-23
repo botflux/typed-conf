@@ -1,26 +1,13 @@
-import type {Loadable, LoadableFromParams, LoadResult, MergeableResult, Source} from "../source.js";
+import type {LoadResult, MergeableResult, Source} from "../source.js";
 import type {ObjectSchema} from "../../schemes2/object.js";
 import type {BaseSchema} from "../../schemes2/base.js";
 import {inlineCatch} from "../../utils.js";
 import {setOrigin} from "../../merging/origin-utils.js";
 import {merge} from "../../merging/merge.js";
 import {parse} from "yaml";
-import type {FileSystem} from "../../sources/files/file-system.js";
 import {readFile} from "node:fs/promises";
+import type {FileOpts, FileSourceOpts, InjectOpts, Params, ParserFn} from "./types.js";
 
-export type ParserFn = (content: string) => unknown
-export type FileOpts = {
-  file: string
-  required?: boolean
-}
-export type FileSourceOpts<Name extends string> = {
-  name?: Name
-  files: (string | FileOpts)[],
-  parsers?: Map<string, ParserFn>
-}
-export type InjectOpts = {
-  fs?: FileSystem
-}
 const nativeFileSystem = {
   readFile
 }
@@ -28,12 +15,6 @@ const nativeFileSystem = {
 const defaultParsers = new Map<string, ParserFn>()
   .set('.json', JSON.parse)
   .set('.yml', parse)
-
-export type Params = {
-  encoding?: BufferEncoding
-  file: string
-  parse?: boolean
-}
 
 class FileSource<Name extends string> implements Source<Name, InjectOpts, Params> {
   #opts: FileSourceOpts<Name>
