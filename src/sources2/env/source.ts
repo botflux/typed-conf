@@ -111,7 +111,7 @@ export type EnvSourceOpts<Name extends string> = {
   name?: Name
 }
 
-export function envSource<Name extends string = "envs">(opts: EnvSourceOpts<Name> = {}): EnvSource<Name> {
+export function envSource<Name extends string = "envs">(opts: EnvSourceOpts<Name> = {}): Source<Name, InjectOpts, Params> {
   return new EnvSource(opts.name ?? "envs" as Name, opts)
 }
 

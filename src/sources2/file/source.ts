@@ -125,6 +125,6 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Params
   }
 }
 
-export function fileSource<Name extends string = "file">(opts: FileSourceOpts<Name>) {
+export function fileSource<Name extends string = "file">(opts: FileSourceOpts<Name>): Source<Name, InjectOpts, Params> {
   return new FileSource(opts.name ?? "file" as Name, opts)
 }

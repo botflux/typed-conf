@@ -9,9 +9,10 @@ import type {Prettify} from "../loader/interface.js";
 import type {ExtractItemFromArray, MergeUnionTypes} from "../sources/source.js";
 import {kOrigin, merge} from "../merging/merge.js";
 import {AjvValidator, getPreRefJsonSchema} from "../validation2/validator.js";
-import {FakeFileSystem} from "../sources/files/file-system.js";
+import {FakeFileSystem, type FileSystem} from "../sources/files/file-system.js";
 import {string} from "../schemes2/string.js";
 import {fileSource} from "../sources2/file/source.js";
+import {expectTypeOf} from "expect-type";
 
 export type DefaultObjectSchema = ObjectSchema<Record<string, BaseSchema<unknown>>>
 export type DefaultSource = Source<string, unknown, Record<string, unknown>>
@@ -153,8 +154,8 @@ describe('manager', function () {
     // When
     const config = await manager.load({
       inject: {
-        file: { fs },
-        envs: { envs }
+        file: {fs},
+        envs: {envs}
       }
     })
 
@@ -191,13 +192,28 @@ describe('manager', function () {
       // When
       const config = await manager.load({
         inject: {
-          file: { fs },
-          envs: { envs }
+          file: {fs},
+          envs: {envs}
         }
       })
 
       // Then
-      expect(config).toEqual({ port: 3111, [kOrigin]: { port: 'env:PORT' } })
+      expect(config).toEqual({port: 3111, [kOrigin]: {port: 'env:PORT'}})
     })
+  })
+})
+
+describe('InjectOpts', function () {
+  it('should be able to transform a source array into a record of injection opts', function () {
+    // Given
+    const envs = envSource()
+    const fs = fileSource({files: ['config.json']})
+    const sources = [envs, fs]
+
+    // When
+    type T = InjectOpts<typeof sources>
+
+    // Then
+    expectTypeOf<T>().toEqualTypeOf<{ file: { fs?: FileSystem }, envs: { envs?: NodeJS.ProcessEnv } }>()
   })
 })
