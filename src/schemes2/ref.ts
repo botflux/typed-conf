@@ -26,9 +26,10 @@ export function ref<S extends BaseSchema<unknown>>(opts: RefOpts<S>): RefSchema<
     [kType]: schema[kType] as unknown as S[typeof kType],
     type: 'ref',
     sourceName,
-    schema: {
+    beforeRefSchema: {
       type: 'string'
     },
+    afterRefSchema: schema.beforeRefSchema,
     aliases,
     refSchema: schema,
     refToSourceParams,

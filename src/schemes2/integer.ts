@@ -37,7 +37,7 @@ export function integer(opts: IntegerOpts = {}): IntegerSchema<number> {
     type: 'integer',
     [kType]: 0,
     aliases,
-    schema: {
+    beforeRefSchema: {
       type: 'integer',
       ...min !== undefined && {
         minimum: min,

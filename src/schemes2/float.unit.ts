@@ -13,7 +13,7 @@ describe('float', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      schema: {
+      beforeRefSchema: {
         type: 'number'
       }
     }))
@@ -74,7 +74,7 @@ describe('float', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      schema: {
+      beforeRefSchema: {
         type: 'number',
       }
     }))
@@ -88,7 +88,7 @@ describe('float', function () {
 
       // Then
       expect(schema).toEqual(expect.objectContaining({
-        schema: {
+        beforeRefSchema: {
           type: 'number',
           minimum: 10
         }
@@ -103,7 +103,7 @@ describe('float', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      schema: {
+      beforeRefSchema: {
         type: 'number',
       }
     }))
@@ -126,7 +126,7 @@ describe('float', function () {
 
       // Then
       expect(schema).toEqual(expect.objectContaining({
-        schema: {
+        beforeRefSchema: {
           type: 'number',
           maximum: 10
         }

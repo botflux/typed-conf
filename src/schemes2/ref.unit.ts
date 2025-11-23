@@ -19,9 +19,12 @@ describe('ref', function () {
     // Then
     expect(schema).toEqual(expect.objectContaining({
       type: 'ref',
-      schema: {
+      beforeRefSchema: {
         type: 'string'
       },
+      afterRefSchema: {
+        type: 'integer'
+      }
     }))
   })
 

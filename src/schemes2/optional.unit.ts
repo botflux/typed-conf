@@ -5,6 +5,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {optional} from "./optional.js";
 import {boolean} from "./boolean.js";
+import {ref} from "./ref.js";
 
 describe('optional', function () {
   it('should be able to declare an optional type', function () {
@@ -26,6 +27,26 @@ describe('optional', function () {
 
     // Then
     expectTypeOf(schema[kType]).toEqualTypeOf<string | undefined>()
+  })
+
+  it('should be able to create json schema for refs', function () {
+    // Given
+    // When
+    const schema = optional(ref({
+      schema: boolean(),
+      sourceName: 'envs',
+      refToSourceParams: r => ({key: r}),
+    }))
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      beforeRefSchema: {
+        type: 'string'
+      },
+      afterRefSchema: {
+        type: 'boolean'
+      }
+    }))
   })
 
   describe('coercion', function () {

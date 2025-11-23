@@ -13,7 +13,7 @@ describe('boolean', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      schema: {
+      beforeRefSchema: {
         type: 'boolean'
       }
     }))

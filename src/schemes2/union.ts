@@ -29,9 +29,13 @@ export function union<S extends BaseSchema<unknown>>(schemes: S[], opts: UnionOp
     type: 'union',
     schemes,
     [kType]: '' as unknown as S[typeof kType],
-    schema: {
+    beforeRefSchema: {
       type: 'object',
-      oneOf: schemes.map(s => s.schema)
+      oneOf: schemes.map(s => s.beforeRefSchema)
+    },
+    afterRefSchema: {
+      type: 'object',
+      oneOf: schemes.map(s => s.afterRefSchema ?? s.beforeRefSchema)
     },
     aliases,
     coerce

@@ -13,7 +13,7 @@ describe('integer', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      schema: {
+      beforeRefSchema: {
         type: 'integer'
       }
     }))
@@ -73,7 +73,7 @@ describe('integer', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      schema: {
+      beforeRefSchema: {
         type: 'integer',
       }
     }))
@@ -86,7 +86,7 @@ describe('integer', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      schema: {
+      beforeRefSchema: {
         type: 'integer',
         minimum: 10
       }
@@ -110,7 +110,7 @@ describe('integer', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      schema: {
+      beforeRefSchema: {
         type: 'integer',
         maximum: 10
       }

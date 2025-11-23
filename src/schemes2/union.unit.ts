@@ -7,6 +7,7 @@ import {union} from "./union.js";
 import {expectTypeOf} from "expect-type";
 import {kType} from "./base.js";
 import {boolean} from "./boolean.js";
+import {ref} from "./ref.js";
 
 describe('union', function () {
   it('should be able to declare an union', function () {
@@ -24,7 +25,7 @@ describe('union', function () {
         string(),
         integer(),
       ],
-      schema: {
+      beforeRefSchema: {
         type: 'object',
         oneOf: [
           {
@@ -32,6 +33,45 @@ describe('union', function () {
           },
           {
             type: 'integer'
+          }
+        ]
+      }
+    }))
+  })
+
+  it('should be able to create a json schema with refs', function () {
+    // Given
+    // When
+    const schema = union([
+      ref({
+        schema: integer(),
+        sourceName: 'envs',
+        refToSourceParams: r => ({key: r}),
+      }),
+      string(),
+    ])
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      beforeRefSchema: {
+        type: 'object',
+        oneOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'string'
+          }
+        ]
+      },
+      afterRefSchema: {
+        type: 'object',
+        oneOf: [
+          {
+            type: 'integer'
+          },
+          {
+            type: 'string'
           }
         ]
       }

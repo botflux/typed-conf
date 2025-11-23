@@ -22,10 +22,10 @@ export function string<U>(opts: StringOpts<U> = {}): StringSchema<string, U> {
   return {
     [kType]: '' as unknown as string,
     type: 'string',
-    schema: {
+    beforeRefSchema: {
       type: 'string',
-      minLength,
-      maxLength,
+      ...minLength !== undefined && { minLength },
+      ...maxLength !== undefined && { maxLength },
     },
     aliases,
     coerce,
