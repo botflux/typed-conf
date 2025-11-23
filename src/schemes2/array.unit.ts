@@ -5,7 +5,6 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {array} from "./array.js";
 import {boolean} from "./boolean.js";
-import {ref} from "./ref.js";
 
 describe('array', function () {
   it('should be able to declare an array', function () {
@@ -22,34 +21,6 @@ describe('array', function () {
           type: 'string',
         },
       },
-    }))
-  })
-
-  it('should be able to create json schema for refs', function () {
-    // Given
-    // When
-    const schema = array({
-      item: ref({
-        schema: boolean(),
-        sourceName: 'envs',
-        refToSourceParams: r => ({key: r}),
-      })
-    })
-
-    // Then
-    expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
-        type: 'array',
-        items: {
-          type: 'string',
-        },
-      },
-      afterRefSchema: {
-        type: 'array',
-        items: {
-          type: 'boolean',
-        },
-      }
     }))
   })
 

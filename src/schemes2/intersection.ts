@@ -31,9 +31,5 @@ export function intersection<S extends BaseSchema<unknown>>(schemes: S[], opts: 
       type: 'object',
       allOf: schemes.map(s => s.beforeRefSchema)
     },
-    afterRefSchema: {
-      type: 'object',
-      allOf: schemes.map(s => s.afterRefSchema ?? s.beforeRefSchema)
-    },
   }
 }

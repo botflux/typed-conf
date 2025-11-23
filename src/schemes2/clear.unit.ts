@@ -5,7 +5,6 @@ import {expectTypeOf} from "expect-type";
 import {clear} from "./clear.js";
 import {boolean} from "./boolean.js";
 import {string} from "./string.js";
-import {ref} from "./ref.js";
 
 describe('clear', function () {
   it('should be able to declare a clear text schema', function () {
@@ -27,26 +26,6 @@ describe('clear', function () {
 
     // Then
     expectTypeOf(schema[kType]).toEqualTypeOf<string>()
-  })
-
-  it('should be able to create json schema for a ref', function () {
-    // Given
-    // When
-    const schema = clear(ref({
-      schema: boolean(),
-      sourceName: 'envs',
-      refToSourceParams: r => ({key: r}),
-    }))
-
-    // Then
-    expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
-        type: 'string'
-      },
-      afterRefSchema: {
-        type: 'boolean'
-      }
-    }))
   })
 
   describe('coercion', function () {

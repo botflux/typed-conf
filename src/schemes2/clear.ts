@@ -22,7 +22,6 @@ export function clear<S extends BaseSchema<unknown>>(schema: S): ClearSchema<S> 
     [kType]: '' as unknown as S[typeof kType],
     aliases: [],
     beforeRefSchema: schema.beforeRefSchema,
-    afterRefSchema: schema.afterRefSchema ?? schema.beforeRefSchema,
     coerce
   }
 }

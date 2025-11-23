@@ -5,8 +5,6 @@ import {expect} from "expect";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {envAlias} from "../sources/envs/envs.js";
-import {ref} from "./ref.js";
-import {integer} from "./integer.js";
 import {intersection} from "./intersection.js";
 
 describe('intersection', function () {
@@ -96,75 +94,6 @@ describe('intersection', function () {
     // Then
     expect(schema).toEqual(expect.objectContaining({
       aliases: [envAlias('FOO')]
-    }))
-  })
-
-  it('should be able to create a json schema with ref', function () {
-    // Given
-    // When
-    const schema = intersection([
-      object({
-        foo: ref({
-          sourceName: 'envs',
-          refToSourceParams: r => ({key: r}),
-          schema: integer()
-        })
-      }),
-      object({ bar: string() }),
-    ])
-
-    // Then
-    expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
-        type: 'object',
-        allOf: [
-          {
-            type: 'object',
-            properties: {
-              foo: {
-                type: 'string'
-              }
-            },
-            required: ['foo'],
-            additionalProperties: false,
-          },
-          {
-            type: 'object',
-            properties: {
-              bar: {
-                type: 'string'
-              }
-            },
-            required: ['bar'],
-            additionalProperties: false,
-          }
-        ]
-      },
-      afterRefSchema: {
-        type: 'object',
-        allOf: [
-          {
-            type: 'object',
-            properties: {
-              foo: {
-                type: 'integer'
-              }
-            },
-            required: ['foo'],
-            additionalProperties: false,
-          },
-          {
-            type: 'object',
-            properties: {
-              bar: {
-                type: 'string'
-              }
-            },
-            required: ['bar'],
-            additionalProperties: false,
-          }
-        ]
-      }
     }))
   })
 })

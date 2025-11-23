@@ -20,7 +20,6 @@ export function secret<S extends BaseSchema<unknown>>(schema: S): SecretSchema<S
     inner: schema,
     [kType]: '' as unknown as S[typeof kType],
     beforeRefSchema: schema.beforeRefSchema,
-    afterRefSchema: schema.afterRefSchema ?? schema.beforeRefSchema,
     aliases: [],
     coerce
   }

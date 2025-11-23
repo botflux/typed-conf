@@ -21,7 +21,6 @@ export function optional<S extends BaseSchema<unknown>>(schema: S): OptionalSche
     type: 'optional',
     inner: schema,
     beforeRefSchema: schema.beforeRefSchema,
-    afterRefSchema: schema.afterRefSchema ?? schema.beforeRefSchema,
     [kType]: '' as unknown as (SchemaType<S> | undefined),
     aliases: [],
     coerce

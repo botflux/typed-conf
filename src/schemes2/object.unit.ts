@@ -8,8 +8,6 @@ import {optional} from "./optional.js";
 import {secret} from "./secret.js";
 import {object} from "./object.js";
 import {envAlias} from "../sources/envs/envs.js";
-import {ref} from "./ref.js";
-import {boolean} from "./boolean.js";
 
 describe('object', function () {
   it('should be able to declare an object', function () {
@@ -97,41 +95,6 @@ describe('object', function () {
 
     // Then
     expectTypeOf(schema[kType]).toEqualTypeOf<{ port: number | undefined }>()
-  })
-
-  it('should be able to create the json schema with refs', function () {
-    // Given
-    // When
-    const schema = object({
-      foo: integer(),
-      bar: ref({
-        schema: boolean(),
-        sourceName: 'envs',
-        refToSourceParams: r => ({key: r}),
-      })
-    })
-
-    // Then
-    expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
-        type: 'object',
-        properties: {
-          foo: {type: 'integer'},
-          bar: {type: 'string'},
-        },
-        required: ['foo', 'bar'],
-        additionalProperties: false,
-      },
-      afterRefSchema: {
-        type: 'object',
-        properties: {
-          foo: {type: 'integer'},
-          bar: {type: 'boolean'},
-        },
-        required: ['foo', 'bar'],
-        additionalProperties: false,
-      }
-    }))
   })
 
   it('should have to aliases by default', function () {

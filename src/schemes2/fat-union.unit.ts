@@ -6,8 +6,6 @@ import {type BaseSchema, kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {envAlias} from "../sources/envs/envs.js";
 import {fatUnion} from "./fat-union.js";
-import {ref} from "./ref.js";
-import {integer} from "./integer.js";
 
 export type ObjectToFatUnion<T extends Record<string, BaseSchema<unknown>>> = {
   [K in keyof T]: { [P in K]: T[P][typeof kType] }
@@ -69,103 +67,6 @@ describe('fatUnion', function () {
         ]
       },
       schemes: { vault: object({ secret: string() }), file: object({ path: string() }) }
-    }))
-  })
-
-  it('should be able to create ref schemas', function () {
-    // Given
-    // When
-    const schema = fatUnion({
-      vault: object({
-        secret: ref({
-          schema: integer(),
-          sourceName: 'envs',
-          refToSourceParams: r => ({key: r}),
-        })
-      }),
-      file: object({ path: string() }),
-    })
-
-    // Then
-    expect(schema).toEqual(expect.objectContaining({
-      beforeRefSchema: {
-        type: 'object',
-        oneOf: [
-          {
-            type: 'object',
-            properties: {
-              vault: {
-                type: 'object',
-                properties: {
-                  secret: {
-                    type: 'string'
-                  }
-                },
-                required: ['secret'],
-                additionalProperties: false,
-              }
-            },
-            required: [ 'vault' ],
-            additionalProperties: false,
-          },
-          {
-            type: 'object',
-            properties: {
-              file: {
-                type: 'object',
-                properties: {
-                  path: {
-                    type: 'string'
-                  }
-                },
-                required: ['path'],
-                additionalProperties: false,
-              }
-            },
-            required: ['file'],
-            additionalProperties: false,
-          }
-        ]
-      },
-      afterRefSchema: {
-        type: 'object',
-        oneOf: [
-          {
-            type: 'object',
-            properties: {
-              vault: {
-                type: 'object',
-                properties: {
-                  secret: {
-                    type: 'integer'
-                  }
-                },
-                required: ['secret'],
-                additionalProperties: false,
-              }
-            },
-            required: [ 'vault' ],
-            additionalProperties: false,
-          },
-          {
-            type: 'object',
-            properties: {
-              file: {
-                type: 'object',
-                properties: {
-                  path: {
-                    type: 'string'
-                  }
-                },
-                required: ['path'],
-                additionalProperties: false,
-              }
-            },
-            required: ['file'],
-            additionalProperties: false,
-          }
-        ]
-      }
     }))
   })
 

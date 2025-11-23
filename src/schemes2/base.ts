@@ -11,7 +11,6 @@ export type Mapping<T, U> = {
 export interface BaseSchema<T, U = unknown> {
   [kType]: T
   beforeRefSchema: JSONSchema
-  afterRefSchema?: JSONSchema
   aliases: Alias[]
   coerce?: (value: unknown) => unknown
   mapping?: Mapping<T, U>

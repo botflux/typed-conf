@@ -22,9 +22,6 @@ describe('ref', function () {
       beforeRefSchema: {
         type: 'string'
       },
-      afterRefSchema: {
-        type: 'integer'
-      }
     }))
   })
 

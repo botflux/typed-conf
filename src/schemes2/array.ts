@@ -33,12 +33,6 @@ export function array<T>(opts: ArrayOpts<T>): ArraySchema<T[]> {
       minItems,
       maxItems
     },
-    afterRefSchema: {
-      type: 'array',
-      items: item.afterRefSchema,
-      minItems,
-      maxItems
-    },
     aliases,
     items: item,
     type: 'array',

@@ -1,4 +1,4 @@
-import type { Alias } from "../schemes/base.js";
+import type {Alias} from "../schemes/base.js";
 import {type BaseSchema, kType} from "./base.js";
 import {hasOptionalSchemaInChain} from "./optional.js";
 
@@ -27,7 +27,6 @@ export function object<P extends Record<string, BaseSchema<unknown>>>(props: P, 
     .map(([key]) => key)
 
   const beforeRefJsonSchemaProps = Object.fromEntries(Object.entries(props).map(([key, value]) => [key, value.beforeRefSchema]))
-  const afterRefJsonSchemaProps = Object.fromEntries(Object.entries(props).map(([key, value]) => [key, value.afterRefSchema ?? value.beforeRefSchema]))
 
   return {
     type: 'object',
@@ -36,12 +35,6 @@ export function object<P extends Record<string, BaseSchema<unknown>>>(props: P, 
     beforeRefSchema: {
       type: 'object',
       properties: beforeRefJsonSchemaProps,
-      required,
-      additionalProperties: false,
-    },
-    afterRefSchema: {
-      type: 'object',
-      properties: afterRefJsonSchemaProps,
       required,
       additionalProperties: false,
     },

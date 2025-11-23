@@ -19,15 +19,6 @@ export function fatUnion<U extends Record<string, BaseSchema<unknown>>>(union: U
     additionalProperties: false,
   } as JSONSchema))
 
-  const afterRefOneOfs = Object.entries(union).map(([key, value]) => ({
-    type: 'object',
-    properties: {
-      [key]: value.afterRefSchema ?? value.beforeRefSchema
-    },
-    required: [key],
-    additionalProperties: false,
-  } as JSONSchema))
-
   return {
     type: 'fat_union',
     schemes: union,
@@ -35,10 +26,6 @@ export function fatUnion<U extends Record<string, BaseSchema<unknown>>>(union: U
     beforeRefSchema: {
       type: 'object',
       oneOf: beforeRefOneOfs
-    },
-    afterRefSchema: {
-      type: 'object',
-      oneOf: afterRefOneOfs
     },
     [kType]: '' as unknown as ObjectToFatUnion<U>
   }
