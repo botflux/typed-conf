@@ -126,4 +126,17 @@ describe('object', function () {
       aliases: [envAlias('FOO')]
     }))
   })
+
+  it('should be able to attach additional fields to an object schema', function () {
+    // Given
+    // When
+    const schema = object({}, {
+      metadata: { foo: 'bar' }
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      metadata: { foo: 'bar' }
+    }))
+  })
 })

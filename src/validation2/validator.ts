@@ -40,13 +40,13 @@ export class AjvValidator {
   }
 
   #formatErrors(errors: ErrorObject[], data: unknown) {
-    console.log(errors)
     return errors.map(e => {
       const path = e.instancePath.slice(1).split('/')
-      const origins = getOrigin(
-        getValueAtPath(data as Record<string, unknown>, path.slice(0, -1)) as Record<string | symbol, unknown>
-      )
+      const parentObject = getValueAtPath(data as Record<string, unknown>, path.slice(0, -1)) as Record<string | symbol, unknown>
+      const origins = getOrigin(parentObject)
+
       const origin = origins[path.at(-1)!]
+
       const mMapper = this.#messagesMap.get(e.keyword)
       const message = mMapper?.(e, origin) ?? e.message
 
