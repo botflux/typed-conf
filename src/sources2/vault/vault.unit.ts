@@ -1,6 +1,6 @@
-import {after, before, describe, it} from 'node:test'
+import {after, before, describe, it, mock} from 'node:test'
 import {expect} from "expect";
-import vault from 'node-vault'
+import vault, {type client} from 'node-vault'
 import {type StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
 import type {LoadableFromParams, LoadResult} from "../source.js";
 import {type BaseSchema, getSchemaAtPath} from '../../schemes2/base.js';
@@ -11,35 +11,47 @@ import {isVaultConfig, vaultConfig} from "./schemes.js";
 import type {VaultResponse} from "./types.js";
 import {randomUUID} from "node:crypto";
 import {inlineCatch} from "../../utils.js";
+import {string} from "../../schemes2/string.js";
 
 export type VaultOpts = {
   configKey?: string
 }
+
+export type InjectOpts = {
+  createVaultClient?: typeof vault
+}
+
 export type Params = {
   path: string
 }
 
-class VaultSource implements LoadableFromParams<VaultOpts, Params> {
+class VaultSource implements LoadableFromParams<InjectOpts, Params> {
   #validator = new AjvValidator()
+  #opts: VaultOpts
 
-  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: VaultOpts, previous: Record<string, unknown>): Promise<LoadResult> {
+  constructor(opts: VaultOpts) {
+    this.#opts = opts;
+  }
+
+  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts, previous: Record<string, unknown>): Promise<LoadResult> {
     const { path } = params
-    const { configKey = "vault" } = opts
+    const { createVaultClient = vault } = opts
+    const { configKey = "vault" } = this.#opts
 
     const vaultConfigSchema = getSchemaAtPath(schema, [ configKey ])
     
     if (vaultConfigSchema === undefined) {
-      throw new Error("Not implemented at line 28 in vault.unit.ts")
+      throw new Error(`There is no schema at path "${configKey}". You must add a "${configKey}" property, of type vaultConfig, to your config schema to use vault sources.`)
     }
     
     if (!isVaultConfig(vaultConfigSchema)) {
-      throw new Error("Not implemented at line 33 in vault.unit.ts")
+      throw new Error(`Schema at property "${configKey}" must be a vaultConfig`)
     }
 
     const getTypeSafeValueAtPath = getTypeSafeValueAtPathFactory(this.#validator)
     const vaultConfig = getTypeSafeValueAtPath(previous, [ configKey ], vaultConfigSchema)
 
-    const vaultClient = vault({
+    const vaultClient = createVaultClient({
       endpoint: vaultConfig.endpoint,
       token: vaultConfig.auth.token
     })
@@ -74,11 +86,11 @@ class VaultSource implements LoadableFromParams<VaultOpts, Params> {
   }
 }
 
-function vaultSource() {
-  return new VaultSource()
+function vaultSource(opts: VaultOpts = {}) {
+  return new VaultSource(opts)
 }
 
-describe('vaultSource', {skip: false}, function () {
+describe('vaultSource', function () {
   let container!: StartedVaultContainer
   let client!: ReturnType<typeof vault>
 
@@ -151,5 +163,96 @@ describe('vaultSource', {skip: false}, function () {
 
     // Then
     expect(secret).toEqual(new Error(`Vault secret 'secret/data/${secretId}' does not exist`))
+  })
+
+  it('should be able to configure the vault config', async function () {
+    // Given
+    const randomId = randomUUID()
+    const secret = await client.write(`secret/data/${randomId}`, {
+      data: {
+        username: 'admin',
+        password: 'pass'
+      }
+    })
+    const source = vaultSource({ configKey: 'myVault' })
+    const schema = object({
+      myVault: vaultConfig
+    })
+
+    // When
+    const result = await source.loadFromParams({path: `secret/data/${randomId}`}, schema, {}, {
+      myVault: {
+        endpoint: container.getAddress(),
+        auth: {
+          token: container.getRootToken()!
+        }
+      }
+    })
+
+    // Then
+    expect(result).toEqual({
+      type: 'non_mergeable',
+      value: {
+        data: {username: 'admin', password: 'pass'},
+        metadata: secret.data,
+        type: 'static'
+      },
+      origin: `vault:secret/data/${randomId}`
+    })
+  })
+
+  it('should be able to throw given there is no vault config schema at the given path', async function () {
+    // Given
+    const source = vaultSource()
+    const schema = object({
+      foo: vaultConfig
+    })
+
+    // When
+    const error = await source.loadFromParams({path: 'secret/data/foo'}, schema, {}, {})
+      .catch(e => e)
+
+    // Then
+    expect(error).toEqual(new Error('There is no schema at path "vault". You must add a "vault" property, of type vaultConfig, to your config schema to use vault sources.'))
+  })
+
+  it('should be able to throw given the schema at the vault property is not a vault config', async function () {
+    // Given
+    const source = vaultSource()
+    const schema = object({
+      vault: object({ foo: string()})
+    })
+
+    // When
+    const error = await source.loadFromParams({path: 'secret/data/foo'}, schema, {}, {})
+      .catch(e => e)
+
+    // Then
+    expect(error).toEqual(new Error('Schema at property "vault" must be a vaultConfig'))
+  })
+
+  it('should be able to throw given vault\'s response doesn\'t match the expected response schema', { skip: true }, async function () {
+    // Given
+    const vaultClient = {
+      read() {
+        return {
+          foo: 'bar'
+        }
+      }
+    } as unknown as client
+    const source = vaultSource()
+    const schema = object({
+      vault: vaultConfig
+    })
+
+    // When
+    const error = await source.loadFromParams({path: 'secret/data/foo'}, schema, {
+      createVaultClient: () => vaultClient
+    }, {}).catch(e => e)
+
+    // Then
+    expect(error).toEqual(new Error(`Vault response validation failed when reading "secret/data/foo"`, {
+      cause: new Error('foo')
+    }))
   })
 })
