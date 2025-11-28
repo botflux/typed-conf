@@ -157,4 +157,15 @@ describe('object', function () {
       }
     }))
   })
+
+  it('should be able to type additional properties', function () {
+    // Given
+    // When
+    const schema = object({}, {
+      additionalProperties: true
+    })
+
+    // Then
+    expectTypeOf(schema[kType]).toEqualTypeOf<{[k: string]: unknown}>()
+  })
 })
