@@ -2,7 +2,7 @@ import type {ObjectSchema} from "../schemes2/object.js";
 import type {BaseSchema} from "../schemes2/base.js";
 
 export interface Loadable<Opts> {
-  load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: Opts): Promise<Record<string, unknown>>
+  load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, opts: Opts): Promise<Record<string, unknown>>
 }
 
 export type NonMergeableResult = {

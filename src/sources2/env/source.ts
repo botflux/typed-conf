@@ -40,7 +40,7 @@ class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params>
     throw new Error("Method not implemented.");
   }
 
-  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: InjectOpts) {
+  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, opts: InjectOpts) {
     const {envs = process.env} = opts
     const result: Record<string, unknown> = {}
     const flattened = this.#flattenObjectSchema(schema)

@@ -25,7 +25,7 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Params
     this.name = name;
   }
 
-  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, opts: InjectOpts): Promise<Record<string, unknown>> {
+  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, opts: InjectOpts): Promise<Record<string, unknown>> {
     const files = this.#simplifyFileOpts(this.#opts.files)
     const configs: Record<string, unknown>[] = []
     const {fs = nativeFileSystem} = opts

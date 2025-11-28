@@ -14,6 +14,9 @@ import {inlineCatch} from "../../utils.js";
 import {string} from "../../schemes2/string.js";
 import {MongoDBContainer, type StartedMongoDBContainer} from "@testcontainers/mongodb";
 import {Network, type StartedNetwork} from "testcontainers";
+import {boolean} from "../../schemes2/boolean.js";
+import {integer} from "../../schemes2/integer.js";
+import {Ajv, type Schema} from "ajv";
 
 export type VaultOpts = {
   configKey?: string
@@ -27,21 +30,33 @@ export type Params = {
   path: string
 }
 
-type ExtractSecret<S extends BaseSchema<unknown>> = {
-  schema: S
-  map: (value: S[typeof kType]) => unknown
+export const vaultReadResponseSchema = object({
+  request_id: string(),
+  lease_id: string(),
+  renewable: boolean(),
+  lease_duration: integer(),
+  data: object({}, {additionalProperties: true}),
+  mount_type: string()
+}, {additionalProperties: true})
+
+export type StaticNormalizedVaultSecret = {
+  type: 'static'
+  data: unknown
+  mountType: string
+  requestId: string
 }
 
-const defaultSecretExtract = new Map<string, ExtractSecret<BaseSchema<unknown>>>()
-  .set('kv', {
-    schema: object({
-      data: object({
-        data: object({}, { additionalProperties: true })
-      })
-    }),
-    map: value => value
-  })
+export type DynamicNormalizedVaultSecret = {
+  type: 'dynamic',
+  data: unknown
+  mountType: string
+  requestId: string
+  leaseId: string
+  leaseDuration: number
+  renewable: boolean
+}
 
+export type NormalizedVaultSecret = StaticNormalizedVaultSecret | DynamicNormalizedVaultSecret
 
 class VaultSource implements LoadableFromParams<InjectOpts, Params> {
   #validator = new AjvValidator()
@@ -52,22 +67,22 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
   }
 
   async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts, previous: Record<string, unknown>): Promise<LoadResult> {
-    const { path } = params
-    const { createVaultClient = vault } = opts
-    const { configKey = "vault" } = this.#opts
+    const {path} = params
+    const {createVaultClient = vault} = opts
+    const {configKey = "vault"} = this.#opts
 
-    const vaultConfigSchema = getSchemaAtPath(schema, [ configKey ])
-    
+    const vaultConfigSchema = getSchemaAtPath(schema, [configKey])
+
     if (vaultConfigSchema === undefined) {
       throw new Error(`There is no schema at path "${configKey}". You must add a "${configKey}" property, of type vaultConfig, to your config schema to use vault sources.`)
     }
-    
+
     if (!isVaultConfig(vaultConfigSchema)) {
       throw new Error(`Schema at property "${configKey}" must be a vaultConfig`)
     }
 
     const getTypeSafeValueAtPath = getTypeSafeValueAtPathFactory(this.#validator)
-    const vaultConfig = getTypeSafeValueAtPath(previous, [ configKey ], vaultConfigSchema)
+    const vaultConfig = getTypeSafeValueAtPath(previous, [configKey], vaultConfigSchema)
 
     const vaultClient = createVaultClient({
       endpoint: vaultConfig.endpoint,
@@ -84,15 +99,21 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
       throw err
     }
 
-    console.log('secret', mSecret)
+    const ajv = new Ajv()
+    const isValid = ajv.compile(vaultReadResponseSchema.jsonSchema as Schema)
+
+    if (!isValid(mSecret)) {
+      throw new AggregateError(
+        isValid.errors?.map(e => new Error(e.message)) ?? [],
+        `Vault response failed validation when reading "${path}"`
+      )
+    }
+
+    const normalizedSecret = this.#toNormalizedVaultSecret(mSecret as typeof vaultReadResponseSchema[typeof kType])
 
     return {
       type: 'non_mergeable',
-      value: {
-        data: mSecret!.data.data,
-        metadata: mSecret!.data.metadata,
-        type: 'static'
-      },
+      value: normalizedSecret,
       origin: `vault:${path}`
     }
   }
@@ -104,14 +125,45 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
   #isVault404(err: unknown) {
     return err instanceof Error && err.message === "Status 404"
   }
+
+  #toNormalizedVaultSecret(secret: typeof vaultReadResponseSchema[typeof kType]): NormalizedVaultSecret {
+    const {
+      request_id,
+      mount_type,
+      lease_id,
+      data,
+      renewable,
+      lease_duration
+    } = secret
+
+    const baseSecret = {
+      requestId: request_id,
+      mountType: mount_type,
+      data,
+    }
+
+    if (lease_id !== "") {
+      return {
+        ...baseSecret,
+        leaseId: lease_id,
+        leaseDuration: lease_duration,
+        renewable,
+        type: 'dynamic'
+      }
+    } else {
+      return {
+        ...baseSecret,
+        type: 'static'
+      }
+    }
+  }
 }
 
 function vaultSource(opts: VaultOpts = {}) {
   return new VaultSource(opts)
 }
 
-describe('vaultSource', { skip: true }, function () {
-
+describe('vaultSource', function () {
   const mongoUsername = "test"
   const mongoPassword = "testpass"
   const mongoNetworkAlias = "mongo"
@@ -183,8 +235,12 @@ describe('vaultSource', { skip: true }, function () {
     expect(secret).toEqual({
       type: 'non_mergeable',
       value: {
-        data: {username: 'admin', password: 'pass'},
-        metadata: response.data,
+        data: {
+          data: {username: 'admin', password: 'pass'},
+          metadata: response.data,
+        },
+        requestId: expect.any(String),
+        mountType: 'kv',
         type: 'static'
       },
       origin: 'vault:secret/data/foo'
@@ -223,7 +279,7 @@ describe('vaultSource', { skip: true }, function () {
         password: 'pass'
       }
     })
-    const source = vaultSource({ configKey: 'myVault' })
+    const source = vaultSource({configKey: 'myVault'})
     const schema = object({
       myVault: vaultConfig
     })
@@ -242,9 +298,15 @@ describe('vaultSource', { skip: true }, function () {
     expect(result).toEqual({
       type: 'non_mergeable',
       value: {
-        data: {username: 'admin', password: 'pass'},
-        metadata: secret.data,
-        type: 'static'
+        data: {
+          data: {
+            username: 'admin', password: 'pass'
+          },
+          metadata: secret.data
+        },
+        type: 'static',
+        mountType: 'kv',
+        requestId: expect.any(String)
       },
       origin: `vault:secret/data/${randomId}`
     })
@@ -269,7 +331,7 @@ describe('vaultSource', { skip: true }, function () {
     // Given
     const source = vaultSource()
     const schema = object({
-      vault: object({ foo: string()})
+      vault: object({foo: string()})
     })
 
     // When
@@ -305,14 +367,18 @@ describe('vaultSource', { skip: true }, function () {
           username: expect.any(String),
           password: expect.any(String)
         },
-        metadata: {},
-        type: 'dynamic'
+        type: 'dynamic',
+        leaseDuration: 3600,
+        leaseId: expect.stringMatching('database/creds/my-role'),
+        mountType: 'database',
+        requestId: expect.any(String),
+        renewable: true
       },
       origin: 'vault:database/creds/my-role'
     })
   })
 
-  it('should be able to throw given vault\'s response doesn\'t match the expected response schema', { skip: true }, async function () {
+  it('should be able to throw given vault\'s response doesn\'t match the expected response schema', async function () {
     // Given
     const vaultClient = {
       read() {
@@ -329,11 +395,19 @@ describe('vaultSource', { skip: true }, function () {
     // When
     const error = await source.loadFromParams({path: 'secret/data/foo'}, schema, {
       createVaultClient: () => vaultClient
-    }, {}).catch(e => e)
+    }, {
+      vault: {
+        endpoint: vaultContainer.getAddress(),
+        auth: {
+          token: vaultContainer.getRootToken()!
+        }
+      }
+    }).catch(e => e)
 
     // Then
-    expect(error).toEqual(new Error(`Vault response validation failed when reading "secret/data/foo"`, {
-      cause: new Error('foo')
-    }))
+    expect(error).toEqual(new AggregateError([], `Vault response failed validation when reading "secret/data/foo"`))
+    expect((error as AggregateError).errors).toEqual([
+      new Error("must have required property 'request_id'")
+    ])
   })
 })

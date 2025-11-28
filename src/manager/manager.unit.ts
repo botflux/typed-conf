@@ -14,7 +14,7 @@ import {string} from "../schemes2/string.js";
 import {fileSource} from "../sources2/file/source.js";
 import {expectTypeOf} from "expect-type";
 
-export type DefaultObjectSchema = ObjectSchema<Record<string, BaseSchema<unknown>>>
+export type DefaultObjectSchema = ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>
 export type DefaultSource = Source<string, unknown, Record<string, unknown>>
 
 export type ManagerOpts<
