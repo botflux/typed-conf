@@ -19,10 +19,11 @@ export type ObjectSchema<P extends Record<string, BaseSchema<unknown>>> = BaseSc
 export type ObjectOpts<Metadata extends Record<string | symbol, unknown>> = {
   aliases?: Alias[]
   metadata?: Metadata
+  additionalProperties?: boolean
 }
 
 export function object<P extends Record<string, BaseSchema<unknown>>, Metadata extends Record<string | symbol, unknown>>(props: P, opts: ObjectOpts<Metadata> = {}): ObjectSchema<P> {
-  const { aliases = [], metadata = {} } = opts
+  const { aliases = [], metadata = {}, additionalProperties = false } = opts
 
   const required = Object.entries(props)
     .filter(([, schema]) => !hasOptionalSchemaInChain(schema))
@@ -38,7 +39,7 @@ export function object<P extends Record<string, BaseSchema<unknown>>, Metadata e
       type: 'object',
       properties: beforeRefJsonSchemaProps,
       required,
-      additionalProperties: false,
+      additionalProperties,
     },
     [kType]: '' as ObjectSchemaToType<P>,
     metadata,

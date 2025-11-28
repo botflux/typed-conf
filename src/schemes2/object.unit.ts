@@ -139,4 +139,22 @@ describe('object', function () {
       metadata: { foo: 'bar' }
     }))
   })
+
+  it('should be able to define additional properties', function () {
+    // Given
+    // When
+    const schema = object({}, {
+      additionalProperties: true
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      jsonSchema: {
+        type: 'object',
+        additionalProperties: true,
+        required: [],
+        properties: {}
+      }
+    }))
+  })
 })

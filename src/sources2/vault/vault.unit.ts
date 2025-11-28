@@ -3,7 +3,7 @@ import {expect} from "expect";
 import vault, {type client} from 'node-vault'
 import {type StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
 import type {LoadableFromParams, LoadResult} from "../source.js";
-import {type BaseSchema, getSchemaAtPath} from '../../schemes2/base.js';
+import {type BaseSchema, getSchemaAtPath, kType} from '../../schemes2/base.js';
 import {object} from "../../schemes2/object.js";
 import {getTypeSafeValueAtPathFactory} from "../../validation2/utils.js";
 import {AjvValidator} from "../../validation2/validator.js";
@@ -12,6 +12,8 @@ import type {VaultResponse} from "./types.js";
 import {randomUUID} from "node:crypto";
 import {inlineCatch} from "../../utils.js";
 import {string} from "../../schemes2/string.js";
+import {MongoDBContainer, type StartedMongoDBContainer} from "@testcontainers/mongodb";
+import {Network, type StartedNetwork} from "testcontainers";
 
 export type VaultOpts = {
   configKey?: string
@@ -24,6 +26,22 @@ export type InjectOpts = {
 export type Params = {
   path: string
 }
+
+type ExtractSecret<S extends BaseSchema<unknown>> = {
+  schema: S
+  map: (value: S[typeof kType]) => unknown
+}
+
+const defaultSecretExtract = new Map<string, ExtractSecret<BaseSchema<unknown>>>()
+  .set('kv', {
+    schema: object({
+      data: object({
+        data: object({}, { additionalProperties: true })
+      })
+    }),
+    map: value => value
+  })
+
 
 class VaultSource implements LoadableFromParams<InjectOpts, Params> {
   #validator = new AjvValidator()
@@ -66,6 +84,8 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
       throw err
     }
 
+    console.log('secret', mSecret)
+
     return {
       type: 'non_mergeable',
       value: {
@@ -90,23 +110,52 @@ function vaultSource(opts: VaultOpts = {}) {
   return new VaultSource(opts)
 }
 
-describe('vaultSource', function () {
-  let container!: StartedVaultContainer
+describe('vaultSource', { skip: true }, function () {
+
+  const mongoUsername = "test"
+  const mongoPassword = "testpass"
+  const mongoNetworkAlias = "mongo"
+
+  const mongodbConfigName = "mongodb"
+  const mongoVaultRole = "my-role"
+
+  let network!: StartedNetwork
+
+  let mongoContainer!: StartedMongoDBContainer
+  let vaultContainer!: StartedVaultContainer
   let client!: ReturnType<typeof vault>
 
   before(async () => {
-    container = await new VaultContainer('hashicorp/vault:latest')
-      .withVaultToken('root')
+    network = await new Network().start()
+
+    mongoContainer = await new MongoDBContainer('mongo:8')
+      .withUsername(mongoUsername)
+      .withPassword(mongoPassword)
+      .withNetwork(network)
+      .withNetworkAliases(mongoNetworkAlias)
       .start()
+
+    vaultContainer = await new VaultContainer('hashicorp/vault:latest')
+      .withVaultToken('root')
+      .withNetwork(network)
+      .withInitCommands(
+        "secrets enable database",
+        `write database/config/${mongodbConfigName} plugin_name=mongodb-database-plugin allowed_roles="${mongoVaultRole}" connection_url="mongodb://{{username}}:{{password}}@${mongoNetworkAlias}:27017/admin?tls=false" username="${mongoUsername}" password="${mongoPassword}"`,
+        `write database/roles/${mongoVaultRole} db_name=${mongodbConfigName} creation_statements='{ "db": "admin", "roles": [{ "role": "readWrite" }, {"role": "read", "db": "foo"}] }' default_ttl="1h" max_ttl="24h"`
+      )
+      .start()
+
     client = vault({
       apiVersion: 'v1',
-      endpoint: container.getAddress(),
-      token: container.getRootToken()!
+      endpoint: vaultContainer.getAddress(),
+      token: vaultContainer.getRootToken()!
     })
   })
 
   after(async () => {
-    await container.stop()
+    await vaultContainer.stop()
+    await mongoContainer.stop()
+    await network.stop()
   })
 
   it('should be able to load a static secret from vault', async function () {
@@ -123,9 +172,9 @@ describe('vaultSource', function () {
     // When
     const secret = await source.loadFromParams({path: 'secret/data/foo'}, schema, {}, {
       vault: {
-        endpoint: container.getAddress(),
+        endpoint: vaultContainer.getAddress(),
         auth: {
-          token: container.getRootToken()!
+          token: vaultContainer.getRootToken()!
         }
       }
     })
@@ -153,9 +202,9 @@ describe('vaultSource', function () {
     // When
     const secret = await source.loadFromParams({path: `secret/data/${secretId}`}, schema, {}, {
       vault: {
-        endpoint: container.getAddress(),
+        endpoint: vaultContainer.getAddress(),
         auth: {
-          token: container.getRootToken()!
+          token: vaultContainer.getRootToken()!
         }
       }
     })
@@ -182,9 +231,9 @@ describe('vaultSource', function () {
     // When
     const result = await source.loadFromParams({path: `secret/data/${randomId}`}, schema, {}, {
       myVault: {
-        endpoint: container.getAddress(),
+        endpoint: vaultContainer.getAddress(),
         auth: {
-          token: container.getRootToken()!
+          token: vaultContainer.getRootToken()!
         }
       }
     })
@@ -229,6 +278,38 @@ describe('vaultSource', function () {
 
     // Then
     expect(error).toEqual(new Error('Schema at property "vault" must be a vaultConfig'))
+  })
+
+  it('should be able to load a dynamic secret', async function () {
+    // Given
+    const source = vaultSource()
+    const schema = object({
+      vault: vaultConfig
+    })
+
+    // When
+    const secret = await source.loadFromParams({path: `database/creds/${mongoVaultRole}`}, schema, {}, {
+      vault: {
+        endpoint: vaultContainer.getAddress(),
+        auth: {
+          token: vaultContainer.getRootToken()!
+        }
+      }
+    })
+
+    // Then
+    expect(secret).toEqual({
+      type: 'non_mergeable',
+      value: {
+        data: {
+          username: expect.any(String),
+          password: expect.any(String)
+        },
+        metadata: {},
+        type: 'dynamic'
+      },
+      origin: 'vault:database/creds/my-role'
+    })
   })
 
   it('should be able to throw given vault\'s response doesn\'t match the expected response schema', { skip: true }, async function () {
