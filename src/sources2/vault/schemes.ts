@@ -40,3 +40,13 @@ export const vaultReadResponseSchema = object({
   data: object({}, {additionalProperties: true}),
   mount_type: string()
 }, {additionalProperties: true})
+
+export const vaultAuthResponseSchema = object({
+  auth: object({
+    client_token: string(),
+  }, {
+    additionalProperties: true,
+  })
+}, {
+  additionalProperties: true,
+})

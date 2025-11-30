@@ -2,8 +2,8 @@ import type {LoadableFromParams, LoadResult} from "../source.js";
 import type {InjectOpts, NormalizedVaultSecret, Params, VaultOpts, VaultResponse} from "./types.js";
 import {AjvValidator} from "../../validation2/validator.js";
 import {type BaseSchema, getSchemaAtPath, kType} from "../../schemes2/base.js";
-import vault from "node-vault";
-import {isVaultConfig, vaultReadResponseSchema} from "./schemes.js";
+import vault, { type client as Client } from "node-vault";
+import {isVaultConfig, vaultAuthResponseSchema, vaultConfig, vaultReadResponseSchema} from "./schemes.js";
 import {getTypeSafeValueAtPathFactory} from "../../validation2/utils.js";
 import {inlineCatch} from "../../utils.js";
 import {Ajv, type Schema} from "ajv";
@@ -39,14 +39,8 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
       ...'token' in vaultConfig.auth && {token: vaultConfig.auth.token}
     })
 
-    if ('userpass' in vaultConfig.auth) {
-      // vaultClient.userpassLogin(vaultConfig.auth.userpass.username, vaultConfig.auth.userpass.password)
-      const result = await vaultClient.userpassLogin({
-        username: vaultConfig.auth.userpass.username,
-        password: vaultConfig.auth.userpass.password
-      })
-
-      vaultClient.token = result.auth.client_token
+    if (!('token' in vaultConfig.auth)) {
+      vaultClient.token = await this.#authenticate(vaultClient, vaultConfig.auth)
     }
 
     const [mSecret, err] = await inlineCatch(vaultClient.read(path) as Promise<VaultResponse>)
@@ -116,6 +110,30 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
         type: 'static'
       }
     }
+  }
+
+  async #authenticate(client: Client, config: typeof vaultConfig[typeof kType]['auth']) {
+    const tokenResponse = await this.#getTokenResponse(client, config)
+    const ajv = new Ajv()
+
+    const isValid = ajv.compile(vaultAuthResponseSchema.jsonSchema as Schema)
+
+    if (!isValid(tokenResponse)) {
+      throw new Error("Not implemented at line 129 in source.ts")
+    }
+
+    return (tokenResponse as typeof vaultAuthResponseSchema[typeof kType]).auth.client_token
+  }
+
+  async #getTokenResponse(client: Client, config: typeof vaultConfig[typeof kType]['auth']) {
+    if ('userpass' in config) {
+      return await client.userpassLogin({
+        username: config.userpass.username,
+        password: config.userpass.password
+      })
+    }
+
+    throw new Error("Not implemented at line 133 in source.ts")
   }
 }
 
