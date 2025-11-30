@@ -1,3 +1,5 @@
+import vault from "node-vault";
+
 export type SecretMetadata = {
   created_time: string
   custom_metadata: unknown
@@ -22,3 +24,34 @@ export type VaultResponse = {
   warnings: unknown
   wrap_info: unknown
 }
+
+export type VaultOpts = {
+  configKey?: string
+}
+
+export type InjectOpts = {
+  createVaultClient?: typeof vault
+}
+
+export type Params = {
+  path: string
+}
+
+export type StaticNormalizedVaultSecret = {
+  type: 'static'
+  data: unknown
+  mountType: string
+  requestId: string
+}
+
+export type DynamicNormalizedVaultSecret = {
+  type: 'dynamic',
+  data: unknown
+  mountType: string
+  requestId: string
+  leaseId: string
+  leaseDuration: number
+  renewable: boolean
+}
+
+export type NormalizedVaultSecret = StaticNormalizedVaultSecret | DynamicNormalizedVaultSecret
