@@ -38,6 +38,7 @@ describe('vaultSource', function () {
       .withVaultToken('root')
       .withNetwork(network)
       .withInitCommands(
+        "auth enable userpass",
         "secrets enable database",
         `write database/config/${mongodbConfigName} plugin_name=mongodb-database-plugin allowed_roles="${mongoVaultRole}" connection_url="mongodb://{{username}}:{{password}}@${mongoNetworkAlias}:27017/admin?tls=false" username="${mongoUsername}" password="${mongoPassword}"`,
         `write database/roles/${mongoVaultRole} db_name=${mongodbConfigName} creation_statements='{ "db": "admin", "roles": [{ "role": "readWrite" }, {"role": "read", "db": "foo"}] }' default_ttl="1h" max_ttl="24h"`
@@ -256,5 +257,61 @@ describe('vaultSource', function () {
     expect((error as AggregateError).errors).toEqual([
       new Error("must have required property 'request_id'")
     ])
+  })
+
+  it('should be able to authenticate using user and password', async function () {
+    // Given
+    const randomId = randomUUID()
+
+    const source = vaultSource()
+    const schema = object({
+      vault: vaultConfig
+    })
+
+    await client.addPolicy({
+      name: `my-policy-${randomId}`,
+      rules: `
+        path "secret/data/${randomId}/*" {
+          capabilities = ["read", "list"]
+        }
+      `
+    })
+
+    await client.write(`auth/userpass/users/test${randomId}`, {
+      password: '<PASSWORD>',
+      policies: [`my-policy-${randomId}`]
+    })
+
+    const result = await client.write(`secret/data/${randomId}/foo`, {
+      data: {username: 'admin', password: 'pass'}
+    })
+
+    // When
+    const secret = await source.loadFromParams({path: `secret/data/${randomId}/foo`}, schema, {}, {
+      vault: {
+        endpoint: vaultContainer.getAddress(),
+        auth: {
+          userpass: {
+            username: `test${randomId}`,
+            password: '<PASSWORD>'
+          }
+        }
+      }
+    })
+
+    // Then
+    expect(secret).toEqual({
+      type: 'non_mergeable',
+      value: {
+        data: {
+          data: {username: 'admin', password: 'pass'},
+          metadata: result.data
+        },
+        type: 'static',
+        mountType: 'kv',
+        requestId: expect.any(String),
+      },
+      origin: `vault:secret/data/${randomId}/foo`,
+    })
   })
 })

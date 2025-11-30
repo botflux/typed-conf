@@ -10,7 +10,11 @@ export const kVault = Symbol('kVault')
 export const vaultConfig = object({
   endpoint: string(),
   auth: fatUnion({
-    token: string()
+    token: string(),
+    userpass: object({
+      username: string(),
+      password: string(),
+    })
   })
 }, {
   metadata: {

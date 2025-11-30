@@ -36,8 +36,18 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
 
     const vaultClient = createVaultClient({
       endpoint: vaultConfig.endpoint,
-      token: vaultConfig.auth.token
+      ...'token' in vaultConfig.auth && {token: vaultConfig.auth.token}
     })
+
+    if ('userpass' in vaultConfig.auth) {
+      // vaultClient.userpassLogin(vaultConfig.auth.userpass.username, vaultConfig.auth.userpass.password)
+      const result = await vaultClient.userpassLogin({
+        username: vaultConfig.auth.userpass.username,
+        password: vaultConfig.auth.userpass.password
+      })
+
+      vaultClient.token = result.auth.client_token
+    }
 
     const [mSecret, err] = await inlineCatch(vaultClient.read(path) as Promise<VaultResponse>)
 
