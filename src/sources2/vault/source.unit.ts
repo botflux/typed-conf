@@ -9,6 +9,16 @@ import {string} from "../../schemes2/string.js";
 import {MongoDBContainer, type StartedMongoDBContainer} from "@testcontainers/mongodb";
 import {Network, type StartedNetwork} from "testcontainers";
 import {vaultSource} from "./source.js";
+import {K3sContainer, StartedK3sContainer} from "@testcontainers/k3s";
+import {
+  KubeConfig,
+  CoreV1Api,
+  AuthenticationApi,
+  AuthenticationV1Api,
+  RbacAuthorizationV1Api
+} from '@kubernetes/client-node'
+import {AuthenticationV1TokenRequest} from "@kubernetes/client-node/dist/gen/models/AuthenticationV1TokenRequest.js";
+import {parse} from "yaml";
 
 describe('vaultSource', function () {
   const mongoUsername = "test"
@@ -22,6 +32,7 @@ describe('vaultSource', function () {
 
   let mongoContainer!: StartedMongoDBContainer
   let vaultContainer!: StartedVaultContainer
+  let k3sContainer!: StartedK3sContainer
   let client!: ReturnType<typeof vault>
 
   before(async () => {
@@ -34,11 +45,17 @@ describe('vaultSource', function () {
       .withNetworkAliases(mongoNetworkAlias)
       .start()
 
+    k3sContainer = await new K3sContainer("rancher/k3s:v1.34.2-k3s1")
+      .withNetwork(network)
+      .withNetworkAliases('k3s')
+      .start()
+
     vaultContainer = await new VaultContainer('hashicorp/vault:latest')
       .withVaultToken('root')
       .withNetwork(network)
       .withInitCommands(
         "auth enable userpass",
+        "auth enable kubernetes",
         "secrets enable database",
         `write database/config/${mongodbConfigName} plugin_name=mongodb-database-plugin allowed_roles="${mongoVaultRole}" connection_url="mongodb://{{username}}:{{password}}@${mongoNetworkAlias}:27017/admin?tls=false" username="${mongoUsername}" password="${mongoPassword}"`,
         `write database/roles/${mongoVaultRole} db_name=${mongodbConfigName} creation_statements='{ "db": "admin", "roles": [{ "role": "readWrite" }, {"role": "read", "db": "foo"}] }' default_ttl="1h" max_ttl="24h"`
@@ -55,6 +72,7 @@ describe('vaultSource', function () {
   after(async () => {
     await vaultContainer.stop()
     await mongoContainer.stop()
+    await k3sContainer.stop()
     await network.stop()
   })
 
@@ -306,6 +324,152 @@ describe('vaultSource', function () {
         data: {
           data: {username: 'admin', password: 'pass'},
           metadata: result.data
+        },
+        type: 'static',
+        mountType: 'kv',
+        requestId: expect.any(String),
+      },
+      origin: `vault:secret/data/${randomId}/foo`,
+    })
+  })
+
+  it('should be able to authenticate using k8s service account', async function () {
+    // Given
+    interface VaultK8sAuthOptions {
+      namespace: string;
+      serviceAccountName: string;
+      vaultRoleName: string;
+      vaultPolicies: string[];
+      tokenTTL: string;
+    }
+
+    const options: VaultK8sAuthOptions = {
+      namespace: 'default',
+      serviceAccountName: 'vault-auth',
+      vaultRoleName: 'my-role',
+      vaultPolicies: ['default', 'my-policy'],
+      tokenTTL: '1h'
+    }
+
+    const kc = new KubeConfig();
+    kc.loadFromString(k3sContainer.getKubeConfig());
+
+    const k8sApi = kc.makeApiClient(CoreV1Api);
+    const rbacApi = kc.makeApiClient(RbacAuthorizationV1Api);
+
+    const kcForVault = new KubeConfig();
+    kcForVault.loadFromString(k3sContainer.getAliasedKubeConfig('k3s'));
+
+    const cluster = kcForVault.getCurrentCluster();
+    if (!cluster) {
+      throw new Error('No cluster found in kubeconfig');
+    }
+
+    const kubernetesHost = cluster.server;
+    const caCert = Buffer.from(cluster.caData!, 'base64').toString('utf-8');
+
+    await k8sApi.createNamespacedServiceAccount({
+      namespace: options.namespace,
+      body: {
+        metadata: {
+          name: options.serviceAccountName,
+        }
+      }
+    });
+
+    await rbacApi.createClusterRoleBinding({
+      body: {
+        metadata: {
+          name: `${options.serviceAccountName}-token-reviewer`
+        },
+        roleRef: {
+          apiGroup: 'rbac.authorization.k8s.io',
+          kind: 'ClusterRole',
+          name: 'system:auth-delegator'
+        },
+        subjects: [{
+          kind: 'ServiceAccount',
+          name: options.serviceAccountName,
+          namespace: options.namespace
+        }]
+      }
+    })
+
+    const reviewerTokenResponse = await k8sApi.createNamespacedServiceAccountToken({
+      namespace: options.namespace,
+      body: {
+        spec: {
+          audiences: []
+        }
+      },
+      name: options.serviceAccountName
+    });
+    const reviewerToken = reviewerTokenResponse.status!.token!;
+
+    const randomId = randomUUID()
+    await client.addPolicy({
+      name: `my-policy`,
+      rules: `
+        path "secret/data/${randomId}/*" {
+          capabilities = ["read", "list"]
+        }
+      `
+    })
+
+    await client.write('auth/kubernetes/config', {
+      kubernetes_host: kubernetesHost,
+      kubernetes_ca_cert: caCert,
+      token_reviewer_jwt: reviewerToken
+    });
+
+    await client.write(`auth/kubernetes/role/${options.vaultRoleName}`, {
+      bound_service_account_names: [options.serviceAccountName],
+      bound_service_account_namespaces: [options.namespace],
+      policies: options.vaultPolicies,
+      ttl: options.tokenTTL
+    });
+    
+    const appTokenResponse = await k8sApi.createNamespacedServiceAccountToken({
+      name: options.serviceAccountName,
+      namespace: options.namespace,
+      body: {
+        spec: {
+          audiences: [],
+          expirationSeconds: 3600
+        }
+      }
+    });
+    const serviceAccountToken = appTokenResponse.status!.token!
+
+    await client.write(`secret/data/${randomId}/foo`, {
+      data: {username: 'admin', password: 'pass'}
+    })
+
+    const source = vaultSource()
+    const schema = object({
+      vault: vaultConfig
+    })
+
+    // When
+    const secret = await source.loadFromParams({path: `secret/data/${randomId}/foo`}, schema, {}, {
+      vault: {
+        endpoint: vaultContainer.getAddress(),
+        auth: {
+          kubernetes: {
+            role: options.vaultRoleName,
+            jwt: serviceAccountToken
+          }
+        }
+      }
+    })
+
+    // Then
+    expect(secret).toEqual({
+      type: 'non_mergeable',
+      value: {
+        data: {
+          data: {username: 'admin', password: 'pass'},
+          metadata: expect.any(Object)
         },
         type: 'static',
         mountType: 'kv',

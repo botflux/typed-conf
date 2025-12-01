@@ -16,6 +16,8 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@kubernetes/client-node": "^1.4.0",
+    "@testcontainers/k3s": "^11.9.0",
     "@testcontainers/mongodb": "^11.6.0",
     "@testcontainers/vault": "^11.5.1",
     "@types/node": "^24.1.0",

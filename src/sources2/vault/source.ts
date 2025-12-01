@@ -35,6 +35,7 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
     const vaultConfig = getTypeSafeValueAtPath(previous, [configKey], vaultConfigSchema)
 
     const vaultClient = createVaultClient({
+      apiVersion: 'v1',
       endpoint: vaultConfig.endpoint,
       ...'token' in vaultConfig.auth && {token: vaultConfig.auth.token}
     })
@@ -130,6 +131,17 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
       return await client.userpassLogin({
         username: config.userpass.username,
         password: config.userpass.password
+      })
+    }
+
+    if ('kubernetes' in config) {
+      return await client.request({
+        method: 'POST',
+        path: '/auth/kubernetes/login',
+        json: {
+          role: config.kubernetes.role,
+          jwt: config.kubernetes.jwt
+        }
       })
     }
 

@@ -14,6 +14,10 @@ export const vaultConfig = object({
     userpass: object({
       username: string(),
       password: string(),
+    }),
+    kubernetes: object({
+      role: string(),
+      jwt: string(),
     })
   })
 }, {
