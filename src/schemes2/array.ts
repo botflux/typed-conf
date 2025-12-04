@@ -40,3 +40,7 @@ export function array<T>(opts: ArrayOpts<T>): ArraySchema<T[]> {
     coerce
   }
 }
+
+export function isArray(schema: BaseSchema<unknown>): schema is ArraySchema<unknown> {
+  return 'type' in schema && schema.type === 'array'
+}
