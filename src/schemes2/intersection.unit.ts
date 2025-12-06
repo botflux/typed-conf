@@ -4,8 +4,8 @@ import {string} from "./string.js";
 import {expect} from "expect";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
-import {envAlias} from "../sources/envs/envs.js";
 import {intersection} from "./intersection.js";
+import { envAlias } from "../sources2/env/alias.js";
 
 describe('intersection', function () {
   it('should be able to merge types', function () {

@@ -5,18 +5,17 @@ import {integer} from "../schemes2/integer.js";
 import {expect} from "expect";
 import {type BaseSchema, kType} from "../schemes2/base.js";
 import type {Loadable, LoadableFromParams, LoadResult, Source} from "../sources2/source.js";
-import type {Prettify} from "../loader/interface.js";
-import type {ExtractItemFromArray, MergeUnionTypes} from "../sources/source.js";
 import {kOrigin, merge} from "../merging/merge.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
 import {AjvValidator, getPreRefJsonSchema} from "../validation2/validator.js";
-import {FakeFileSystem, type FileSystem} from "../sources/files/file-system.js";
+import {FakeFileSystem, type FileSystem} from "../file-system/file-system.js";
 import {string} from "../schemes2/string.js";
 import {fileSource} from "../sources2/file/source.js";
 import {expectTypeOf} from "expect-type";
 import {file} from "../sources2/file/schemes.js";
 import {walk} from "../schemes2/walk.js";
 import {isRef} from "../schemes2/ref.js";
+import type {ExtractItemFromArray, MergeUnionTypes, Prettify} from "../types.js";
 
 export type DefaultObjectSchema = ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>
 export type DefaultSource = Source<string, unknown, Record<string, unknown>>

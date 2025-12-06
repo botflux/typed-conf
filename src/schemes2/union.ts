@@ -1,5 +1,5 @@
 import {type BaseSchema, kType} from "./base.js";
-import type {Alias} from "../schemes/base.js";
+import type {Alias} from "../alias.js";
 
 export type UnionSchema<S extends BaseSchema<unknown>> = BaseSchema<S[typeof kType]> & {
   type: 'union'

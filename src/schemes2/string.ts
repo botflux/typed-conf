@@ -1,5 +1,5 @@
-import type {Alias} from "../schemes/base.js";
 import {type BaseSchema, kType, type Mapping} from "./base.js";
+import type {Alias} from "../alias.js";
 
 export interface StringSchema<T, U> extends BaseSchema<T, U> {
   type: 'string'

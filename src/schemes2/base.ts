@@ -1,6 +1,6 @@
 import type {JSONSchema} from "json-schema-to-typescript";
-import type {Alias} from "../schemes/base.js";
 import {isObject} from "./object.js";
+import type {Alias} from "../alias.js";
 
 export const kType = Symbol('kType')
 

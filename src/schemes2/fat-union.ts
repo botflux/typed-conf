@@ -1,7 +1,7 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {JSONSchema} from "json-schema-to-typescript";
-import type {Alias} from "../schemes/base.js";
 import type {FatUnionSchema, ObjectToFatUnion} from "./fat-union.unit.js";
+import type {Alias} from "../alias.js";
 
 export type FatUnionOpts = {
   aliases?: Alias[]

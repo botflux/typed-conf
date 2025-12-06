@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {FakeFileSystem} from "../../sources/files/file-system.js";
+import {FakeFileSystem} from "../../file-system/file-system.js";
 import {object} from "../../schemes2/object.js";
 import {integer} from "../../schemes2/integer.js";
 import {expect} from "expect";

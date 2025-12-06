@@ -1,8 +1,8 @@
 import {describe, it} from "node:test";
 import {expect} from "expect";
 import {string} from "./string.js";
-import {envAlias} from "../sources/envs/envs.js";
 import {integer} from "./integer.js";
+import { envAlias } from "../sources2/env/alias.js";
 
 describe('strings', function () {
   it('should be able to create a string schema', function () {

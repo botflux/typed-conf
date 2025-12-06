@@ -1,5 +1,5 @@
 import {type BaseSchema, kType} from "./base.js";
-import type {Alias} from "../schemes/base.js";
+import type {Alias} from "../alias.js";
 
 type Prettier<T> = {
   [K in keyof T]: T[K]

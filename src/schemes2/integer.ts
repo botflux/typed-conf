@@ -1,5 +1,5 @@
+import type { Alias } from "../alias.js";
 import {type BaseSchema, kType} from "./base.js";
-import type {Alias} from "../schemes/base.js";
 
 export type IntegerSchema<T> = BaseSchema<T> & {
   type: 'integer'

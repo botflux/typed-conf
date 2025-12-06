@@ -2,8 +2,8 @@ import {describe, it} from "node:test";
 import {expect} from "expect";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
-import {envAlias} from "../sources/envs/envs.js";
 import {integer} from "./integer.js";
+import { envAlias } from "../sources2/env/alias.js";
 
 describe('integer', function () {
   it('should be able to declare an integer', function () {

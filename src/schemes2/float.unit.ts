@@ -2,8 +2,8 @@ import {describe, it} from "node:test";
 import {expect} from "expect";
 import {expectTypeOf} from "expect-type";
 import {kType} from "./base.js";
-import {envAlias} from "../sources/envs/envs.js";
 import {float} from "./float.js";
+import { envAlias } from "../sources2/env/alias.js";
 
 describe('float', function () {
   it('should be able to declare a float', function () {

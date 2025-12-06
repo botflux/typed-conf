@@ -1,4 +1,4 @@
-import type {FileSystem} from "../../sources/files/file-system.js";
+import type {FileSystem} from "../../file-system/file-system.js";
 
 export type ParserFn = (content: string) => unknown
 
