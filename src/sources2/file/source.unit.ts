@@ -173,7 +173,7 @@ describe('fileSource', function () {
       // Then
       expect(result).toEqual({
         type: 'non_mergeable',
-        origin: 'config.txt',
+        origin: 'file:config.txt',
         value: 'foo bar'
       })
     })

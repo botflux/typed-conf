@@ -8,6 +8,7 @@ import type {Loadable, LoadableFromParams, LoadResult, Source} from "../sources2
 import type {Prettify} from "../loader/interface.js";
 import type {ExtractItemFromArray, MergeUnionTypes} from "../sources/source.js";
 import {kOrigin, merge} from "../merging/merge.js";
+import {getValueAtPath, setValueAtPath} from "../utils.js";
 import {AjvValidator, getPreRefJsonSchema} from "../validation2/validator.js";
 import {FakeFileSystem, type FileSystem} from "../sources/files/file-system.js";
 import {string} from "../schemes2/string.js";
@@ -83,7 +84,7 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
     for (const [path, childSchema] of walk(schema)) {
       if (!isRef(childSchema)) continue
 
-      const value = this.#getValueAtPath(previous, path as string[])
+      const value = getValueAtPath(previous, path as string[])
       
       if (value === undefined) continue
 
@@ -108,38 +109,12 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
       const result: LoadResult = await source.loadFromParams(params, childSchema.refSchema, sourceInject, previous)
 
       if (result.type === 'non_mergeable') {
-        this.#setValueAtPath(previous, path as string[], result.value)
+        setValueAtPath(previous, path as string[], result.value)
         this.#setOriginAtPath(previous, path as string[], result.origin)
       } else {
         throw new Error('Mergeable results not yet implemented for ref resolution')
       }
     }
-  }
-
-  #getValueAtPath(obj: Record<string, unknown>, path: (string | symbol)[]): unknown {
-    if (path.length === 0) return obj
-
-    let current: any = obj
-    for (const key of path) {
-      if (current === undefined || current === null) return undefined
-      current = current[key]
-    }
-    return current
-  }
-
-  #setValueAtPath(obj: Record<string, unknown>, path: (string | symbol)[], value: unknown): void {
-    if (path.length === 0) return
-
-    let current: any = obj
-    for (let i = 0; i < path.length - 1; i++) {
-      const key = path[i]!
-      if (current[key] === undefined) {
-        current[key] = {}
-      }
-      current = current[key]
-    }
-    const lastKey = path[path.length - 1]!
-    current[lastKey] = value
   }
 
   #setOriginAtPath(obj: Record<string, unknown>, path: (string | symbol)[], origin: string): void {
@@ -298,7 +273,7 @@ describe('manager', function () {
     })
   })
 
-  describe('loading refs', {only: true}, function () {
+  describe('loading refs', function () {
     it('should be able to load refs', async function () {
       // Given
       const manager = createManager({
