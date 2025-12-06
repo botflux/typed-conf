@@ -1,6 +1,6 @@
 import type {LoadResult, MergeableResult, Source} from "../source.js";
-import type {ObjectSchema} from "../../schemes2/object.js";
-import type {BaseSchema} from "../../schemes2/base.js";
+import type {ObjectSchema} from "../../schemes/object.js";
+import type {BaseSchema} from "../../schemes/base.js";
 import {inlineCatch} from "../../utils.js";
 import {setOrigin} from "../../merging/origin-utils.js";
 import {merge} from "../../merging/merge.js";

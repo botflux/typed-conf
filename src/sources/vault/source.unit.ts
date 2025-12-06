@@ -2,10 +2,10 @@ import {after, before, describe, it} from 'node:test'
 import {expect} from "expect";
 import vault, {type client} from 'node-vault'
 import {type StartedVaultContainer, VaultContainer} from "@testcontainers/vault";
-import {object} from "../../schemes2/object.js";
+import {object} from "../../schemes/object.js";
 import {vaultConfig} from "./schemes.js";
 import {randomUUID} from "node:crypto";
-import {string} from "../../schemes2/string.js";
+import {string} from "../../schemes/string.js";
 import {MongoDBContainer, type StartedMongoDBContainer} from "@testcontainers/mongodb";
 import {Network, type StartedNetwork} from "testcontainers";
 import {vaultSource} from "./source.js";

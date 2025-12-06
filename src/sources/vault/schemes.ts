@@ -1,9 +1,9 @@
-import {object} from "../../schemes2/object.js";
-import {string} from "../../schemes2/string.js";
-import {fatUnion} from "../../schemes2/fat-union.js";
-import type {BaseSchema} from "../../schemes2/base.js";
-import {boolean} from "../../schemes2/boolean.js";
-import {integer} from "../../schemes2/integer.js";
+import {object} from "../../schemes/object.js";
+import {string} from "../../schemes/string.js";
+import {fatUnion} from "../../schemes/fat-union.js";
+import type {BaseSchema} from "../../schemes/base.js";
+import {boolean} from "../../schemes/boolean.js";
+import {integer} from "../../schemes/integer.js";
 
 export const kVault = Symbol('kVault')
 

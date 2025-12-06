@@ -1,6 +1,6 @@
 import {describe, it} from 'node:test'
-import {object} from "../schemes2/object.js";
-import {string} from "../schemes2/string.js";
+import {object} from "../schemes/object.js";
+import {string} from "../schemes/string.js";
 import {expect} from "expect";
 import {inlineCatchSync} from "../utils.js";
 import {AjvValidator} from './validator.js'

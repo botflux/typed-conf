@@ -1,4 +1,4 @@
-import type {BaseSchema} from "../schemes2/base.js";
+import type {BaseSchema} from "../schemes/base.js";
 import type {JSONSchema} from "json-schema-to-typescript";
 import {Ajv, type ErrorObject, type Schema} from "ajv";
 import {getOrigin} from "../merging/origin-utils.js";

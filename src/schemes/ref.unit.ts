@@ -4,7 +4,7 @@ import {integer} from "./integer.js";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {ref} from "./ref.js";
-import { envAlias } from "../sources2/env/alias.js";
+import { envAlias } from "../sources/env/alias.js";
 
 describe('ref', function () {
   it('should be able to declare a ref', function () {

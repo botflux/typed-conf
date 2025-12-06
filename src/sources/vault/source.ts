@@ -1,7 +1,7 @@
 import type {LoadableFromParams, LoadResult} from "../source.js";
 import type {InjectOpts, NormalizedVaultSecret, Params, VaultOpts, VaultResponse} from "./types.js";
 import {AjvValidator} from "../../validation2/validator.js";
-import {type BaseSchema, getSchemaAtPath, kType} from "../../schemes2/base.js";
+import {type BaseSchema, getSchemaAtPath, kType} from "../../schemes/base.js";
 import vault, { type client as Client } from "node-vault";
 import {isVaultConfig, vaultAuthResponseSchema, vaultConfig, vaultReadResponseSchema} from "./schemes.js";
 import {getTypeSafeValueAtPathFactory} from "../../validation2/utils.js";

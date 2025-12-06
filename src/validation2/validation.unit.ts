@@ -1,9 +1,9 @@
 import {describe, it} from 'node:test'
-import {object} from "../schemes2/object.js";
-import {string} from "../schemes2/string.js";
-import {integer} from "../schemes2/integer.js";
+import {object} from "../schemes/object.js";
+import {string} from "../schemes/string.js";
+import {integer} from "../schemes/integer.js";
 import {AjvValidator, getPreRefJsonSchema, ValidationError} from "./validator.js";
-import {ref} from "../schemes2/ref.js";
+import {ref} from "../schemes/ref.js";
 import {expect} from "expect";
 import {setOrigin} from "../merging/origin-utils.js";
 import {inlineCatchSync} from "../utils.js";

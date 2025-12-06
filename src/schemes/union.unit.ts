@@ -6,7 +6,7 @@ import {union} from "./union.js";
 import {expectTypeOf} from "expect-type";
 import {kType} from "./base.js";
 import {boolean} from "./boolean.js";
-import {envAlias} from "../sources2/env/alias.js";
+import {envAlias} from "../sources/env/alias.js";
 
 describe('union', function () {
   it('should be able to declare an union', function () {

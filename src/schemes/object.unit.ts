@@ -7,7 +7,7 @@ import {expectTypeOf} from "expect-type";
 import {optional} from "./optional.js";
 import {secret} from "./secret.js";
 import {object} from "./object.js";
-import { envAlias } from "../sources2/env/alias.js";
+import { envAlias } from "../sources/env/alias.js";
 
 describe('object', function () {
   it('should be able to declare an object', function () {

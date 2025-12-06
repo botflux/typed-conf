@@ -3,7 +3,7 @@ import {expect} from "expect";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {integer} from "./integer.js";
-import { envAlias } from "../sources2/env/alias.js";
+import { envAlias } from "../sources/env/alias.js";
 
 describe('integer', function () {
   it('should be able to declare an integer', function () {

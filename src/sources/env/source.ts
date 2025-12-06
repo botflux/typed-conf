@@ -1,5 +1,5 @@
-import {isObject, type ObjectSchema} from "../../schemes2/object.js";
-import type {BaseSchema} from "../../schemes2/base.js";
+import {isObject, type ObjectSchema} from "../../schemes/object.js";
+import type {BaseSchema} from "../../schemes/base.js";
 import {setValueAtPath} from "../../utils.js";
 import type {LoadResult, Source} from "../source.js";
 import {kOrigin} from "../../merging/merge.js";

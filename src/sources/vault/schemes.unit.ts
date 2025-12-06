@@ -1,8 +1,8 @@
 import {describe, it} from "node:test";
 import {isVaultConfig, kVault, vaultConfig} from "./schemes.js";
 import {expect} from "expect";
-import {object} from "../../schemes2/object.js";
-import {string} from "../../schemes2/string.js";
+import {object} from "../../schemes/object.js";
+import {string} from "../../schemes/string.js";
 
 describe('schemes', function () {
   it('should be able to declare a vault config schema with a metadata', function () {

@@ -3,7 +3,7 @@ import {expect} from "expect";
 import {expectTypeOf} from "expect-type";
 import {kType} from "./base.js";
 import {boolean} from "./boolean.js";
-import {envAlias} from "../sources2/env/alias.js";
+import {envAlias} from "../sources/env/alias.js";
 
 describe('boolean', function () {
   it('should be able to declare a boolean', function () {

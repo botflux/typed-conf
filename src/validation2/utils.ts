@@ -1,5 +1,5 @@
 import {AjvValidator} from "./validator.js";
-import {type BaseSchema, kType} from "../schemes2/base.js";
+import {type BaseSchema, kType} from "../schemes/base.js";
 import {getValueAtPath} from "../utils.js";
 
 export function getTypeSafeValueAtPathFactory(validator: AjvValidator) {

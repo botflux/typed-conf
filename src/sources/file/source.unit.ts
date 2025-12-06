@@ -1,9 +1,9 @@
 import {describe, it} from "node:test";
 import {FakeFileSystem} from "../../file-system/file-system.js";
-import {object} from "../../schemes2/object.js";
-import {integer} from "../../schemes2/integer.js";
+import {object} from "../../schemes/object.js";
+import {integer} from "../../schemes/integer.js";
 import {expect} from "expect";
-import {string} from "../../schemes2/string.js";
+import {string} from "../../schemes/string.js";
 import toml from 'toml'
 import {kOrigin} from "../../merging/merge.js";
 import {fileSource} from "./source.js";

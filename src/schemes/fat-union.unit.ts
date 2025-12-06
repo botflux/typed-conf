@@ -5,7 +5,7 @@ import {expect} from "expect";
 import {type BaseSchema, kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {fatUnion} from "./fat-union.js";
-import { envAlias } from "../sources2/env/alias.js";
+import { envAlias } from "../sources/env/alias.js";
 
 export type ObjectToFatUnion<T extends Record<string, BaseSchema<unknown>>> = {
   [K in keyof T]: { [P in K]: T[P][typeof kType] }

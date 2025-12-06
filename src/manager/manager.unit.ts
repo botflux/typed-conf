@@ -1,20 +1,20 @@
 import {describe, it} from 'node:test'
-import {object, type ObjectSchema} from "../schemes2/object.js";
-import {envSource} from "../sources2/env/source.js";
-import {integer} from "../schemes2/integer.js";
+import {object, type ObjectSchema} from "../schemes/object.js";
+import {envSource} from "../sources/env/source.js";
+import {integer} from "../schemes/integer.js";
 import {expect} from "expect";
-import {type BaseSchema, kType} from "../schemes2/base.js";
-import type {Loadable, LoadableFromParams, LoadResult, Source} from "../sources2/source.js";
+import {type BaseSchema, kType} from "../schemes/base.js";
+import type {Loadable, LoadableFromParams, LoadResult, Source} from "../sources/source.js";
 import {kOrigin, merge} from "../merging/merge.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
 import {AjvValidator, getPreRefJsonSchema} from "../validation2/validator.js";
 import {FakeFileSystem, type FileSystem} from "../file-system/file-system.js";
-import {string} from "../schemes2/string.js";
-import {fileSource} from "../sources2/file/source.js";
+import {string} from "../schemes/string.js";
+import {fileSource} from "../sources/file/source.js";
 import {expectTypeOf} from "expect-type";
-import {file} from "../sources2/file/schemes.js";
-import {walk} from "../schemes2/walk.js";
-import {isRef} from "../schemes2/ref.js";
+import {file} from "../sources/file/schemes.js";
+import {walk} from "../schemes/walk.js";
+import {isRef} from "../schemes/ref.js";
 import type {ExtractItemFromArray, MergeUnionTypes, Prettify} from "../types.js";
 
 export type DefaultObjectSchema = ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>
