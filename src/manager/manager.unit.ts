@@ -7,7 +7,7 @@ import {type BaseSchema, kType} from "../schemes/base.js";
 import type {Loadable, LoadableFromParams, LoadResult, Source} from "../sources/source.js";
 import {kOrigin, merge} from "../merging/merge.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
-import {AjvValidator, getPreRefJsonSchema} from "../validation2/validator.js";
+import {AjvValidator, getPreRefJsonSchema} from "../validation/validator.js";
 import {FakeFileSystem, type FileSystem} from "../file-system/file-system.js";
 import {string} from "../schemes/string.js";
 import {fileSource} from "../sources/file/source.js";
