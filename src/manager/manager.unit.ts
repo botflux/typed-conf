@@ -4,7 +4,7 @@ import {envSource} from "../sources2/env/source.js";
 import {integer} from "../schemes2/integer.js";
 import {expect} from "expect";
 import {type BaseSchema, kType} from "../schemes2/base.js";
-import type {Loadable, Source} from "../sources2/source.js";
+import type {Loadable, LoadableFromParams, LoadResult, Source} from "../sources2/source.js";
 import type {Prettify} from "../loader/interface.js";
 import type {ExtractItemFromArray, MergeUnionTypes} from "../sources/source.js";
 import {kOrigin, merge} from "../merging/merge.js";
@@ -62,11 +62,104 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
 
     this.#validator.validate(schema, getPreRefJsonSchema, previous)
 
+    await this.#resolveRefs(schema, previous, inject)
+
     return previous as Prettify<Schema[typeof kType]>
   }
 
   #isLoadable(source: DefaultSource): source is (DefaultSource & Loadable<unknown>) {
     return 'load' in source
+  }
+
+  #isLoadableFromParams(source: DefaultSource): source is (DefaultSource & LoadableFromParams<unknown, Record<string, unknown>>) {
+    return 'loadFromParams' in source
+  }
+
+  #findSourceByName(name: string): DefaultSource | undefined {
+    return this.#opts.sources.find(source => source.name === name)
+  }
+
+  async #resolveRefs(schema: BaseSchema<unknown>, previous: Record<string, unknown>, inject: LoadOpts<Sources>['inject']): Promise<void> {
+    for (const [path, childSchema] of walk(schema)) {
+      if (!isRef(childSchema)) continue
+
+      const value = this.#getValueAtPath(previous, path as string[])
+      
+      if (value === undefined) continue
+
+      if (typeof value !== 'string') {
+        throw new Error(`Cannot resolve ref at path '${(path as string[]).join('.')}' because the value is not a string`)
+      }
+
+      const params = childSchema.refToSourceParams(value)
+      const source = this.#findSourceByName(childSchema.sourceName)
+
+      if (source === undefined) {
+        throw new Error(`Cannot resolve ref at path '${(path as string[]).join('.')}': source '${childSchema.sourceName}' not found`)
+      }
+
+      if (!this.#isLoadableFromParams(source)) {
+        throw new Error(`Cannot resolve ref at path '${(path as string[]).join('.')}': source '${childSchema.sourceName}' does not support loadFromParams`)
+      }
+
+      // @ts-expect-error
+      const sourceInject = inject?.[source.name] as unknown
+
+      const result: LoadResult = await source.loadFromParams(params, childSchema.refSchema, sourceInject, previous)
+
+      if (result.type === 'non_mergeable') {
+        this.#setValueAtPath(previous, path as string[], result.value)
+        this.#setOriginAtPath(previous, path as string[], result.origin)
+      } else {
+        throw new Error('Mergeable results not yet implemented for ref resolution')
+      }
+    }
+  }
+
+  #getValueAtPath(obj: Record<string, unknown>, path: (string | symbol)[]): unknown {
+    if (path.length === 0) return obj
+
+    let current: any = obj
+    for (const key of path) {
+      if (current === undefined || current === null) return undefined
+      current = current[key]
+    }
+    return current
+  }
+
+  #setValueAtPath(obj: Record<string, unknown>, path: (string | symbol)[], value: unknown): void {
+    if (path.length === 0) return
+
+    let current: any = obj
+    for (let i = 0; i < path.length - 1; i++) {
+      const key = path[i]!
+      if (current[key] === undefined) {
+        current[key] = {}
+      }
+      current = current[key]
+    }
+    const lastKey = path[path.length - 1]!
+    current[lastKey] = value
+  }
+
+  #setOriginAtPath(obj: Record<string, unknown>, path: (string | symbol)[], origin: string): void {
+    if (path.length === 0) return
+
+    let current: any = obj
+    for (let i = 0; i < path.length - 1; i++) {
+      const key = path[i]!
+      if (current[key] === undefined) {
+        current[key] = {}
+      }
+      current = current[key]
+    }
+
+    if (!current[kOrigin]) {
+      current[kOrigin] = {}
+    }
+
+    const lastKey = path[path.length - 1]!
+    current[kOrigin][lastKey] = origin
   }
 }
 
@@ -205,7 +298,7 @@ describe('manager', function () {
     })
   })
 
-  describe('loading refs', {skip: true}, function () {
+  describe('loading refs', {only: true}, function () {
     it('should be able to load refs', async function () {
       // Given
       const manager = createManager({

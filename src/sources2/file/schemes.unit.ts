@@ -12,7 +12,7 @@ describe('schemes', function () {
       const result = schema.refToSourceParams('file.txt')
 
       // Then
-      expect(result).toEqual({ path: 'file.txt', encoding: 'utf-8' })
+      expect(result).toEqual({ file: 'file.txt', encoding: 'utf-8' })
     })
   })
 })
