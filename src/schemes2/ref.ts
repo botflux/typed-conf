@@ -35,3 +35,7 @@ export function ref<S extends BaseSchema<unknown>>(opts: RefOpts<S>): RefSchema<
     coerce
   }
 }
+
+export function isRef(schema: BaseSchema<unknown>): schema is RefSchema<unknown> {
+  return 'type' in schema && schema.type === 'ref'
+}

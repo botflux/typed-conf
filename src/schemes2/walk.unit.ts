@@ -164,6 +164,7 @@ describe('walk', {only: true}, function () {
     expect(nodes).toEqual([
       [[], schema],
       [['value'], schema.props.value],
+      [['value'], obj1],
       [['value', 'name'], obj1.props.name],
       [['value'], obj2],
       [['value', 'age'], obj2.props.age]

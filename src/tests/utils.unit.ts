@@ -5,7 +5,7 @@ import {expect} from "expect";
 describe('utils#getValueAtPath', function () {
   it('should be able to get the value of an object', function () {
     // Given
-    const o = { key: "foo" }
+    const o = {key: "foo"}
 
     // When
     const value = getValueAtPath(o, ["key"])
@@ -31,11 +31,11 @@ describe('utils#getValueAtPath', function () {
 
   it('should be able to return the param given the path is empty', function () {
     // Given
-    const o = { foo: "bar" }
+    const o = {foo: "bar"}
 
     // When
     // Then
-    expect(getValueAtPath(o, [])).toEqual({ foo: 'bar' })
+    expect(getValueAtPath(o, [])).toEqual({foo: 'bar'})
   })
 
   it('should be able to return undefined if the intermediate objects does not exist', function () {
@@ -96,7 +96,7 @@ describe('utils#setValueAtPath', function () {
     setValueAtPath(o, ["foo", "bar"], "foo")
 
     // Then
-    expect(o).toEqual({ foo: { bar: "foo" } })
+    expect(o).toEqual({foo: {bar: "foo"}})
   })
 
   it('should be able to throw an error if the path is empty', function () {
@@ -116,7 +116,7 @@ describe('utils#setValueAtPath', function () {
     setValueAtPath(o, ["foo", "bar"], "foo")
 
     // Then
-    expect(o).toEqual({ foo: { bar: "foo" } })
+    expect(o).toEqual({foo: {bar: "foo"}})
   })
 
   it('should be able to throw an error if the intermediate properties are not objects', function () {
@@ -136,10 +136,10 @@ describe('utils#setValueAtPath', function () {
     const object = {}
 
     // When
-    setValueAtPath(object, [ 'foo', symbol  ], 10)
+    setValueAtPath(object, ['foo', symbol], 10)
 
     // Then
-    expect(object).toEqual({ foo: { [symbol]: 10 } })
+    expect(object).toEqual({foo: {[symbol]: 10}})
   })
 })
 
@@ -150,7 +150,7 @@ describe('utils#inlineCatchSync', function () {
     const result = inlineCatchSync(() => 'foo')
 
     // Then
-    expect(result).toEqual([ 'foo', undefined ])
+    expect(result).toEqual(['foo', undefined])
   })
 
   it('should be able to return the error as the second element of a tuple', function () {
@@ -163,7 +163,7 @@ describe('utils#inlineCatchSync', function () {
     })
 
     // Then
-    expect(result).toEqual([ undefined, error ])
+    expect(result).toEqual([undefined, error])
   })
 })
 
@@ -189,15 +189,15 @@ describe('utils#inlineCatch', function () {
 
 describe('isError', function () {
   const cases = [
-    { input: false, expected: false, case: 'a boolean' },
-    { input: 'foo', expected: false, case: 'a string' },
-    { input: {}, expected: false, case: 'an object' },
-    { input: null, expected: false, case: 'null' },
-    { input: undefined, expected: false, case: 'undefined' },
-    { input: new Error('foo'), expected: true, case: 'an error instance' },
+    {input: false, expected: false, case: 'a boolean'},
+    {input: 'foo', expected: false, case: 'a string'},
+    {input: {}, expected: false, case: 'an object'},
+    {input: null, expected: false, case: 'null'},
+    {input: undefined, expected: false, case: 'undefined'},
+    {input: new Error('foo'), expected: true, case: 'an error instance'},
   ]
 
-  for (const { input, expected, case: c } of cases) {
+  for (const {input, expected, case: c} of cases) {
     it(`should be able to return ${expected} given ${c}`, function () {
       // Given
       // When
