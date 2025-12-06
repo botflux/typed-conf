@@ -13,6 +13,9 @@ import {FakeFileSystem, type FileSystem} from "../sources/files/file-system.js";
 import {string} from "../schemes2/string.js";
 import {fileSource} from "../sources2/file/source.js";
 import {expectTypeOf} from "expect-type";
+import {file} from "../sources2/file/schemes.js";
+import {walk} from "../schemes2/walk.js";
+import {isRef} from "../schemes2/ref.js";
 
 export type DefaultObjectSchema = ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>
 export type DefaultSource = Source<string, unknown, Record<string, unknown>>
@@ -199,6 +202,42 @@ describe('manager', function () {
 
       // Then
       expect(config).toEqual({port: 3111, [kOrigin]: {port: 'env:PORT'}})
+    })
+  })
+
+  describe('loading refs', {skip: true}, function () {
+    it('should be able to load refs', async function () {
+      // Given
+      const manager = createManager({
+        schema: object({
+          certificate: file()
+        }),
+        sources: [
+          envSource(),
+          fileSource({ files: [] })
+        ]
+      })
+
+      const fs = new FakeFileSystem()
+        .addFile('/path/to/cert', 'my certificate')
+
+      // When
+      const config = await manager.load({
+        inject: {
+          envs: {
+            envs: { CERTIFICATE: '/path/to/cert' }
+          },
+          file: { fs }
+        }
+      })
+
+      // Then
+      expect(config).toEqual({
+        certificate: 'my certificate',
+        [kOrigin]: {
+          certificate: 'file:/path/to/cert'
+        }
+      })
     })
   })
 })
