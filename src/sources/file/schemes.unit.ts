@@ -16,7 +16,7 @@ describe('schemes', function () {
       const result = schema.refToSourceParams('file.txt')
 
       // Then
-      expect(result).toEqual({ file: 'file.txt', encoding: undefined })
+      expect(result).toEqual({ file: 'file.txt', encoding: undefined, parse: false })
     })
 
     it('should be able to be typed as a buffer by default', function () {
@@ -36,7 +36,7 @@ describe('schemes', function () {
       const result = schema.refToSourceParams('file.txt')
 
       // Then
-      expect(result).toEqual({ file: 'file.txt', encoding: 'utf8' })
+      expect(result).toEqual({ file: 'file.txt', encoding: 'utf8', parse: false })
     })
 
     it('should be able to be typed as string when an encoding is defined', function () {
@@ -60,8 +60,34 @@ describe('schemes', function () {
       expect(schema.refToSourceParams('file.txt')).toEqual(expect.objectContaining({
         file: 'file.txt',
         encoding: 'utf8',
-        parseAs: object({ foo: string() })
+        parse: true
       }))
+    })
+
+    it('should be able to contain the parsed content schema', function () {
+      // Given
+      // When
+      const schema = file({
+        encoding: 'utf8',
+        parseAs: object({ foo: string() })
+      })
+
+      // Then
+      expect(schema).toEqual(expect.objectContaining({
+        refSchema: object({ foo: string() })
+      }))
+    })
+
+    it('should be able to be typed correctly given there is a parseAs option', function () {
+      // Given
+      // When
+      const schema = file({
+        encoding: 'utf8',
+        parseAs: object({ foo: string() })
+      })
+
+      // Then
+      expectTypeOf(schema[kType]).toEqualTypeOf<{ foo: string }>()
     })
   })
 })
