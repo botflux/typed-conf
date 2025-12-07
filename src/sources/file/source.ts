@@ -70,7 +70,7 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Params
     return {
       type: 'non_mergeable',
       value: content,
-      origin: `file:${file}`,
+      origin: file,
     }
   }
 

@@ -107,11 +107,12 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
 
       const result: LoadResult = await source.loadFromParams(params, childSchema.refSchema, sourceInject, previous)
 
+      setValueAtPath(previous, path as string[], result.value)
+
       if (result.type === 'non_mergeable') {
-        setValueAtPath(previous, path as string[], result.value)
         this.#setOriginAtPath(previous, path as string[], result.origin)
       } else {
-        throw new Error('Mergeable results not yet implemented for ref resolution')
+        await this.#resolveRefs(childSchema.refSchema, result.value, inject)
       }
     }
   }
@@ -302,8 +303,94 @@ describe('manager', function () {
       expect(config).toEqual({
         certificate: 'my certificate',
         [kOrigin]: {
-          certificate: 'file:/path/to/cert'
+          certificate: '/path/to/cert'
         }
+      })
+    })
+
+    it('should be able to load a ref with mergeable content', async function () {
+      // Given
+      const manager = createManager({
+        schema: object({
+          httpServer: file({
+            encoding: 'utf8',
+            parseAs: object({
+              port: integer()
+            })
+          })
+        }),
+        sources: [
+          envSource(),
+          fileSource({ files: [] })
+        ]
+      })
+
+      const fs = new FakeFileSystem()
+        .addFile('/path/to/config.json', `{ "port": 3111 }`)
+
+      const envs = {
+        HTTP_SERVER: '/path/to/config.json'
+      }
+
+      // When
+      const config = await manager.load({
+        inject: {
+          envs: { envs },
+          file: { fs }
+        }
+      })
+
+      // Then
+      expect(config).toEqual({
+        httpServer: { port: 3111, [kOrigin]: { port: '/path/to/config.json'} },
+        // TODO: I don't know if resolved refs should be in the origins like this.
+        //       It is a bit weird.
+        [kOrigin]: {
+          httpServer: 'env:HTTP_SERVER'
+        },
+      })
+    })
+
+    it('should be able to load ref in ref', {only: true}, async function () {
+      // Given
+      const manager = createManager({
+        schema: object({
+          httpServer: file({
+            encoding: 'utf8',
+            parseAs: object({
+              port: integer(),
+              ssl: file('utf8')
+            })
+          })
+        }),
+        sources: [
+          envSource(),
+          fileSource({ files: [] })
+        ]
+      })
+
+      const fs = new FakeFileSystem()
+        .addFile('/path/to/config.json', `{ "port": 3111, "ssl": "/path/to/cert" }`)
+        .addFile('/path/to/cert', 'my certificate')
+
+      const envs = {
+        HTTP_SERVER: '/path/to/config.json'
+      }
+
+      // When
+      const config = await manager.load({
+        inject: {
+          envs: { envs },
+          file: { fs }
+        }
+      })
+
+      // Then
+      expect(config).toEqual({
+        httpServer: { port: 3111, ssl: 'my certificate', [kOrigin]: { port: '/path/to/config.json', ssl: '/path/to/cert'} },
+        [kOrigin]: {
+          httpServer: 'env:HTTP_SERVER'
+        },
       })
     })
   })
