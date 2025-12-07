@@ -13,12 +13,8 @@ import {K3sContainer, StartedK3sContainer} from "@testcontainers/k3s";
 import {
   KubeConfig,
   CoreV1Api,
-  AuthenticationApi,
-  AuthenticationV1Api,
   RbacAuthorizationV1Api
 } from '@kubernetes/client-node'
-import {AuthenticationV1TokenRequest} from "@kubernetes/client-node/dist/gen/models/AuthenticationV1TokenRequest.js";
-import {parse} from "yaml";
 
 describe('vaultSource', function () {
   const mongoUsername = "test"
@@ -333,7 +329,7 @@ describe('vaultSource', function () {
     })
   })
 
-  it('should be able to authenticate using k8s service account', async function () {
+  it('should be able to authenticate using k8s service account', {timeout: 40_000}, async function () {
     // Given
     interface VaultK8sAuthOptions {
       namespace: string;

@@ -4,6 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test:unit": "borp **/*.unit.ts",
+    "test:integration": "borp **/*.integration.ts",
+    "test": "borp **/*.unit.ts **/*.integration.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
