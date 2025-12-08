@@ -141,10 +141,6 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
     const lastKey = path[path.length - 1]!
     current[kOrigin][lastKey] = origin
   }
-  
-  #buildDefaultObject(schema: DefaultObjectSchema): Record<string, unknown> {
-    return {}
-  }
 }
 
 function createManager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[]>(opts: ManagerOpts<Schema, Sources>) {
