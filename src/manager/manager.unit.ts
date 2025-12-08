@@ -7,10 +7,12 @@ import {kOrigin} from "../merging/merge.js";
 import {FakeFileSystem, type FileSystem} from "../file-system/file-system.js";
 import {string} from "../schemes/string.js";
 import {fileSource} from "../sources/file/source.js";
+import {type LoadParams as FileLoadParams} from "../sources/file/types.js";
 import {expectTypeOf} from "expect-type";
 import {file} from "../sources/file/schemes.js";
 import {createManager} from "./manager.js";
-import type {InjectOpts} from "./types.js";
+import type {InjectOpts, SourceParams} from "./types.js";
+import type { Source } from '../sources/source.js';
 
 describe('manager', function () {
   it('should be able to load config', async function () {
@@ -141,7 +143,11 @@ describe('manager', function () {
           file: {fs},
           envs: {envs}
         },
-        params: {files: ['config.json']}
+        params: {
+          file: {
+            files: ['config.json']
+          }
+        }
       })
 
       // Then
@@ -215,7 +221,7 @@ describe('manager', function () {
           envs: { envs },
           file: { fs }
         },
-        params: { files: [] }
+        params: {}
       })
 
       // Then
@@ -341,5 +347,53 @@ describe('InjectOpts', function () {
 
     // Then
     expectTypeOf<T>().toEqualTypeOf<{ file: { fs?: FileSystem }, envs: { envs?: NodeJS.ProcessEnv } }>()
+  })
+})
+
+describe('SourceParams', function () {
+  it('should be able to transform a source array into a record of params', function () {
+    // Given
+    const file = fileSource()
+    const sources = [file]
+
+    // When
+    type T = SourceParams<typeof sources>
+
+    // Then
+    expectTypeOf<T>().toEqualTypeOf<{ file?: FileLoadParams }>()
+  })
+
+  it('should be able to remove source that have undefined as params', function () {
+    // Given
+    const env = envSource()
+    const sources = [env]
+
+    // When
+    type T = SourceParams<typeof sources>
+
+    // Then
+    expectTypeOf<T>().toEqualTypeOf<{}>()
+  })
+
+  it('should be able to return an optional prop given all the params are optional', function () {
+    // Given
+    type MySource = Source<"foo", {}, {}, { msg?: string }>
+
+    // When
+    type T = SourceParams<[MySource]>
+
+    // Then
+    expectTypeOf<T>().toEqualTypeOf<{ foo?: { msg?: string } }>()
+  })
+
+  it('should be able to require the params given at least one prop is required', function () {
+    // Given
+    type MySource = Source<"foo", {}, {}, { msg: string }>
+
+    // When
+    type T = SourceParams<[MySource]>
+
+    // Then
+    expectTypeOf<T>().toEqualTypeOf<{ foo: { msg: string } }>()
   })
 })
