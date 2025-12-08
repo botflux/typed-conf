@@ -351,7 +351,7 @@ describe('manager', function () {
       })
     })
 
-    it('should be able to load ref in ref', {only: true}, async function () {
+    it('should be able to load ref in ref', async function () {
       // Given
       const manager = createManager({
         schema: object({
