@@ -9,7 +9,8 @@ import {string} from "../schemes/string.js";
 import {fileSource} from "../sources/file/source.js";
 import {expectTypeOf} from "expect-type";
 import {file} from "../sources/file/schemes.js";
-import {createManager, type InjectOpts} from "./manager.js";
+import {createManager} from "./manager.js";
+import type {InjectOpts} from "./types.js";
 
 describe('manager', function () {
   it('should be able to load config', async function () {

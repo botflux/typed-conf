@@ -1,29 +1,13 @@
-import type {Loadable, LoadableFromParams, LoadResult, Source} from "../sources/source.js";
-import {string} from "../schemes/string.js";
-import type {ObjectSchema} from "../schemes/object.js";
+import type {Loadable, LoadableFromParams, LoadResult} from "../sources/source.js";
 import {type BaseSchema, kType} from "../schemes/base.js";
-import type {ExtractItemFromArray, MergeUnionTypes, Prettify} from "../types.js";
+import type {Prettify} from "../types.js";
 import {AjvValidator, getPreRefJsonSchema} from "../validation/validator.js";
 import {kOrigin, merge} from "../merging/merge.js";
 import {setOrigin} from "../merging/origin-utils.js";
 import {walk} from "../schemes/walk.js";
 import {isRef} from "../schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
-
-export type DefaultObjectSchema = ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>
-export type DefaultSource = Source<string, unknown, Record<string, unknown>>
-export type ManagerOpts<
-  Schema extends DefaultObjectSchema,
-  Sources extends DefaultSource[]
-> = {
-  schema: Schema
-  sources: Sources
-}
-export type SourceToRecord<T extends DefaultSource> = T extends Source<infer K, infer V, any> ? Record<K, V> : never
-export type InjectOpts<Sources extends DefaultSource[]> = Prettify<MergeUnionTypes<SourceToRecord<ExtractItemFromArray<Sources>>>>
-export type LoadOpts<Sources extends DefaultSource[]> = {
-  inject?: InjectOpts<Sources>
-}
+import type {DefaultObjectSchema, DefaultSource, LoadOpts, ManagerOpts} from "./types.js";
 
 class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[]> {
   #opts: ManagerOpts<Schema, Sources>
