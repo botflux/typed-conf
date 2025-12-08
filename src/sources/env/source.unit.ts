@@ -6,6 +6,7 @@ import {integer} from "../../schemes/integer.js";
 import {camelCaseToScreamingSnakeCase, envSource} from "./source.js";
 import {boolean} from "../../schemes/boolean.js";
 import {kOrigin} from "../../merging/merge.js";
+import {envAlias} from "./alias.js";
 
 describe('env source', function () {
   describe('#load', function () {
@@ -145,6 +146,25 @@ describe('env source', function () {
         type: 'non_mergeable',
         value: false
       })
+    })
+  })
+
+  describe('alias', function () {
+    it('should be able to define an alias', {only: true}, async function () {
+      // Given
+      const schema = object({
+        port: integer({ aliases: [ envAlias('MY_PORT') ] })
+      })
+
+      const source = envSource()
+
+      // When
+      const result = await source.load?.(schema, {
+        envs: { MY_PORT: '3000' }
+      })
+
+      // Then
+      expect(result).toEqual({ port: 3000, [kOrigin]: { port: 'env:MY_PORT' } })
     })
   })
 })

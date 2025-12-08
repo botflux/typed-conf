@@ -48,21 +48,39 @@ class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params>
     const seenEnvNames = new Map<string, string>()
 
     for (const [key, value] of flattened) {
-      const envName = this.#addPrefixIfDefined(camelCasePathToScreamingSnakeCase(key))
-      const mSeenEnvName = seenEnvNames.get(envName)
-      const envValue = envs[envName]
+      const originalEnvName = this.#addPrefixIfDefined(camelCasePathToScreamingSnakeCase(key))
+      const mSeenEnvName = seenEnvNames.get(originalEnvName)
 
-      if (mSeenEnvName !== undefined) {
-        throw new Error(`The props ${mSeenEnvName} and ${key.join('.')} resolves to the same env ${envName}`)
+      const envNames = [
+        originalEnvName,
+        ...value.aliases
+          .filter(alias => alias.source === "envs")
+          .map(alias => alias.target)
+      ]
+
+      let envValue: string | undefined
+      let foundEnvName: string | undefined
+
+      for (const envName of envNames) {
+        envValue = envs[envName]
+        foundEnvName = envName
+
+        if (envValue !== undefined) {
+          break
+        }
       }
 
-      seenEnvNames.set(envName, key.join('.'))
+      if (mSeenEnvName !== undefined) {
+        throw new Error(`The props ${mSeenEnvName} and ${key.join('.')} resolves to the same env ${originalEnvName}`)
+      }
+
+      seenEnvNames.set(originalEnvName, key.join('.'))
 
       const coerced = value.coerce?.(envValue) ?? envValue
 
-      if (envs[envName] !== undefined) {
+      if (envValue !== undefined) {
         setValueAtPath(result, key, coerced)
-        setValueAtPath(result, this.#getOriginPath(key), `env:${envName}`)
+        setValueAtPath(result, this.#getOriginPath(key), `env:${foundEnvName}`)
       }
     }
 
