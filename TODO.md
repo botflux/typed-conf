@@ -1,5 +1,4 @@
 * make a couchdb source
-* make the alias system work
 * make doc gen
 * make custom schema type such as `port`, and `duration`
 * remove the files from the file source constructor
