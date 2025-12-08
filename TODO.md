@@ -6,3 +6,4 @@
 * add a deprecation system à la C#
 * add a feature to build the json schema from a config schema
 * add a cli to bootstrap a config with all the defaults
+* add a cache system
