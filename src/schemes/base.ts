@@ -15,6 +15,7 @@ export interface BaseSchema<T, U = unknown> {
   aliases: Alias[]
   coerce?: (value: unknown) => unknown
   mapping?: Mapping<T, U>
+  defaultValue?: T
 }
 
 

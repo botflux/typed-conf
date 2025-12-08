@@ -135,4 +135,17 @@ describe('strings', function () {
       }))
     })
   })
+
+  it('should be able to declare a default value', function () {
+    // Given
+    // When
+    const schema = string({
+      defaultValue: 'foo'
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      defaultValue: 'foo'
+    }))
+  })
 })
