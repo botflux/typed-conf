@@ -16,6 +16,7 @@ import {file} from "../sources/file/schemes.js";
 import {walk} from "../schemes/walk.js";
 import {isRef} from "../schemes/ref.js";
 import type {ExtractItemFromArray, MergeUnionTypes, Prettify} from "../types.js";
+import {setOrigin} from "../merging/origin-utils.js";
 
 export type DefaultObjectSchema = ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>
 export type DefaultSource = Source<string, unknown, Record<string, unknown>>
@@ -58,6 +59,10 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
 
       const value = await source.load(schema, sourceInject)
       merge(previous, value)
+    }
+
+    if (this.#opts.schema.defaultValue !== undefined) {
+      merge(previous, setOrigin(this.#opts.schema.defaultValue, 'default'))
     }
 
     this.#validator.validate(schema, getPreRefJsonSchema, previous)
@@ -135,6 +140,10 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
 
     const lastKey = path[path.length - 1]!
     current[kOrigin][lastKey] = origin
+  }
+  
+  #buildDefaultObject(schema: DefaultObjectSchema): Record<string, unknown> {
+    return {}
   }
 }
 
@@ -392,6 +401,56 @@ describe('manager', function () {
           httpServer: 'env:HTTP_SERVER'
         },
       })
+    })
+  })
+
+  describe('default value', function () {
+    it('should be able to not apply default values given the entry is defined', async function () {
+      // Given
+      const manager = createManager({
+        schema: object({
+          host: string({ defaultValue: '0.0.0.0' })
+        }),
+        sources: [
+          envSource()
+        ]
+      })
+
+      // When
+      const config = await manager.load({
+        inject: {
+          envs: {
+            envs: { HOST: '127.0.0.1' }
+          }
+        }
+      })
+
+      // Then
+      expect(config).toEqual({host: '127.0.0.1', [kOrigin]: {host: 'env:HOST'}})
+    })
+
+    it('should be able to apply default values given the entry is undefined', async function () {
+      // Given
+      const manager = createManager({
+        schema: object({
+          host: string({ defaultValue: '0.0.0.0' })
+        }),
+        sources: [
+          envSource()
+        ]
+      })
+
+      // When
+      const config = await manager.load({
+        inject: {
+          envs: {
+            envs: {}
+          }
+        }
+      })
+
+      // Then
+      expect(config).toEqual({host: '0.0.0.0', [kOrigin]: {host: 'default'}})
     })
   })
 })

@@ -168,4 +168,15 @@ describe('object', function () {
     // Then
     expectTypeOf(schema[kType]).toEqualTypeOf<{[k: string]: unknown}>()
   })
+
+  it('should be able to use each prop\'s default value', function () {
+    // Given
+    // When
+    const schema = object({
+      foo: string({ defaultValue: 'bar' })
+    })
+
+    // Then
+    expect(schema.defaultValue).toEqual({ foo: 'bar' })
+  })
 })
