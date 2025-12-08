@@ -3,9 +3,9 @@ import type {BaseSchema} from "../../schemes/base.js";
 import {setValueAtPath} from "../../utils.js";
 import type {LoadResult, Source} from "../source.js";
 import {kOrigin} from "../../merging/merge.js";
-import type {EnvSourceOpts, InjectOpts, Params} from "./types.js";
+import type {EnvSourceOpts, InjectOpts, LoadParams, LoadSingleParams} from "./types.js";
 
-class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params> { // Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourceLoadOpts, Params>
+class EnvSource<Name extends string> implements Source<Name, InjectOpts, LoadSingleParams, LoadParams> { // Loadable<EnvSourceLoadOpts>, LoadableFromParams<EnvSourceLoadOpts, Params>
   name: Name
   #opts: EnvSourceOpts<Name>
 
@@ -14,7 +14,7 @@ class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params>
     this.name = name;
   }
 
-  async loadSingle(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
+  async loadSingle(params: LoadSingleParams, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
     const {envs = process.env} = opts
     const { key } = params
     const envValue = envs[key]
@@ -36,11 +36,11 @@ class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params>
     }
   }
 
-  areValidParams(params: Record<string, unknown>): params is Params {
+  areValidParams(params: Record<string, unknown>): params is LoadSingleParams {
     throw new Error("Method not implemented.");
   }
 
-  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, opts: InjectOpts) {
+  async load(params: LoadParams, schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, opts: InjectOpts) {
     const {envs = process.env} = opts
     const result: Record<string, unknown> = {}
     const flattened = this.#flattenObjectSchema(schema)
@@ -117,7 +117,7 @@ class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params>
   }
 }
 
-export function envSource<Name extends string = "envs">(opts: EnvSourceOpts<Name> = {}): Source<Name, InjectOpts, Params> {
+export function envSource<Name extends string = "envs">(opts: EnvSourceOpts<Name> = {}): Source<Name, InjectOpts, LoadSingleParams, LoadParams> {
   return new EnvSource(opts.name ?? "envs" as Name, opts)
 }
 

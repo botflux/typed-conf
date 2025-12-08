@@ -6,7 +6,7 @@ import {setOrigin} from "../../merging/origin-utils.js";
 import {merge} from "../../merging/merge.js";
 import {parse} from "yaml";
 import {readFile} from "node:fs/promises";
-import type {FileOpts, FileSourceOpts, InjectOpts, Params, ParserFn} from "./types.js";
+import type {FileOpts, FileSourceOpts, InjectOpts, SingleValueParams, ParserFn, LoadParams} from "./types.js";
 
 const nativeFileSystem = {
   readFile
@@ -16,7 +16,7 @@ const defaultParsers = new Map<string, ParserFn>()
   .set('.json', JSON.parse)
   .set('.yml', parse)
 
-class FileSource<Name extends string> implements Source<Name, InjectOpts, Params> {
+class FileSource<Name extends string> implements Source<Name, InjectOpts, SingleValueParams, LoadParams> {
   #opts: FileSourceOpts<Name>
   name: Name
 
@@ -25,8 +25,8 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Params
     this.name = name;
   }
 
-  async load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, opts: InjectOpts): Promise<Record<string, unknown>> {
-    const files = this.#simplifyFileOpts(this.#opts.files)
+  async load(params: LoadParams, schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, opts: InjectOpts): Promise<Record<string, unknown>> {
+    const files = this.#simplifyFileOpts(params?.files ?? [])
     const configs: Record<string, unknown>[] = []
     const {fs = nativeFileSystem} = opts
 
@@ -49,7 +49,7 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Params
     return configs.reduce(merge, {})
   }
 
-  async loadSingle(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
+  async loadSingle(params: SingleValueParams, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
     const { fs = nativeFileSystem } = opts
     const { file, parse, encoding } = params
 
@@ -74,7 +74,7 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Params
     }
   }
 
-  areValidParams(params: Record<string, unknown>): params is Params {
+  areValidParams(params: Record<string, unknown>): params is SingleValueParams {
     throw new Error("Not implemented at line 69 in source.ts")
   }
 
@@ -106,6 +106,6 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Params
   }
 }
 
-export function fileSource<Name extends string = "file">(opts: FileSourceOpts<Name>): Source<Name, InjectOpts, Params> {
-  return new FileSource(opts.name ?? "file" as Name, opts)
+export function fileSource<Name extends string = "file">(opts?: FileSourceOpts<Name>): Source<Name, InjectOpts, SingleValueParams, LoadParams> {
+  return new FileSource(opts?.name ?? "file" as Name, { name: 'file' as Name, ...opts })
 }

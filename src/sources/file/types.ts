@@ -9,7 +9,6 @@ export type FileOpts = {
 
 export type FileSourceOpts<Name extends string> = {
   name?: Name
-  files: (string | FileOpts)[],
   parsers?: Map<string, ParserFn>
 }
 
@@ -17,8 +16,12 @@ export type InjectOpts = {
   fs?: FileSystem
 }
 
-export type Params = {
+export type SingleValueParams = {
   encoding?: BufferEncoding
   file: string
   parse?: boolean
+}
+
+export type LoadParams = {
+  files?: (string | FileOpts)[]
 }

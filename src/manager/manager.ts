@@ -18,7 +18,7 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
   }
 
   async load(opts: LoadOpts<Sources>): Promise<Prettify<Schema[typeof kType]>> {
-    const {inject} = opts
+    const {inject, params} = opts
     const {schema, sources} = this.#opts
 
     let previous: Record<string, unknown> = {}
@@ -26,10 +26,12 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
     for (const source of sources) {
       // @ts-expect-error
       const sourceInject = inject?.[source.name] as unknown
+      // @ts-expect-error
+      const sourceParams = params?.[source.name] as unknown
 
       if (!this.#isLoadable(source)) continue
 
-      const value = await source.load(schema, sourceInject)
+      const value = await source.load(sourceParams, schema, sourceInject)
       merge(previous, value)
     }
 
@@ -44,7 +46,7 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
     return previous as Prettify<Schema[typeof kType]>
   }
 
-  #isLoadable(source: DefaultSource): source is (DefaultSource & Loadable<unknown>) {
+  #isLoadable(source: DefaultSource): source is (DefaultSource & Loadable<unknown, unknown>) {
     return 'load' in source
   }
 

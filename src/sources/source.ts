@@ -1,8 +1,8 @@
 import type {ObjectSchema} from "../schemes/object.js";
 import type {BaseSchema} from "../schemes/base.js";
 
-export interface Loadable<InjectOpts> {
-  load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, inject: InjectOpts): Promise<Record<string, unknown>>
+export interface Loadable<InjectOpts, Params> {
+  load(params: Params, schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, inject: InjectOpts): Promise<Record<string, unknown>>
 }
 
 export type NonMergeableResult = {
@@ -38,6 +38,6 @@ export interface SingleValueLoader<InjectOpts, Params extends Record<string, unk
   areValidParams(params: Record<string, unknown>): params is Params
 }
 
-export interface Source<Name extends string, InjectOpts, Params extends Record<string, unknown>> extends Partial<SingleValueLoader<InjectOpts, Params>>, Partial<Loadable<InjectOpts>> {
+export interface Source<Name extends string, InjectOpts, LoadSingleParams extends Record<string, unknown>, LoadParams> extends Partial<SingleValueLoader<InjectOpts, LoadSingleParams>>, Partial<Loadable<InjectOpts, LoadParams>> {
   name: Name
 }

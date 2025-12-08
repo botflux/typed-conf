@@ -16,12 +16,14 @@ describe('fileSource', function () {
       const schema = object({
         port: integer()
       })
-      const source = fileSource({files: ['file.json']})
+      const source = fileSource()
       const fs = new FakeFileSystem()
         .addFile('file.json', `{ "port": 3000 }`)
 
       // When
-      const result = await source.load?.(schema, {fs})
+      const result = await source.load?.({
+        files: ['file.json']
+      }, schema, {fs})
 
       // Then
       expect(result).toEqual({ port: 3000, [kOrigin]: { port: 'file.json' } })
@@ -30,18 +32,18 @@ describe('fileSource', function () {
     it('should be able to load a file optionally', async function () {
       // Given
       const schema = object({ port: integer() })
-      const source = fileSource({
+      const source = fileSource()
+      const fs = new FakeFileSystem()
+
+      // When
+      const result = await source.load?.({
         files: [
           {
             file: 'file.json',
             required: false
           }
         ]
-      })
-      const fs = new FakeFileSystem()
-
-      // When
-      const result = await source.load?.(schema, { fs })
+      }, schema, { fs })
 
       // Then
       expect(result).toEqual({})
@@ -53,15 +55,15 @@ describe('fileSource', function () {
         port: integer(),
         host: string()
       })
-      const source = fileSource({
-        files: [ 'config.json', 'default.json' ]
-      })
+      const source = fileSource()
       const fs = new FakeFileSystem()
         .addFile('config.json', `{ "port": 3000 }`)
         .addFile('default.json', `{ "host": "localhost" }`)
 
       // When
-      const result = await source.load?.(schema, { fs })
+      const result = await source.load?.({
+        files: [ 'config.json', 'default.json' ]
+      }, schema, { fs })
 
       // Then
       expect(result).toEqual({ host: "localhost", port: 3000 })
@@ -69,9 +71,7 @@ describe('fileSource', function () {
 
     it('should be able to parse yaml', async function () {
       // Given
-      const source = fileSource({
-        files: [ 'config.yml' ]
-      })
+      const source = fileSource()
 
       const fs = new FakeFileSystem()
         .addFile('config.yml', `port: 3000`)
@@ -81,7 +81,9 @@ describe('fileSource', function () {
       })
 
       // When
-      const result = await source.load?.(schema, { fs })
+      const result = await source.load?.({
+        files: [ 'config.yml' ]
+      }, schema, { fs })
 
       // Then
       expect(result).toEqual({
@@ -98,13 +100,13 @@ describe('fileSource', function () {
 
     it('should be able to throw given there is no parser matching the file extension', async function () {
       // Given
-      const source = fileSource({ files: [ 'config.txt' ] })
+      const source = fileSource()
       const schema = object({ port: integer() })
       const fs = new FakeFileSystem()
         .addFile('config.txt', '')
 
       // When
-      const promise = source.load?.(schema, { fs })
+      const promise = source.load?.({ files: [ 'config.txt' ] }, schema, { fs })
 
       // Then
       await expect(promise).rejects.toThrow(new Error('No parser found for file "config.txt", can parse ".json", ".yml"'))
@@ -113,7 +115,6 @@ describe('fileSource', function () {
     it('should be able to override the default parsers', async function () {
       // Given
       const source = fileSource({
-        files: [ 'config.toml' ],
         parsers: new Map<string, ParserFn>()
           .set('.toml', toml.parse)
       })
@@ -122,7 +123,9 @@ describe('fileSource', function () {
         .addFile('config.toml', 'port = 3000')
 
       // When
-      const result = await source.load?.(schema, { fs })
+      const result = await source.load?.({
+        files: [ 'config.toml' ],
+      }, schema, { fs })
 
       // Then
       expect(result).toEqual({
@@ -133,9 +136,7 @@ describe('fileSource', function () {
 
     it('should be able to load multiple files', async function () {
       // Given
-      const source = fileSource({
-        files: [ 'config.json', 'default.json' ]
-      })
+      const source = fileSource()
 
       const fs = new FakeFileSystem()
         .addFile('config.json', `{ "port": 3000 }`)
@@ -147,7 +148,9 @@ describe('fileSource', function () {
       })
 
       // When
-      const result = await source.load?.(schema, { fs })
+      const result = await source.load?.({
+        files: [ 'config.json', 'default.json' ]
+      }, schema, { fs })
 
       // Then
       expect(result).toEqual({
@@ -161,7 +164,7 @@ describe('fileSource', function () {
   describe('#loadFromParams', function () {
     it('should be able to load a file from params', async function () {
       // Given
-      const source = fileSource({ files: [ 'config.json' ] })
+      const source = fileSource()
       const fs = new FakeFileSystem()
         .addFile('config.txt', 'foo bar')
 
@@ -180,7 +183,7 @@ describe('fileSource', function () {
 
     it('should be able to parse a file loaded with params', async function () {
       // Given
-      const source = fileSource({ files: [ 'config.json' ] })
+      const source = fileSource()
       const fs = new FakeFileSystem()
         .addFile('nested.json', `{ "port": 3000 }`)
 

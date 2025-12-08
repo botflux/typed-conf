@@ -16,7 +16,7 @@ describe('env source', function () {
       const envs = {FOO: 'bar'}
 
       // When
-      const result = await source.load?.(object({foo: string()}), {envs})
+      const result = await source.load?.(undefined, object({foo: string()}), {envs})
 
       // Then
       expect(result).toEqual({
@@ -31,7 +31,7 @@ describe('env source', function () {
       const envs = {FOO_BAR: 'baz'}
 
       // When
-      const result = await source.load?.(object({fooBar: string()}), {envs})
+      const result = await source.load?.(undefined, object({fooBar: string()}), {envs})
 
       // Then
       expect(result).toEqual({
@@ -46,7 +46,7 @@ describe('env source', function () {
       const envs = {FOO_BAR: 'foo' }
 
       // When
-      const result = await source.load?.(object({foo: object({bar: string()})}), {envs})
+      const result = await source.load?.(undefined, object({foo: object({bar: string()})}), {envs})
 
       // Then
       expect(result).toEqual({
@@ -63,7 +63,7 @@ describe('env source', function () {
       const envs = {}
 
       // When
-      const promise = source.load?.(object({
+      const promise = source.load?.(undefined, object({
         fooBar: string(),
         foo: object({bar: string()})
       }), { envs })
@@ -79,7 +79,7 @@ describe('env source', function () {
         const envs = {PORT: '3000'}
 
         // When
-        const result = await source.load?.(object({ port: integer() }), {
+        const result = await source.load?.(undefined, object({ port: integer() }), {
           envs
         })
 
@@ -100,7 +100,7 @@ describe('env source', function () {
       }
 
       // When
-      const result = await source.load?.(object({ host: string(), port: integer() }), { envs })
+      const result = await source.load?.(undefined, object({ host: string(), port: integer() }), { envs })
 
       // Then
       expect(result).toEqual({
@@ -159,7 +159,7 @@ describe('env source', function () {
       const source = envSource()
 
       // When
-      const result = await source.load?.(schema, {
+      const result = await source.load?.(undefined, schema, {
         envs: { MY_PORT: '3000' }
       })
 

@@ -32,7 +32,8 @@ describe('manager', function () {
         envs: {
           envs
         }
-      }
+      },
+      params: {}
     })
 
     // Then
@@ -63,7 +64,8 @@ describe('manager', function () {
         envs: {
           envs
         }
-      }
+      },
+      params: {}
     }).catch(e => e)
 
     // Then
@@ -88,7 +90,7 @@ describe('manager', function () {
       schema,
       sources: [
         envSource(),
-        fileSource({files: ['config.json']})
+        fileSource()
       ]
     })
 
@@ -97,6 +99,9 @@ describe('manager', function () {
       inject: {
         file: {fs},
         envs: {envs}
+      },
+      params: {
+        file: { files: ['config.json'] }
       }
     })
 
@@ -126,7 +131,7 @@ describe('manager', function () {
         schema,
         sources: [
           envSource(),
-          fileSource({files: ['config.json']}),
+          fileSource(),
         ]
       })
 
@@ -135,7 +140,8 @@ describe('manager', function () {
         inject: {
           file: {fs},
           envs: {envs}
-        }
+        },
+        params: {files: ['config.json']}
       })
 
       // Then
@@ -152,7 +158,7 @@ describe('manager', function () {
         }),
         sources: [
           envSource(),
-          fileSource({ files: [] })
+          fileSource()
         ]
       })
 
@@ -166,7 +172,8 @@ describe('manager', function () {
             envs: { CERTIFICATE: '/path/to/cert' }
           },
           file: { fs }
-        }
+        },
+        params: {}
       })
 
       // Then
@@ -191,7 +198,7 @@ describe('manager', function () {
         }),
         sources: [
           envSource(),
-          fileSource({ files: [] })
+          fileSource()
         ]
       })
 
@@ -207,7 +214,8 @@ describe('manager', function () {
         inject: {
           envs: { envs },
           file: { fs }
-        }
+        },
+        params: { files: [] }
       })
 
       // Then
@@ -235,7 +243,7 @@ describe('manager', function () {
         }),
         sources: [
           envSource(),
-          fileSource({ files: [] })
+          fileSource()
         ]
       })
 
@@ -252,6 +260,9 @@ describe('manager', function () {
         inject: {
           envs: { envs },
           file: { fs }
+        },
+        params: {
+          file: {}
         }
       })
 
@@ -283,7 +294,8 @@ describe('manager', function () {
           envs: {
             envs: { HOST: '127.0.0.1' }
           }
-        }
+        },
+        params: {}
       })
 
       // Then
@@ -307,7 +319,8 @@ describe('manager', function () {
           envs: {
             envs: {}
           }
-        }
+        },
+        params: {}
       })
 
       // Then
@@ -320,7 +333,7 @@ describe('InjectOpts', function () {
   it('should be able to transform a source array into a record of injection opts', function () {
     // Given
     const envs = envSource()
-    const fs = fileSource({files: ['config.json']})
+    const fs = fileSource()
     const sources = [envs, fs]
 
     // When
