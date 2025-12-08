@@ -49,7 +49,7 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Params
     return configs.reduce(merge, {})
   }
 
-  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
+  async loadSingle(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
     const { fs = nativeFileSystem } = opts
     const { file, parse, encoding } = params
 

@@ -120,7 +120,7 @@ describe('env source', function () {
       }
 
       // When
-      const result = await source.loadFromParams?.({ key: 'FOO_BAR' }, object({}), { envs }, {})
+      const result = await source.loadSingle?.({ key: 'FOO_BAR' }, object({}), { envs }, {})
 
       // Then
       expect(result).toEqual({
@@ -138,7 +138,7 @@ describe('env source', function () {
       }
 
       // When
-      const result = await source.loadFromParams?.({ key: 'FOO_BAR' }, boolean(), { envs }, {})
+      const result = await source.loadSingle?.({ key: 'FOO_BAR' }, boolean(), { envs }, {})
 
       // Then
       expect(result).toEqual({

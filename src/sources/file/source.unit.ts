@@ -166,7 +166,7 @@ describe('fileSource', function () {
         .addFile('config.txt', 'foo bar')
 
       // When
-      const result = await source.loadFromParams?.({ file: 'config.txt', encoding: 'utf8' }, object({}), {
+      const result = await source.loadSingle?.({ file: 'config.txt', encoding: 'utf8' }, object({}), {
         fs
       }, {})
 
@@ -185,7 +185,7 @@ describe('fileSource', function () {
         .addFile('nested.json', `{ "port": 3000 }`)
 
       // When
-      const result = await source.loadFromParams?.({
+      const result = await source.loadSingle?.({
         file: 'nested.json',
         encoding: 'utf8',
         parse: true

@@ -14,7 +14,7 @@ class EnvSource<Name extends string> implements Source<Name, InjectOpts, Params>
     this.name = name;
   }
 
-  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
+  async loadSingle(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts): Promise<LoadResult> {
     const {envs = process.env} = opts
     const { key } = params
     const envValue = envs[key]

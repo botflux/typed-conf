@@ -18,7 +18,7 @@ export type MergeableResult = {
 
 export type LoadResult = NonMergeableResult | MergeableResult
 
-export interface LoadableFromParams<Opts, Params extends Record<string, unknown>> {
+export interface SingleValueLoader<Opts, Params extends Record<string, unknown>> {
   /**
    * Load a configuration from a source using params.
    * This method is meant to be used to load refs.
@@ -28,7 +28,7 @@ export interface LoadableFromParams<Opts, Params extends Record<string, unknown>
    * @param opts
    * @param previous
    */
-  loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: Opts, previous: Record<string, unknown>): Promise<LoadResult>
+  loadSingle(params: Params, schema: BaseSchema<unknown>, opts: Opts, previous: Record<string, unknown>): Promise<LoadResult>
 
   /**
    * Validate the given params.
@@ -38,6 +38,6 @@ export interface LoadableFromParams<Opts, Params extends Record<string, unknown>
   areValidParams(params: Record<string, unknown>): params is Params
 }
 
-export interface Source<Name extends string, InjectOpts, Params extends Record<string, unknown>> extends Partial<LoadableFromParams<InjectOpts, Params>>, Partial<Loadable<InjectOpts>> {
+export interface Source<Name extends string, InjectOpts, Params extends Record<string, unknown>> extends Partial<SingleValueLoader<InjectOpts, Params>>, Partial<Loadable<InjectOpts>> {
   name: Name
 }

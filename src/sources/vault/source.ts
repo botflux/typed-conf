@@ -1,4 +1,4 @@
-import type {LoadableFromParams, LoadResult} from "../source.js";
+import type {SingleValueLoader, LoadResult} from "../source.js";
 import type {InjectOpts, NormalizedVaultSecret, Params, VaultOpts, VaultResponse} from "./types.js";
 import {AjvValidator} from "../../validation/validator.js";
 import {type BaseSchema, getSchemaAtPath, kType} from "../../schemes/base.js";
@@ -8,7 +8,7 @@ import {getTypeSafeValueAtPathFactory} from "../../validation/utils.js";
 import {inlineCatch} from "../../utils.js";
 import {Ajv, type Schema} from "ajv";
 
-class VaultSource implements LoadableFromParams<InjectOpts, Params> {
+class VaultSource implements SingleValueLoader<InjectOpts, Params> {
   #validator = new AjvValidator()
   #opts: VaultOpts
 
@@ -16,7 +16,7 @@ class VaultSource implements LoadableFromParams<InjectOpts, Params> {
     this.#opts = opts;
   }
 
-  async loadFromParams(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts, previous: Record<string, unknown>): Promise<LoadResult> {
+  async loadSingle(params: Params, schema: BaseSchema<unknown>, opts: InjectOpts, previous: Record<string, unknown>): Promise<LoadResult> {
     const {path} = params
     const {createVaultClient = vault} = opts
     const {configKey = "vault"} = this.#opts

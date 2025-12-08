@@ -84,7 +84,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const secret = await source.loadFromParams({path: 'secret/data/foo'}, schema, {}, {
+    const secret = await source.loadSingle({path: 'secret/data/foo'}, schema, {}, {
       vault: {
         endpoint: vaultContainer.getAddress(),
         auth: {
@@ -118,7 +118,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const secret = await source.loadFromParams({path: `secret/data/${secretId}`}, schema, {}, {
+    const secret = await source.loadSingle({path: `secret/data/${secretId}`}, schema, {}, {
       vault: {
         endpoint: vaultContainer.getAddress(),
         auth: {
@@ -147,7 +147,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const result = await source.loadFromParams({path: `secret/data/${randomId}`}, schema, {}, {
+    const result = await source.loadSingle({path: `secret/data/${randomId}`}, schema, {}, {
       myVault: {
         endpoint: vaultContainer.getAddress(),
         auth: {
@@ -182,7 +182,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const error = await source.loadFromParams({path: 'secret/data/foo'}, schema, {}, {})
+    const error = await source.loadSingle({path: 'secret/data/foo'}, schema, {}, {})
       .catch(e => e)
 
     // Then
@@ -197,7 +197,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const error = await source.loadFromParams({path: 'secret/data/foo'}, schema, {}, {})
+    const error = await source.loadSingle({path: 'secret/data/foo'}, schema, {}, {})
       .catch(e => e)
 
     // Then
@@ -212,7 +212,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const secret = await source.loadFromParams({path: `database/creds/${mongoVaultRole}`}, schema, {}, {
+    const secret = await source.loadSingle({path: `database/creds/${mongoVaultRole}`}, schema, {}, {
       vault: {
         endpoint: vaultContainer.getAddress(),
         auth: {
@@ -255,7 +255,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const error = await source.loadFromParams({path: 'secret/data/foo'}, schema, {
+    const error = await source.loadSingle({path: 'secret/data/foo'}, schema, {
       createVaultClient: () => vaultClient
     }, {
       vault: {
@@ -301,7 +301,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const secret = await source.loadFromParams({path: `secret/data/${randomId}/foo`}, schema, {}, {
+    const secret = await source.loadSingle({path: `secret/data/${randomId}/foo`}, schema, {}, {
       vault: {
         endpoint: vaultContainer.getAddress(),
         auth: {
@@ -447,7 +447,7 @@ describe('vaultSource', function () {
     })
 
     // When
-    const secret = await source.loadFromParams({path: `secret/data/${randomId}/foo`}, schema, {}, {
+    const secret = await source.loadSingle({path: `secret/data/${randomId}/foo`}, schema, {}, {
       vault: {
         endpoint: vaultContainer.getAddress(),
         auth: {

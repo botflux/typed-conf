@@ -1,4 +1,4 @@
-import type {Loadable, LoadableFromParams, LoadResult} from "../sources/source.js";
+import type {Loadable, SingleValueLoader, LoadResult} from "../sources/source.js";
 import {type BaseSchema, kType} from "../schemes/base.js";
 import type {Prettify} from "../types.js";
 import {AjvValidator, getPreRefJsonSchema} from "../validation/validator.js";
@@ -48,8 +48,8 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
     return 'load' in source
   }
 
-  #isLoadableFromParams(source: DefaultSource): source is (DefaultSource & LoadableFromParams<unknown, Record<string, unknown>>) {
-    return 'loadFromParams' in source
+  #canLoadSingleValue(source: DefaultSource): source is (DefaultSource & SingleValueLoader<unknown, Record<string, unknown>>) {
+    return 'loadSingle' in source
   }
 
   #findSourceByName(name: string): DefaultSource | undefined {
@@ -75,14 +75,14 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
         throw new Error(`Cannot resolve ref at path '${(path as string[]).join('.')}': source '${childSchema.sourceName}' not found`)
       }
 
-      if (!this.#isLoadableFromParams(source)) {
+      if (!this.#canLoadSingleValue(source)) {
         throw new Error(`Cannot resolve ref at path '${(path as string[]).join('.')}': source '${childSchema.sourceName}' does not support loadFromParams`)
       }
 
       // @ts-expect-error
       const sourceInject = inject?.[source.name] as unknown
 
-      const result: LoadResult = await source.loadFromParams(params, childSchema.refSchema, sourceInject, previous)
+      const result: LoadResult = await source.loadSingle(params, childSchema.refSchema, sourceInject, previous)
 
       setValueAtPath(previous, path as string[], result.value)
 
