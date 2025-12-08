@@ -1,8 +1,8 @@
 import type {ObjectSchema} from "../schemes/object.js";
 import type {BaseSchema} from "../schemes/base.js";
 
-export interface Loadable<Opts> {
-  load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, opts: Opts): Promise<Record<string, unknown>>
+export interface Loadable<InjectOpts> {
+  load(schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, inject: InjectOpts): Promise<Record<string, unknown>>
 }
 
 export type NonMergeableResult = {
