@@ -11,7 +11,7 @@ import {type LoadParams as FileLoadParams} from "../sources/file/types.js";
 import {expectTypeOf} from "expect-type";
 import {file} from "../sources/file/schemes.js";
 import {createManager} from "./manager.js";
-import type {InjectOpts, SourceParams} from "./types.js";
+import type {InjectOpts, LoadOpts, SourceParams} from "./types.js";
 import type { Source } from '../sources/source.js';
 
 describe('manager', function () {
@@ -395,5 +395,24 @@ describe('SourceParams', function () {
 
     // Then
     expectTypeOf<T>().toEqualTypeOf<{ foo: { msg: string } }>()
+  })
+})
+
+describe('LoadOpts', function () {
+  it('should be able to make params optional given every props in optional', function () {
+    // Given
+    type MySource = Source<"foo", {}, {}, { msg?: string }>
+
+    // When
+    type T = LoadOpts<[MySource]>
+
+    // Then
+    expectTypeOf<T["params"]>().toEqualTypeOf<{
+      foo?: { msg?: string }
+    }>()
+    // @ts-expect-error this test should pass
+    expectTypeOf<T["inject"]>().toEqualTypeOf<{
+      foo: {}
+    }>()
   })
 })
