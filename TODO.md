@@ -1,4 +1,3 @@
-* make a couchdb source
 * make doc gen
 * make custom schema type such as `duration`
 * share the same validator everywhere to add custom keyword and support `duration` and `ipv4` 
