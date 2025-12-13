@@ -11,10 +11,16 @@ type AnyDoc = Record<string, unknown>
 
 type InjectOpts = undefined
 type LoadSingleOpts = Record<string, unknown>
+
+type LoadViewOpts = {
+  designDocument: string
+  viewName: string
+}
 type LoadOpts = {
   url: string
   collection: string
   documentId: string
+  view?: LoadViewOpts
 }
 
 class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, LoadSingleOpts, LoadOpts> {
@@ -25,11 +31,11 @@ class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, Loa
   }
 
   async load(params: LoadOpts, schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, inject: undefined): Promise<Record<string, unknown>> {
-    const { url, collection, documentId } = params
+    const { url, collection } = params
 
     const client = nano(url)
     const db = client.use<AnyDoc>(collection)
-    const [ document, err ] = await inlineCatch(db.get(documentId))
+    const [ document, err ] = await inlineCatch(this.#loadFromDbOrView(db, params))
 
     if (err !== undefined) {
       if (this.#isDatabaseNotExistError(err.err)) {
@@ -46,6 +52,42 @@ class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, Loa
 
       return undefined as unknown as Record<string, unknown>
     }
+    return document as unknown as Record<string, unknown>
+  }
+
+  async #loadFromDbOrView(client: nano.DocumentScope<AnyDoc>, params: LoadOpts): Promise<Record<string, unknown> | undefined> {
+    const { documentId, view } = params
+
+    if (view === undefined) {
+      const [ document, err ] = await inlineCatch(client.get(documentId))
+
+      if (err !== undefined) {
+        if (!this.#isDocumentMissingError(err.err)) {
+          throw err.err
+        }
+
+        return undefined
+      }
+
+      return this.#cleanDocument(document)
+    } else {
+      const [ document, err ] = await inlineCatch(client.view(view.designDocument.replace('_design/', ''), view.viewName, { key: documentId }))
+
+      if (err !== undefined) {
+        throw err.err
+      }
+
+      const rawDocument = document.rows[0]?.value
+
+      if (rawDocument === undefined) {
+        return undefined
+      }
+
+      return this.#cleanDocument(rawDocument as nano.DocumentGetResponse)
+    }
+  }
+
+  #cleanDocument(document: nano.DocumentGetResponse) {
     const { _attachments, _conflicts, _deleted_conflicts, _deleted, _id, _local_seq, _rev, _revs_info, _revisions, ...rest } = document
     return rest
   }
@@ -147,6 +189,77 @@ describe('couchdb source', function () {
 
     // Then
     await expect(promise).rejects.toThrow(new Error('CouchDB authentication failed'))
+  })
+
+  describe('view', function () {
+    it('should be able to load config from a view', async function () {
+      // Given
+      const dbName = `a${randomUUID()}`
+      await client.db.create(dbName)
+      const db = client.use<AnyDoc>(dbName)
+
+      await db.insert({
+        _id: '_design/foo',
+        views: {
+          myView: {
+            map: 'function(doc) { emit(doc.tenant, doc) }'
+          }
+        }
+      })
+
+      await db.insert({
+        tenant: 'tenant-1',
+        dbUrl: 'postgres://localhost:5432/baz'
+      })
+
+      const source = couchdbSource()
+
+      // When
+      const config = await source.load({
+        url: couchdb.getUrl(),
+        collection: dbName,
+        documentId: 'tenant-1',
+        view: {
+          designDocument: '_design/foo',
+          viewName: 'myView'
+        }
+      }, object({}), undefined)
+
+      // Then
+      expect(config).toEqual({tenant: 'tenant-1', dbUrl: 'postgres://localhost:5432/baz'})
+    })
+
+    it('should be able to return undefined if the document does not exist', async function () {
+      // Given
+      const dbName = `a${randomUUID()}`
+      await client.db.create(dbName)
+      const db = client.use<AnyDoc>(dbName)
+
+      await db.insert({
+        _id: '_design/foo',
+        views: {
+          myView: {
+            map: 'function(doc) { emit(doc.tenant, doc) }'
+          }
+        }
+      })
+
+      const source = couchdbSource()
+
+      // When
+      const result = await source.load({
+        url: couchdb.getUrl(),
+        collection: dbName,
+        documentId: 'tenant-1',
+        view: {
+          designDocument: '_design/foo',
+          viewName: 'myView'
+        }
+      }, object({}), undefined)
+
+      // Then
+      expect(result).toBeUndefined()
+    })
   })
 })
 
