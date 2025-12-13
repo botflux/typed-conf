@@ -108,6 +108,10 @@ class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, Loa
   }
 }
 
-export function couchdbSource() {
-  return new CouchDBSource('couchdb')
+export type CouchDBSourceOpts<Name extends string> = {
+  name?: Name
+}
+
+export function couchdbSource<Name extends string = "couchdb">(opts: CouchDBSourceOpts<Name> = {}): Source<Name, InjectOpts, LoadSingleOpts, LoadOpts> {
+  return new CouchDBSource(opts.name ?? "couchdb" as Name)
 }

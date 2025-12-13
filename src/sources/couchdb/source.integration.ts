@@ -30,7 +30,7 @@ describe('couchdb source', function () {
     const source = couchdbSource()
 
     // When
-    const config = await source.load({
+    const config = await source.load?.({
       url: couchdb.getUrl(),
       collection,
       documentId: id
@@ -48,7 +48,7 @@ describe('couchdb source', function () {
     const source = couchdbSource()
 
     // When
-    const config = await source.load({
+    const config = await source.load?.({
       url: couchdb.getUrl(),
       collection,
       documentId: randomUUID()
@@ -64,7 +64,7 @@ describe('couchdb source', function () {
     const source = couchdbSource()
 
     // When
-    const promise = source.load({
+    const promise = source.load?.({
       url: couchdb.getUrl(),
       collection,
       documentId: randomUUID()
@@ -79,7 +79,7 @@ describe('couchdb source', function () {
     const source = couchdbSource()
 
     // When
-    const promise = source.load({
+    const promise = source.load?.({
       url: changePassword(couchdb.getUrl(), 'foo'),
       collection: 'a',
       documentId: 'b'
@@ -113,7 +113,7 @@ describe('couchdb source', function () {
       const source = couchdbSource()
 
       // When
-      const config = await source.load({
+      const config = await source.load?.({
         url: couchdb.getUrl(),
         collection: dbName,
         documentId: 'tenant-1',
@@ -145,7 +145,7 @@ describe('couchdb source', function () {
       const source = couchdbSource()
 
       // When
-      const result = await source.load({
+      const result = await source.load?.({
         url: couchdb.getUrl(),
         collection: dbName,
         documentId: 'tenant-1',
@@ -174,7 +174,7 @@ describe('couchdb source', function () {
       const source = couchdbSource()
 
       // When
-      const promise = source.load({
+      const promise = source.load?.({
         url: couchdb.getUrl(),
         collection: dbName,
         documentId: 'tenant-1',
@@ -196,7 +196,7 @@ describe('couchdb source', function () {
       const source = couchdbSource()
 
       // When
-      const promise = source.load({
+      const promise = source.load?.({
         url: couchdb.getUrl(),
         collection: dbName,
         documentId: 'tenant-1',
