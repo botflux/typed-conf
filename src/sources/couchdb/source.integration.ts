@@ -55,6 +55,14 @@ class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, Loa
     const [document, err] = await inlineCatch(client.view(view.designDocument.replace('_design/', ''), view.viewName, {key: documentId}))
 
     if (err !== undefined) {
+      if (this.#isViewMissingError(err.err)) {
+        throw new Error(`View "${view.viewName}" does not exist`)
+      }
+
+      if (this.#isDesignDocumentMissingError(err.err)) {
+        throw new Error(`Design document "${view.designDocument}" does not exist`)
+      }
+
       throw err.err
     }
 
@@ -107,6 +115,14 @@ class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, Loa
 
   #isAuthenticationError(err: unknown): boolean {
     return typeof err === 'object' && err !== null && 'message' in err && err.message === 'Name or password is incorrect.'
+  }
+
+  #isViewMissingError(err: unknown) {
+    return typeof err === 'object' && err !== null && 'error' in err && 'reason' in err && err.error === 'not_found' && err.reason === 'missing_named_view'
+  }
+
+  #isDesignDocumentMissingError(err: unknown) {
+    return typeof err === 'object' && err !== null && 'error' in err && 'reason' in err && err.error === 'not_found' && err.reason === 'missing'
   }
 }
 
@@ -264,6 +280,57 @@ describe('couchdb source', function () {
 
       // Then
       expect(result).toBeUndefined()
+    })
+
+    it('should be able to throw an error given the view does not exist', async function () {
+      // Given
+      const dbName = `a${randomUUID()}`
+      await client.db.create(dbName)
+
+      const db = client.use<AnyDoc>(dbName)
+
+      await db.insert({
+        _id: '_design/foo',
+        views: {}
+      })
+
+      const source = couchdbSource()
+
+      // When
+      const promise = source.load({
+        url: couchdb.getUrl(),
+        collection: dbName,
+        documentId: 'tenant-1',
+        view: {
+          designDocument: '_design/foo',
+          viewName: 'myView'
+        }
+      }, object({}), undefined)
+
+      // Then
+      await expect(promise).rejects.toThrow(new Error('View "myView" does not exist'))
+    })
+
+    it('should be able to throw an error given the design doc does not exist', async function () {
+      // Given
+      const dbName = `a${randomUUID()}`
+      await client.db.create(dbName)
+
+      const source = couchdbSource()
+
+      // When
+      const promise = source.load({
+        url: couchdb.getUrl(),
+        collection: dbName,
+        documentId: 'tenant-1',
+        view: {
+          designDocument: '_design/foo',
+          viewName: 'myView'
+        }
+      }, object({}), undefined)
+
+      // Then
+      await expect(promise).rejects.toThrow(new Error('Design document "_design/foo" does not exist'))
     })
   })
 })
