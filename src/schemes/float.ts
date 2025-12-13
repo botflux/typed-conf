@@ -10,6 +10,7 @@ export type FloatOpts = {
   min?: number
   max?: number
   aliases?: Alias[]
+  deprecated?: boolean
 }
 
 function coerce(value: unknown): unknown {
@@ -27,7 +28,7 @@ function coerce(value: unknown): unknown {
 }
 
 export function float(opts: FloatOpts = {}): FloatSchema<number> {
-  const { aliases = [], min, max } = opts
+  const { aliases = [], min, max, deprecated = false } = opts
 
   if (min !== undefined && max !== undefined && min > max) {
     throw new Error(`min must be <= max, got min ${min} and max ${max}`)
@@ -38,10 +39,12 @@ export function float(opts: FloatOpts = {}): FloatSchema<number> {
       type: 'number',
       minimum: min,
       maximum: max,
+      ...deprecated && { deprecated: true }
     },
     [kType]: 0 as number,
     aliases,
     type: 'float',
-    coerce
+    coerce,
+    deprecated
   }
 }

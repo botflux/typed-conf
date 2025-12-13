@@ -10,7 +10,8 @@ export type StringOpts<From> = {
   maxLength?: number
   aliases?: Alias[]
   mapping?: Mapping<string, From>
-  defaultValue?: string
+  defaultValue?: string,
+  deprecated?: boolean
 }
 
 function coerce(value: unknown): unknown {
@@ -18,7 +19,7 @@ function coerce(value: unknown): unknown {
 }
 
 export function string<U>(opts: StringOpts<U> = {}): StringSchema<string, U> {
-  const { aliases = [], minLength, maxLength, mapping, defaultValue } = opts
+  const { aliases = [], minLength, maxLength, mapping, defaultValue, deprecated = false } = opts
 
   return {
     [kType]: '' as unknown as string,
@@ -27,10 +28,12 @@ export function string<U>(opts: StringOpts<U> = {}): StringSchema<string, U> {
       type: 'string',
       ...minLength !== undefined && { minLength },
       ...maxLength !== undefined && { maxLength },
+      ...deprecated && { deprecated: true }
     },
     aliases,
     coerce,
     ...mapping !== undefined && { mapping },
-    ...defaultValue !== undefined && { defaultValue }
+    ...defaultValue !== undefined && { defaultValue },
+    deprecated,
   }
 }

@@ -20,10 +20,11 @@ function coerce(this: UnionSchema<BaseSchema<unknown>>, value: unknown): unknown
 
 export type UnionOpts = {
   aliases?: Alias[];
+  deprecated?: boolean;
 }
 
 export function union<S extends BaseSchema<unknown>>(schemes: S[], opts: UnionOpts = {}): UnionSchema<S> {
-  const {aliases = []} = opts;
+  const {aliases = [], deprecated = false,} = opts;
 
   return {
     type: 'union',
@@ -31,9 +32,11 @@ export function union<S extends BaseSchema<unknown>>(schemes: S[], opts: UnionOp
     [kType]: '' as unknown as S[typeof kType],
     jsonSchema: {
       type: 'object',
-      oneOf: schemes.map(s => s.jsonSchema)
+      oneOf: schemes.map(s => s.jsonSchema),
+      ...deprecated && { deprecated: true }
     },
     aliases,
-    coerce
+    coerce,
+    deprecated,
   }
 }

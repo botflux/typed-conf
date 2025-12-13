@@ -102,4 +102,29 @@ describe('boolean', function () {
       expect(result).toEqual({ hello: 'world' })
     })
   })
+
+  it('should be able to mark as deprecated', function () {
+    // Given
+    // When
+    const schema = boolean({
+      deprecated: true
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: true,
+      jsonSchema: expect.objectContaining({ deprecated: true }),
+    }))
+  })
+
+  it('should not be deprecated by default', function () {
+    // Given
+    // When
+    const schema = boolean()
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: false,
+    }))
+  })
 })

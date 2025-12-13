@@ -24,18 +24,21 @@ function coerce(value: unknown): unknown {
 
 export type BooleanOpts = {
   aliases?: Alias[]
+  deprecated?: boolean
 }
 
 export function boolean(opts: BooleanOpts = {}): BooleanSchema<boolean> {
-  const { aliases = [] } = opts
+  const { aliases = [], deprecated = false } = opts
 
   return {
     type: 'boolean',
     jsonSchema: {
-      type: 'boolean'
+      type: 'boolean',
+      ...deprecated && { deprecated: true }
     },
     aliases,
     [kType]: true,
     coerce,
+    deprecated,
   }
 }

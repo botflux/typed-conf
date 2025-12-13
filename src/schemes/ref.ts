@@ -17,22 +17,25 @@ export type RefOpts<S extends BaseSchema<unknown>> = {
   sourceName: string
   refToSourceParams: (ref: string) => Record<string, unknown>
   aliases?: Alias[]
+  deprecated?: boolean
 }
 
 export function ref<S extends BaseSchema<unknown>>(opts: RefOpts<S>): RefSchema<S[typeof kType]> {
-  const { aliases = [], refToSourceParams, sourceName, schema } = opts
+  const { aliases = [], refToSourceParams, sourceName, schema, deprecated = false } = opts
 
   return {
     [kType]: schema[kType] as unknown as S[typeof kType],
     type: 'ref',
     sourceName,
     jsonSchema: {
-      type: 'string'
+      type: 'string',
+      ...deprecated && { deprecated: true }
     },
     aliases,
     refSchema: schema,
     refToSourceParams,
-    coerce
+    coerce,
+    deprecated,
   }
 }
 

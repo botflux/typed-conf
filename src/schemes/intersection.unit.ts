@@ -96,4 +96,18 @@ describe('intersection', function () {
       aliases: [envAlias('FOO')]
     }))
   })
+
+  it('should be able to mark as deprecated', function () {
+    // Given
+    // When
+    const schema = intersection([], {
+      deprecated: true
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: true,
+      jsonSchema: expect.objectContaining({ deprecated: true })
+    }))
+  })
 })

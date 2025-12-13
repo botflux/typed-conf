@@ -16,6 +16,7 @@ export interface BaseSchema<T, U = unknown> {
   coerce?: (value: unknown) => unknown
   mapping?: Mapping<T, U>
   defaultValue?: T
+  deprecated?: boolean
 }
 
 

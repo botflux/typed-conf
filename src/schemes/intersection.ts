@@ -17,10 +17,11 @@ export type IntersectionSchema<S extends BaseSchema<unknown>> =
 }
 export type IntersectionOpts = {
   aliases?: Alias[]
+  deprecated?: boolean
 }
 
 export function intersection<S extends BaseSchema<unknown>>(schemes: S[], opts: IntersectionOpts = {}): IntersectionSchema<S> {
-  const {aliases = []} = opts
+  const {aliases = [], deprecated = false} = opts
 
   return {
     type: 'intersection',
@@ -29,7 +30,9 @@ export function intersection<S extends BaseSchema<unknown>>(schemes: S[], opts: 
     [kType]: "" as unknown as UnionToIntersection<UnwrapSchemaType<S>>,
     jsonSchema: {
       type: 'object',
-      allOf: schemes.map(s => s.jsonSchema)
+      allOf: schemes.map(s => s.jsonSchema),
+      ...deprecated && { deprecated: true }
     },
+    deprecated
   }
 }

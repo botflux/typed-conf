@@ -144,4 +144,40 @@ describe('ref', function () {
       expect(schema).toEqual('foo')
     })
   })
+
+  it('should be able to mark as deprecated', function () {
+    // Given
+    // When
+    const schema = ref({
+      schema: integer(),
+      deprecated: true,
+      refToSourceParams: () => {
+        throw new Error("Not implemented at line 155 in ref.unit.ts")
+      },
+      sourceName: ''
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: true,
+      jsonSchema: expect.objectContaining({ deprecated: true }),
+    }))
+  })
+
+  it('should not be deprecated by default', function () {
+    // Given
+    // When
+    const schema = ref({
+      schema: integer(),
+      refToSourceParams() {
+        throw new Error("Not implemented at line 173 in ref.unit.ts")
+      },
+      sourceName: ''
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: false,
+    }))
+  })
 })

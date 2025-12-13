@@ -26,6 +26,7 @@ export type ObjectOpts<Metadata extends Record<string | symbol, unknown>, Additi
   metadata?: Metadata
   additionalProperties?: AdditionalProperties
   title?: string
+  deprecated?: boolean
 }
 
 export function object<
@@ -33,7 +34,7 @@ export function object<
   Metadata extends Record<string | symbol, unknown>,
   AdditionalProperties extends boolean = false
 >(props: P, opts: ObjectOpts<Metadata, AdditionalProperties> = {}): ObjectSchema<P, AdditionalProperties> {
-  const {aliases = [], metadata = {}, additionalProperties = false, title} = opts
+  const {aliases = [], metadata = {}, additionalProperties = false, title, deprecated = false} = opts
 
   const defaultEntries = Object.entries(props)
       .filter(([key, schema]) => schema.defaultValue !== undefined)
@@ -54,11 +55,13 @@ export function object<
       properties: beforeRefJsonSchemaProps,
       required,
       additionalProperties,
-      ...title && { title }
+      ...title && { title },
+      ...deprecated && { deprecated: true }
     },
     [kType]: '' as unknown as (ObjectSchemaToType<P> & AdditionalPropertiesType<AdditionalProperties>),
     metadata,
     ...defaultEntries.length > 0 && { defaultValue: Object.fromEntries(defaultEntries) },
-    ...title !== undefined && { title }
+    ...title !== undefined && { title },
+    deprecated,
   }
 }

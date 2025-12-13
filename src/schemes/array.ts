@@ -21,23 +21,26 @@ export type ArrayOpts<T> = {
   minItems?: number
   maxItems?: number
   aliases?: Alias[]
+  deprecated?: boolean
 }
 
 export function array<T>(opts: ArrayOpts<T>): ArraySchema<T[]> {
-  const { item, aliases = [], maxItems, minItems } = opts
+  const { item, aliases = [], maxItems, minItems, deprecated = false } = opts
 
   return {
     jsonSchema: {
       type: 'array',
       items: item.jsonSchema,
       minItems,
-      maxItems
+      maxItems,
+      ...deprecated && { deprecated: true }
     },
     aliases,
     items: item,
     type: 'array',
     [kType]: [] as T[],
-    coerce
+    coerce,
+    deprecated
   }
 }
 

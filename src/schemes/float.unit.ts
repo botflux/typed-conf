@@ -171,5 +171,30 @@ describe('float', function () {
       expect(result).toEqual(12.34)
     })
   })
+
+  it('should be able to mark as deprecated', function () {
+    // Given
+    // When
+    const schema = float({
+      deprecated: true
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: true,
+      jsonSchema: expect.objectContaining({ deprecated: true }),
+    }))
+  })
+
+  it('should not be deprecated by default', function () {
+    // Given
+    // When
+    const schema = float()
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: false,
+    }))
+  })
 })
 

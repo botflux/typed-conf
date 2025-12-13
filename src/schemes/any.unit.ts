@@ -34,4 +34,29 @@ describe('any', function () {
     // Then
     expectTypeOf(schema[kType]).toEqualTypeOf<Buffer>()
   })
+
+  it('should be able to mark as deprecated', function () {
+    // Given
+    // When
+    const schema = any({
+      deprecated: true
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: true,
+      jsonSchema: expect.objectContaining({ deprecated: true }),
+    }))
+  })
+
+  it('should not be deprecated by default', function () {
+    // Given
+    // When
+    const schema = any()
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: false,
+    }))
+  })
 })

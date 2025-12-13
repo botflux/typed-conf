@@ -10,6 +10,7 @@ export type IntegerOpts = {
   min?: number
   max?: number
   aliases?: Alias[]
+  deprecated?: boolean
 }
 
 function coerce(value: unknown): unknown {
@@ -27,7 +28,7 @@ function coerce(value: unknown): unknown {
 }
 
 export function integer(opts: IntegerOpts = {}): IntegerSchema<number> {
-  const { aliases = [], min, max } = opts
+  const { aliases = [], min, max, deprecated = false } = opts
 
   if (min !== undefined && max !== undefined && min > max) {
     throw new Error(`min must be <= max, got min ${min} and max ${max}`)
@@ -44,8 +45,10 @@ export function integer(opts: IntegerOpts = {}): IntegerSchema<number> {
       },
       ...max !== undefined && {
         maximum: max,
-      }
+      },
+      ...deprecated && { deprecated: true }
     },
-    coerce
+    coerce,
+    deprecated,
   }
 }

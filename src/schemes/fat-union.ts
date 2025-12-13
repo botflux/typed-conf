@@ -5,10 +5,11 @@ import type {Alias} from "../alias.js";
 
 export type FatUnionOpts = {
   aliases?: Alias[]
+  deprecated?: boolean
 }
 
 export function fatUnion<U extends Record<string, BaseSchema<unknown>>>(union: U, opts: FatUnionOpts = {}): FatUnionSchema<U> {
-  const {aliases = []} = opts
+  const {aliases = [], deprecated = false} = opts
 
   const beforeRefOneOfs = Object.entries(union).map(([key, value]) => ({
     type: 'object',
@@ -25,8 +26,10 @@ export function fatUnion<U extends Record<string, BaseSchema<unknown>>>(union: U
     aliases,
     jsonSchema: {
       type: 'object',
-      oneOf: beforeRefOneOfs
+      oneOf: beforeRefOneOfs,
+      ...deprecated && { deprecated: true }
     },
-    [kType]: '' as unknown as ObjectToFatUnion<U>
+    [kType]: '' as unknown as ObjectToFatUnion<U>,
+    deprecated,
   }
 }

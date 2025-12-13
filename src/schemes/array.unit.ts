@@ -136,4 +136,19 @@ describe('array', function () {
       expect(result).toEqual({ foo: 'bar' })
     })
   })
+
+  it('should be able to mark as deprecated', function () {
+    // Given
+    // When
+    const schema = array({
+      item: string(),
+      deprecated: true
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      deprecated: true,
+      jsonSchema: expect.objectContaining({ deprecated: true }),
+    }))
+  })
 })
