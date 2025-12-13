@@ -15,6 +15,7 @@
   "description": "",
   "devDependencies": {
     "@kubernetes/client-node": "^1.4.0",
+    "@testcontainers/couchdb": "^11.10.0",
     "@testcontainers/k3s": "^11.9.0",
     "@testcontainers/mongodb": "^11.6.0",
     "@testcontainers/vault": "^11.5.1",
@@ -23,6 +24,7 @@
     "expect": "^30.2.0",
     "expect-type": "^1.2.2",
     "json-schema-to-typescript": "^15.0.4",
+    "nano": "^11.0.3",
     "toml": "^3.0.0",
     "typescript": "^5.9.2"
   },
