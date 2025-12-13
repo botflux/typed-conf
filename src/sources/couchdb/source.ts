@@ -111,4 +111,3 @@ class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, Loa
 export function couchdbSource() {
   return new CouchDBSource('couchdb')
 }
-
