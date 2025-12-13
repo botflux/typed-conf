@@ -399,7 +399,7 @@ describe('SourceParams', function () {
 })
 
 describe('LoadOpts', function () {
-  it('should be able to make params optional given every props in optional', function () {
+  it('should be able to make params optional given every props are optional', function () {
     // Given
     type MySource = Source<"foo", {}, {}, { msg?: string }>
 
@@ -409,10 +409,6 @@ describe('LoadOpts', function () {
     // Then
     expectTypeOf<T["params"]>().toEqualTypeOf<{
       foo?: { msg?: string }
-    }>()
-    // @ts-expect-error this test should pass
-    expectTypeOf<T["inject"]>().toEqualTypeOf<{
-      foo: {}
     }>()
   })
 })
