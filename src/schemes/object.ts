@@ -16,6 +16,7 @@ export type ObjectSchema<P extends Record<string, BaseSchema<unknown>>, Addition
   BaseSchema<Prettify<ObjectSchemaToType<P> & AdditionalPropertiesType<AdditionalProperties>>>
   & {
   type: 'object',
+  title?: string,
   props: P,
   metadata: Record<string | symbol, unknown>
 }
@@ -24,6 +25,7 @@ export type ObjectOpts<Metadata extends Record<string | symbol, unknown>, Additi
   aliases?: Alias[]
   metadata?: Metadata
   additionalProperties?: AdditionalProperties
+  title?: string
 }
 
 export function object<
@@ -31,7 +33,7 @@ export function object<
   Metadata extends Record<string | symbol, unknown>,
   AdditionalProperties extends boolean = false
 >(props: P, opts: ObjectOpts<Metadata, AdditionalProperties> = {}): ObjectSchema<P, AdditionalProperties> {
-  const {aliases = [], metadata = {}, additionalProperties = false} = opts
+  const {aliases = [], metadata = {}, additionalProperties = false, title} = opts
 
   const defaultEntries = Object.entries(props)
       .filter(([key, schema]) => schema.defaultValue !== undefined)
@@ -52,9 +54,11 @@ export function object<
       properties: beforeRefJsonSchemaProps,
       required,
       additionalProperties,
+      ...title && { title }
     },
     [kType]: '' as unknown as (ObjectSchemaToType<P> & AdditionalPropertiesType<AdditionalProperties>),
     metadata,
-    ...defaultEntries.length > 0 && { defaultValue: Object.fromEntries(defaultEntries) }
+    ...defaultEntries.length > 0 && { defaultValue: Object.fromEntries(defaultEntries) },
+    ...title !== undefined && { title }
   }
 }

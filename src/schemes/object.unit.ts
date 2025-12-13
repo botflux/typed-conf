@@ -179,4 +179,20 @@ describe('object', function () {
     // Then
     expect(schema.defaultValue).toEqual({ foo: 'bar' })
   })
+
+  it('should be able to add a title', function () {
+    // Given
+    // When
+    const schema = object({}, {
+      title: 'HttpConfig'
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      title: 'HttpConfig',
+      jsonSchema: expect.objectContaining({
+        title: 'HttpConfig'
+      })
+    }))
+  })
 })
