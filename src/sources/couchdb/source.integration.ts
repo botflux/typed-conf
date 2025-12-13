@@ -31,11 +31,11 @@ class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, Loa
   }
 
   async load(params: LoadOpts, schema: ObjectSchema<Record<string, BaseSchema<unknown>>, boolean>, inject: undefined): Promise<Record<string, unknown>> {
-    const { url, collection } = params
+    const {url, collection, documentId, view} = params
 
     const client = nano(url)
     const db = client.use<AnyDoc>(collection)
-    const [ document, err ] = await inlineCatch(this.#loadFromDbOrView(db, params))
+    const [document, err] = await inlineCatch(view === undefined ? this.#loadFromDatabase(db, documentId) : this.#loadFromView(db, view, documentId))
 
     if (err !== undefined) {
       if (this.#isDatabaseNotExistError(err.err)) {
@@ -46,49 +46,54 @@ class CouchDBSource<Name extends string> implements Source<Name, InjectOpts, Loa
         throw new Error('CouchDB authentication failed')
       }
 
-      if (!this.#isDocumentMissingError(err.err)) {
-        throw err.err
-      }
-
-      return undefined as unknown as Record<string, unknown>
+      throw err.err
     }
     return document as unknown as Record<string, unknown>
   }
 
-  async #loadFromDbOrView(client: nano.DocumentScope<AnyDoc>, params: LoadOpts): Promise<Record<string, unknown> | undefined> {
-    const { documentId, view } = params
+  async #loadFromView(client: nano.DocumentScope<AnyDoc>, view: LoadViewOpts, documentId: string) {
+    const [document, err] = await inlineCatch(client.view(view.designDocument.replace('_design/', ''), view.viewName, {key: documentId}))
 
-    if (view === undefined) {
-      const [ document, err ] = await inlineCatch(client.get(documentId))
+    if (err !== undefined) {
+      throw err.err
+    }
 
-      if (err !== undefined) {
-        if (!this.#isDocumentMissingError(err.err)) {
-          throw err.err
-        }
+    const rawDocument = document.rows[0]?.value
 
-        return undefined
-      }
+    if (rawDocument === undefined) {
+      return undefined
+    }
 
-      return this.#cleanDocument(document)
-    } else {
-      const [ document, err ] = await inlineCatch(client.view(view.designDocument.replace('_design/', ''), view.viewName, { key: documentId }))
+    return this.#cleanDocument(rawDocument as nano.DocumentGetResponse)
+  }
 
-      if (err !== undefined) {
+  async #loadFromDatabase(client: nano.DocumentScope<AnyDoc>, documentId: string) {
+    const [document, err] = await inlineCatch(client.get(documentId))
+
+    if (err !== undefined) {
+      if (!this.#isDocumentMissingError(err.err)) {
         throw err.err
       }
 
-      const rawDocument = document.rows[0]?.value
-
-      if (rawDocument === undefined) {
-        return undefined
-      }
-
-      return this.#cleanDocument(rawDocument as nano.DocumentGetResponse)
+      return undefined
     }
+
+    return this.#cleanDocument(document)
   }
 
   #cleanDocument(document: nano.DocumentGetResponse) {
-    const { _attachments, _conflicts, _deleted_conflicts, _deleted, _id, _local_seq, _rev, _revs_info, _revisions, ...rest } = document
+    const {
+      _attachments,
+      _conflicts,
+      _deleted_conflicts,
+      _deleted,
+      _id,
+      _local_seq,
+      _rev,
+      _revs_info,
+      _revisions,
+      ...rest
+    } = document
     return rest
   }
 
@@ -263,11 +268,11 @@ describe('couchdb source', function () {
   })
 })
 
-type Success<T> = readonly [ result: T, error: undefined ]
-type Failure = readonly [ result: undefined, error: { err: unknown } ]
+type Success<T> = readonly [result: T, error: undefined]
+type Failure = readonly [result: undefined, error: { err: unknown }]
 
 async function inlineCatch<T>(promise: Promise<T>): Promise<Success<T> | Failure> {
-  return promise.then(result => [result, undefined] as const).catch(err => [undefined, { err }] as const)
+  return promise.then(result => [result, undefined] as const).catch(err => [undefined, {err}] as const)
 }
 
 function changePassword(url: string, password: string): string {
