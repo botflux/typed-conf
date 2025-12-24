@@ -9,7 +9,7 @@ import {kIndex, walk} from "./walk.js";
 import {fatUnion} from "./fat-union.js";
 import {intersection} from "./intersection.js";
 
-describe('walk', {only: true}, function () {
+describe('walk', function () {
   it('should be able to walk through an object', function () {
     // Given
     const schema = object({

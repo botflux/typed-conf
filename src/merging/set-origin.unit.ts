@@ -3,7 +3,7 @@ import {expect} from "expect";
 import {getOrigin, setOrigin} from "./origin-utils.js";
 import {kOrigin} from "./merge.js";
 
-describe('setOrigin', {only: true}, function () {
+describe('setOrigin', function () {
   it('should be able to attach origin metadata to an object', function () {
     // Given
     const obj = { foo: 'bar' }

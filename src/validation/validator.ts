@@ -3,6 +3,7 @@ import type {JSONSchema} from "json-schema-to-typescript";
 import {Ajv, type ErrorObject, type Schema} from "ajv";
 import {getOrigin} from "../merging/origin-utils.js";
 import {getValueAtPath} from "../utils.js";
+import addFormat from 'ajv-formats'
 
 export function getPreRefJsonSchema(base: BaseSchema<unknown>): JSONSchema {
   return base.jsonSchema
@@ -20,10 +21,16 @@ export class ValidationError extends AggregateError {
 type MapErrorObjectToMessage = (obj: ErrorObject, origin?: string) => string
 
 export class AjvValidator {
-  #ajv = new Ajv()
+  #ajv: Ajv
 
   #messagesMap = new Map<string, MapErrorObjectToMessage>()
     .set('type', ((obj: ErrorObject<'type', { type: string }>, origin: string, value: unknown) => `${origin} must be ${obj.params.type}`) as MapErrorObjectToMessage)
+    .set('format', ((obj: ErrorObject<'format', { format: string }>, origin: string) => `${origin} ${obj.message}`) as MapErrorObjectToMessage)
+
+  constructor() {
+    this.#ajv = new Ajv();
+    addFormat.default(this.#ajv)
+  }
 
   validate(schema: BaseSchema<unknown>, getJsonSchema: (base: BaseSchema<unknown>) => JSONSchema, data: unknown) {
     const jsonSchema = getJsonSchema(schema)

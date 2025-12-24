@@ -150,7 +150,7 @@ describe('env source', function () {
   })
 
   describe('alias', function () {
-    it('should be able to define an alias', {only: true}, async function () {
+    it('should be able to define an alias', async function () {
       // Given
       const schema = object({
         port: integer({ aliases: [ envAlias('MY_PORT') ] })

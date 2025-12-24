@@ -23,7 +23,7 @@ describe('utils', () => {
     expect(value).toEqual({ bar: 'baz' })
   })
 
-  it('should be able to validate the value against the schema', {only: true}, function () {
+  it('should be able to validate the value against the schema', function () {
     // Given
     const schema = object({ bar: string() })
     const obj = { foo: { bar: 123, [kOrigin]: { bar: 'envs:BAR' } } }

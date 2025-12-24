@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "merge-anything": "^6.0.6",
     "node-vault": "^0.10.5",
     "yaml": "^2.8.1"
