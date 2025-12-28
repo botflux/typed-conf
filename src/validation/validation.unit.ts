@@ -82,28 +82,6 @@ describe('validation', function () {
       ])
     })
   })
-
-  it('should work', {only: true}, function () {
-    // Given
-    const ajv = new Ajv()
-
-    ajv.addFormat('foo', d => true)
-    ajv.addKeyword({
-      type: 'number',
-      async: false,
-      schemaType: 'boolean',
-      keyword: 'even',
-      code(cxt: KeywordCxt) {
-        const {data, schema} = cxt
-        const op = schema ? _`!==` : _`===`
-        cxt.fail(_`${data} %2 ${op} 0`) // ... the only code change needed is to use `cxt.fail$data` here
-      },
-    })
-    // When
-    // Then
-    const isValid = ajv.compile({ type: 'number', even: true })
-    console.log(isValid(1), isValid.errors)
-  })
 })
 
 function assertAggregateError(throws: () => unknown, msg: string, errors: Error[]) {
