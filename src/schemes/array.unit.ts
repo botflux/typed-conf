@@ -5,7 +5,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {array} from "./array.js";
 import {boolean} from "./boolean.js";
-import {Array, String} from "@sinclair/typebox";
+import {Array, String} from "typebox";
 
 describe('array', function () {
   it('should be able to declare an array', function () {

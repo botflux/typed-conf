@@ -4,7 +4,7 @@ import {expectTypeOf} from "expect-type";
 import {kType} from "./base.js";
 import {float} from "./float.js";
 import { envAlias } from "../sources/env/alias.js";
-import { Number } from '@sinclair/typebox'
+import { Number } from 'typebox'
 
 describe('float', function () {
   it('should be able to declare a float', function () {

@@ -1,5 +1,5 @@
 import {type BaseSchema, kType} from "./base.js";
-import {Any} from "@sinclair/typebox";
+import {Any} from "typebox";
 
 export type AnyOpts = { deprecated?: boolean }
 

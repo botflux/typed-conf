@@ -1,6 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
-import {Union} from "@sinclair/typebox";
+import {Union} from "typebox";
 
 export type UnionSchema<S extends BaseSchema<unknown>> = BaseSchema<S[typeof kType]> & {
   type: 'union'

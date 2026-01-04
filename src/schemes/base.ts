@@ -1,7 +1,7 @@
 import type {JSONSchema} from "json-schema-to-typescript";
 import {isObject} from "./object.js";
 import type {Alias} from "../alias.js";
-import { type TSchema } from '@sinclair/typebox'
+import { type TSchema } from 'typebox'
 
 export const kType = Symbol('kType')
 

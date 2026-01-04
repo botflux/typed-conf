@@ -6,7 +6,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {intersection} from "./intersection.js";
 import { envAlias } from "../sources/env/alias.js";
-import {Intersect, Object, String} from '@sinclair/typebox'
+import {Intersect, Object, String} from 'typebox'
 
 describe('intersection', function () {
   it('should be able to merge types', function () {

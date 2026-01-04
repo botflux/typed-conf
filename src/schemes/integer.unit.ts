@@ -4,7 +4,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {integer} from "./integer.js";
 import { envAlias } from "../sources/env/alias.js";
-import {Integer} from "@sinclair/typebox";
+import {Integer} from "typebox";
 
 describe('integer', function () {
   it('should be able to declare an integer', function () {

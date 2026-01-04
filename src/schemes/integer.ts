@@ -1,6 +1,6 @@
 import type { Alias } from "../alias.js";
 import {type BaseSchema, kType} from "./base.js";
-import {Integer} from "@sinclair/typebox";
+import {Integer} from "typebox";
 
 export type IntegerSchema<T> = BaseSchema<T> & {
   type: 'integer'

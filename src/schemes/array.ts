@@ -1,6 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
-import {Array as TypeBoxArray} from "@sinclair/typebox";
+import {Array as TypeBoxArray} from "typebox";
 
 export type ArraySchema<T> = BaseSchema<T> & {
   type: 'array'

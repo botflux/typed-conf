@@ -5,7 +5,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {optional} from "./optional.js";
 import {boolean} from "./boolean.js";
-import {Integer, Optional, String} from "@sinclair/typebox";
+import {Integer, Optional} from "typebox";
 import {integer} from "./integer.js";
 
 describe('optional', function () {

@@ -5,7 +5,7 @@ import {expectTypeOf} from "expect-type";
 import {clear} from "./clear.js";
 import {boolean} from "./boolean.js";
 import {string} from "./string.js";
-import {String} from "@sinclair/typebox";
+import {String} from "typebox";
 
 describe('clear', function () {
   it('should be able to declare a clear text schema', function () {

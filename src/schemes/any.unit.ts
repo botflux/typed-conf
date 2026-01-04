@@ -3,7 +3,7 @@ import {expect} from "expect";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {any} from "./any.js";
-import { Any } from '@sinclair/typebox'
+import { Any } from 'typebox'
 
 describe('any', function () {
   it('should be able to declare a any schema', function () {

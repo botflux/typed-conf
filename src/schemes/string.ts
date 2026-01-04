@@ -1,6 +1,6 @@
 import {type BaseSchema, kType, type Mapping} from "./base.js";
 import type {Alias} from "../alias.js";
-import {String} from "@sinclair/typebox";
+import {String} from "typebox";
 
 export interface StringSchema<T, U> extends BaseSchema<T, U> {
   type: 'string'

@@ -1,6 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
-import {Intersect} from "@sinclair/typebox";
+import {Intersect} from "typebox";
 
 type Prettier<T> = {
   [K in keyof T]: T[K]

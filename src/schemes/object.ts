@@ -2,7 +2,7 @@ import {type BaseSchema, kType} from "./base.js";
 import {hasOptionalSchemaInChain} from "./optional.js";
 import type {Alias} from "../alias.js";
 import type {Prettify} from "../types.js";
-import {Object as TypeBoxObject} from '@sinclair/typebox'
+import {Object as TypeBoxObject} from 'typebox'
 
 export function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<Record<string, BaseSchema<unknown>>, boolean> {
   return 'type' in schema && schema.type === 'object'

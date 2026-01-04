@@ -5,7 +5,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {ref} from "./ref.js";
 import { envAlias } from "../sources/env/alias.js";
-import {Integer} from "@sinclair/typebox";
+import {Integer} from "typebox";
 
 describe('ref', function () {
   it('should be able to declare a ref', function () {

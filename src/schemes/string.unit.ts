@@ -3,7 +3,7 @@ import {expect} from "expect";
 import {string} from "./string.js";
 import {integer} from "./integer.js";
 import { envAlias } from "../sources/env/alias.js";
-import {String} from "@sinclair/typebox";
+import {String} from "typebox";
 
 describe('strings', function () {
   it('should be able to create a string schema', function () {

@@ -8,7 +8,7 @@ import {optional} from "./optional.js";
 import {secret} from "./secret.js";
 import {object} from "./object.js";
 import { envAlias } from "../sources/env/alias.js";
-import {Object, String} from "@sinclair/typebox";
+import {Object, String} from "typebox";
 
 describe('object', function () {
   it('should be able to declare an object', function () {

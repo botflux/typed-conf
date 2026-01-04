@@ -4,7 +4,7 @@ import {expectTypeOf} from "expect-type";
 import {kType} from "./base.js";
 import {boolean} from "./boolean.js";
 import {envAlias} from "../sources/env/alias.js";
-import * as typebox from '@sinclair/typebox'
+import * as typebox from 'typebox'
 
 describe('boolean', function () {
   it('should be able to declare a boolean', function () {

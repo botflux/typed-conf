@@ -2,7 +2,7 @@ import {describe, it} from "node:test";
 import {expect} from "expect";
 import {envAlias} from "../../sources/env/alias.js";
 import {ipv4} from "./ipv4.js";
-import {String} from "@sinclair/typebox";
+import {String} from "typebox";
 
 describe('ipv4', function () {
   it('should be able to declare an ipv4', function () {

@@ -1,6 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
-import {Number as TypeboxNumber} from "@sinclair/typebox";
+import {Number as TypeboxNumber} from "typebox";
 
 export type FloatSchema<T> = BaseSchema<T> & {
   type: 'float'

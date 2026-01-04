@@ -1,6 +1,6 @@
 import {type BaseSchema, kType} from "../base.js";
 import type {Alias} from "../../alias.js";
-import {String} from "@sinclair/typebox";
+import {String} from "typebox";
 
 export type IpV4Schema = BaseSchema<string> & {
   type: 'ipv4',

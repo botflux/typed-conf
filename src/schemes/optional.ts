@@ -1,6 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import {isSecret} from "./secret.js";
-import {Optional} from "@sinclair/typebox";
+import {Optional} from "typebox";
 
 export type SchemaType<S> = S extends BaseSchema<infer T> ? T : never
 

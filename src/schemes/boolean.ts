@@ -1,6 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
-import {Boolean} from "@sinclair/typebox";
+import {Boolean} from "typebox";
 
 export type BooleanSchema<T> = BaseSchema<T> & {
   type: 'boolean'
