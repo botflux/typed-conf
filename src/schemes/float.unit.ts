@@ -4,6 +4,7 @@ import {expectTypeOf} from "expect-type";
 import {kType} from "./base.js";
 import {float} from "./float.js";
 import { envAlias } from "../sources/env/alias.js";
+import { Number } from '@sinclair/typebox'
 
 describe('float', function () {
   it('should be able to declare a float', function () {
@@ -16,6 +17,17 @@ describe('float', function () {
       jsonSchema: {
         type: 'number'
       }
+    }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = float()
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      validationSchema: Number()
     }))
   })
 
@@ -91,7 +103,8 @@ describe('float', function () {
         jsonSchema: {
           type: 'number',
           minimum: 10
-        }
+        },
+        validationSchema: Number({ minimum: 10 })
       }))
     })
   })
@@ -129,7 +142,8 @@ describe('float', function () {
         jsonSchema: {
           type: 'number',
           maximum: 10
-        }
+        },
+        validationSchema: Number({ maximum: 10 })
       }))
     })
   })

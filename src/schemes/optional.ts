@@ -1,5 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import {isSecret} from "./secret.js";
+import {Optional} from "@sinclair/typebox";
 
 export type SchemaType<S> = S extends BaseSchema<infer T> ? T : never
 
@@ -23,7 +24,10 @@ export function optional<S extends BaseSchema<unknown>>(schema: S): OptionalSche
     jsonSchema: schema.jsonSchema,
     [kType]: '' as unknown as (SchemaType<S> | undefined),
     aliases: [],
-    coerce
+    coerce,
+    ...schema.validationSchema !== undefined && {
+      validationSchema: Optional(schema.validationSchema)
+    }
   }
 }
 

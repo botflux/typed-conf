@@ -1,6 +1,7 @@
 import type {JSONSchema} from "json-schema-to-typescript";
 import {isObject} from "./object.js";
 import type {Alias} from "../alias.js";
+import { type TSchema } from '@sinclair/typebox'
 
 export const kType = Symbol('kType')
 
@@ -17,6 +18,7 @@ export interface BaseSchema<T, U = unknown> {
   mapping?: Mapping<T, U>
   defaultValue?: T
   deprecated?: boolean
+  validationSchema?: TSchema
 }
 
 

@@ -1,5 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
+import {Number as TypeboxNumber} from "@sinclair/typebox";
 
 export type FloatSchema<T> = BaseSchema<T> & {
   type: 'float'
@@ -45,6 +46,10 @@ export function float(opts: FloatOpts = {}): FloatSchema<number> {
     aliases,
     type: 'float',
     coerce,
-    deprecated
+    deprecated,
+    validationSchema: TypeboxNumber({
+      ...min !== undefined && { minimum: min },
+      ...max !== undefined && { maximum: max }
+    })
   }
 }

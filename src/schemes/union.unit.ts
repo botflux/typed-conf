@@ -7,6 +7,7 @@ import {expectTypeOf} from "expect-type";
 import {kType} from "./base.js";
 import {boolean} from "./boolean.js";
 import {envAlias} from "../sources/env/alias.js";
+import {Integer, String, Union} from "@sinclair/typebox";
 
 describe('union', function () {
   it('should be able to declare an union', function () {
@@ -36,6 +37,21 @@ describe('union', function () {
         ]
       }
     }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = union([
+      integer(),
+      string(),
+    ])
+
+    // Then
+    expect(schema.validationSchema).toEqual(Union([
+      Integer(),
+      String()
+    ]))
   })
 
   it('should have no aliases by default', function () {

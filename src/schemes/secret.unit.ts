@@ -19,6 +19,15 @@ describe('secret', function () {
     }))
   })
 
+  it('should be able to use the underlying validation schema', function () {
+    // Given
+    // When
+    const schema = secret(string())
+
+    // Then
+    expect(schema.validationSchema).toEqual(string().validationSchema)
+  })
+
   it('should use the underlying schema\'s type', function () {
     // Given
     // When

@@ -5,6 +5,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {array} from "./array.js";
 import {boolean} from "./boolean.js";
+import {Array, String} from "@sinclair/typebox";
 
 describe('array', function () {
   it('should be able to declare an array', function () {
@@ -22,6 +23,15 @@ describe('array', function () {
         },
       },
     }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = array({ item: string() })
+
+    // Then
+    expect(schema.validationSchema).toEqual(Array(String()))
   })
 
   it('should have no aliases by default', function () {
@@ -57,6 +67,7 @@ describe('array', function () {
           type: 'string',
         },
       },
+      validationSchema: Array(String())
     }))
   })
 
@@ -74,6 +85,7 @@ describe('array', function () {
         },
         minItems: 10
       },
+      validationSchema: Array(String(), { minItems: 10 })
     }))
   })
 
@@ -90,6 +102,7 @@ describe('array', function () {
           type: 'string',
         },
       },
+      validationSchema: Array(String())
     }))
   })
 
@@ -110,6 +123,7 @@ describe('array', function () {
         },
         maxItems: 10
       },
+      validationSchema: Array(String(), { maxItems: 10 })
     }))
   })
 

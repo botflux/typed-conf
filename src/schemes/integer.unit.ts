@@ -4,6 +4,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {integer} from "./integer.js";
 import { envAlias } from "../sources/env/alias.js";
+import {Integer} from "@sinclair/typebox";
 
 describe('integer', function () {
   it('should be able to declare an integer', function () {
@@ -17,6 +18,15 @@ describe('integer', function () {
         type: 'integer'
       }
     }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = integer()
+
+    // Then
+    expect(schema.validationSchema).toEqual(Integer())
   })
 
   it('should be able to type the schema as number', function () {
@@ -89,7 +99,8 @@ describe('integer', function () {
       jsonSchema: {
         type: 'integer',
         minimum: 10
-      }
+      },
+      validationSchema: Integer({minimum: 10})
     }))
   })
 
@@ -113,7 +124,8 @@ describe('integer', function () {
       jsonSchema: {
         type: 'integer',
         maximum: 10
-      }
+      },
+      validationSchema: Integer({maximum: 10})
     }))
   })
 

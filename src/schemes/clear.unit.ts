@@ -5,6 +5,7 @@ import {expectTypeOf} from "expect-type";
 import {clear} from "./clear.js";
 import {boolean} from "./boolean.js";
 import {string} from "./string.js";
+import {String} from "@sinclair/typebox";
 
 describe('clear', function () {
   it('should be able to declare a clear text schema', function () {
@@ -17,6 +18,15 @@ describe('clear', function () {
       type: 'clear',
       inner: string()
     }))
+  })
+
+  it('should use the underlying schema\'s validation schema', function () {
+    // Given
+    // When
+    const schema = clear(string())
+
+    // Then
+    expect(schema.validationSchema).toEqual(String())
   })
 
   it('should use the underlying schema\'s type', function () {

@@ -6,6 +6,7 @@ import {type BaseSchema, kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {fatUnion} from "./fat-union.js";
 import { envAlias } from "../sources/env/alias.js";
+import { Union, String, Object } from '@sinclair/typebox'
 
 export type ObjectToFatUnion<T extends Record<string, BaseSchema<unknown>>> = {
   [K in keyof T]: { [P in K]: T[P][typeof kType] }
@@ -68,6 +69,18 @@ describe('fatUnion', function () {
       },
       schemes: { vault: object({ secret: string() }), file: object({ path: string() }) }
     }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = fatUnion({ foo: string(), bar: string() })
+
+    // Then
+    expect(schema.validationSchema).toEqual(Union([
+      Object({ foo: String() }),
+      Object({ bar: String() }),
+    ]))
   })
 
   it('should be able to type correctly', function () {

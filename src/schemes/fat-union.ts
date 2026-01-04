@@ -2,6 +2,7 @@ import {type BaseSchema, kType} from "./base.js";
 import type {JSONSchema} from "json-schema-to-typescript";
 import type {FatUnionSchema, ObjectToFatUnion} from "./fat-union.unit.js";
 import type {Alias} from "../alias.js";
+import {Object as TypeBoxObject, Union} from "@sinclair/typebox";
 
 export type FatUnionOpts = {
   aliases?: Alias[]
@@ -31,5 +32,9 @@ export function fatUnion<U extends Record<string, BaseSchema<unknown>>>(union: U
     },
     [kType]: '' as unknown as ObjectToFatUnion<U>,
     deprecated,
+    validationSchema: Union(
+      Object.entries(union).map(([key, value]) =>
+        TypeBoxObject({ [key]: value.validationSchema! }))
+    )
   }
 }

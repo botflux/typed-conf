@@ -21,7 +21,10 @@ export function secret<S extends BaseSchema<unknown>>(schema: S): SecretSchema<S
     [kType]: '' as unknown as S[typeof kType],
     jsonSchema: schema.jsonSchema,
     aliases: [],
-    coerce
+    coerce,
+    ...schema.validationSchema !== undefined && {
+      validationSchema: schema.validationSchema
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {ref} from "./ref.js";
 import { envAlias } from "../sources/env/alias.js";
+import {Integer} from "@sinclair/typebox";
 
 describe('ref', function () {
   it('should be able to declare a ref', function () {
@@ -22,6 +23,21 @@ describe('ref', function () {
       jsonSchema: {
         type: 'string'
       },
+    }))
+  })
+
+  it('should use the underlying schema\'s validation schema', function () {
+    // Given
+    // When
+    const schema = ref({
+      schema: integer(),
+      sourceName: 'envs',
+      refToSourceParams: r => ({key: r})
+    })
+
+    // Then
+    expect(schema).toEqual(expect.objectContaining({
+      validationSchema: Integer()
     }))
   })
 

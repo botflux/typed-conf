@@ -1,5 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
+import {Array as TypeBoxArray} from "@sinclair/typebox";
 
 export type ArraySchema<T> = BaseSchema<T> & {
   type: 'array'
@@ -40,7 +41,17 @@ export function array<T>(opts: ArrayOpts<T>): ArraySchema<T[]> {
     type: 'array',
     [kType]: [] as T[],
     coerce,
-    deprecated
+    deprecated,
+    ...opts.item.validationSchema !== undefined && {
+      validationSchema: TypeBoxArray(opts.item.validationSchema, {
+        ...opts.minItems !== undefined && {
+          minItems: opts.minItems
+        },
+        ...opts.maxItems !== undefined && {
+          maxItems: opts.maxItems
+        }
+      })
+    }
   }
 }
 

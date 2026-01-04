@@ -1,5 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
+import {Union} from "@sinclair/typebox";
 
 export type UnionSchema<S extends BaseSchema<unknown>> = BaseSchema<S[typeof kType]> & {
   type: 'union'
@@ -33,10 +34,11 @@ export function union<S extends BaseSchema<unknown>>(schemes: S[], opts: UnionOp
     jsonSchema: {
       type: 'object',
       oneOf: schemes.map(s => s.jsonSchema),
-      ...deprecated && { deprecated: true }
+      ...deprecated && {deprecated: true}
     },
     aliases,
     coerce,
     deprecated,
+    validationSchema: Union(schemes.map(schema => schema.validationSchema).filter(schema => schema !== undefined))
   }
 }

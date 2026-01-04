@@ -8,6 +8,7 @@ import {optional} from "./optional.js";
 import {secret} from "./secret.js";
 import {object} from "./object.js";
 import { envAlias } from "../sources/env/alias.js";
+import {Object, String} from "@sinclair/typebox";
 
 describe('object', function () {
   it('should be able to declare an object', function () {
@@ -30,6 +31,17 @@ describe('object', function () {
         required: ['host', 'port'],
         additionalProperties: false,
       }
+    }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = object({ foo: string() })
+
+    // Then
+    expect(schema.validationSchema).toEqual(Object({
+      foo: String()
     }))
   })
 

@@ -1,5 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
+import {Intersect} from "@sinclair/typebox";
 
 type Prettier<T> = {
   [K in keyof T]: T[K]
@@ -33,6 +34,7 @@ export function intersection<S extends BaseSchema<unknown>>(schemes: S[], opts: 
       allOf: schemes.map(s => s.jsonSchema),
       ...deprecated && { deprecated: true }
     },
-    deprecated
+    deprecated,
+    validationSchema: Intersect(schemes.map(schema => schema.validationSchema).filter(schema => schema !== undefined))
   }
 }

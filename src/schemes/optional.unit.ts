@@ -5,6 +5,8 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {optional} from "./optional.js";
 import {boolean} from "./boolean.js";
+import {Integer, Optional, String} from "@sinclair/typebox";
+import {integer} from "./integer.js";
 
 describe('optional', function () {
   it('should be able to declare an optional type', function () {
@@ -17,6 +19,15 @@ describe('optional', function () {
       type: 'optional',
       inner: string()
     }))
+  })
+
+  it('should be able to build the validation schema', function () {
+    // Given
+    // When
+    const schema = optional(integer())
+
+    // Then
+    expect(schema.validationSchema).toEqual(Optional(Integer()))
   })
 
   it('should make the underlying schema type nullable', function () {

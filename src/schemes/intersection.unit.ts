@@ -6,6 +6,7 @@ import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {intersection} from "./intersection.js";
 import { envAlias } from "../sources/env/alias.js";
+import {Intersect, Object, String} from '@sinclair/typebox'
 
 describe('intersection', function () {
   it('should be able to merge types', function () {
@@ -53,6 +54,21 @@ describe('intersection', function () {
         ]
       }
     }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = intersection([
+      object({ foo: string() }),
+      object({ bar: string() }),
+    ])
+
+    // Then
+    expect(schema.validationSchema).toEqual(Intersect([
+      Object({ foo: String() }),
+      Object({ bar: String() }),
+    ]))
   })
 
   it('should be typed correctly', function () {

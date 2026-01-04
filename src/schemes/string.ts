@@ -1,5 +1,6 @@
 import {type BaseSchema, kType, type Mapping} from "./base.js";
 import type {Alias} from "../alias.js";
+import {String} from "@sinclair/typebox";
 
 export interface StringSchema<T, U> extends BaseSchema<T, U> {
   type: 'string'
@@ -35,5 +36,9 @@ export function string<U>(opts: StringOpts<U> = {}): StringSchema<string, U> {
     ...mapping !== undefined && { mapping },
     ...defaultValue !== undefined && { defaultValue },
     deprecated,
+    validationSchema: String({
+      ...minLength !== undefined && { minLength },
+      ...maxLength !== undefined && { maxLength },
+    })
   }
 }

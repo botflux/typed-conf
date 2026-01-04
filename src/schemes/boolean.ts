@@ -1,5 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
+import {Boolean} from "@sinclair/typebox";
 
 export type BooleanSchema<T> = BaseSchema<T> & {
   type: 'boolean'
@@ -40,5 +41,6 @@ export function boolean(opts: BooleanOpts = {}): BooleanSchema<boolean> {
     [kType]: true,
     coerce,
     deprecated,
+    validationSchema: Boolean()
   }
 }

@@ -1,5 +1,6 @@
 import type { Alias } from "../alias.js";
 import {type BaseSchema, kType} from "./base.js";
+import {Integer} from "@sinclair/typebox";
 
 export type IntegerSchema<T> = BaseSchema<T> & {
   type: 'integer'
@@ -50,5 +51,9 @@ export function integer(opts: IntegerOpts = {}): IntegerSchema<number> {
     },
     coerce,
     deprecated,
+    validationSchema: Integer({
+      ...min !== undefined && { minimum: min },
+      ...max !== undefined && { maximum: max }
+    })
   }
 }

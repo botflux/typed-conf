@@ -2,6 +2,7 @@ import {type BaseSchema, kType} from "./base.js";
 import {hasOptionalSchemaInChain} from "./optional.js";
 import type {Alias} from "../alias.js";
 import type {Prettify} from "../types.js";
+import {Object as TypeBoxObject} from '@sinclair/typebox'
 
 export function isObject(schema: BaseSchema<unknown>): schema is ObjectSchema<Record<string, BaseSchema<unknown>>, boolean> {
   return 'type' in schema && schema.type === 'object'
@@ -63,5 +64,12 @@ export function object<
     ...defaultEntries.length > 0 && { defaultValue: Object.fromEntries(defaultEntries) },
     ...title !== undefined && { title },
     deprecated,
+    validationSchema: TypeBoxObject(
+      Object.fromEntries(
+        Object.entries(props)
+          .filter(([, value]) => value.validationSchema !== undefined)
+          .map(([ key, value ]) => [ key, value.validationSchema! ])
+      )
+    )
   }
 }

@@ -3,6 +3,7 @@ import {expect} from "expect";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {any} from "./any.js";
+import { Any } from '@sinclair/typebox'
 
 describe('any', function () {
   it('should be able to declare a any schema', function () {
@@ -15,6 +16,15 @@ describe('any', function () {
       type: 'any',
       jsonSchema: {},
     }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = any()
+
+    // Then
+    expect(schema.validationSchema).toEqual(Any())
   })
 
   it('should be able to type the schema as any by default', function () {

@@ -1,4 +1,5 @@
 import {type BaseSchema, kType} from "./base.js";
+import {Any} from "@sinclair/typebox";
 
 export type AnyOpts = { deprecated?: boolean }
 
@@ -19,6 +20,7 @@ export function any<T = any>(opts: AnyOpts = {}): AnySchema<T> {
     aliases: [],
     [kType]: '' as T,
     coerce,
-    deprecated
+    deprecated,
+    validationSchema: Any()
   }
 }

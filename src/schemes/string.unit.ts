@@ -3,6 +3,7 @@ import {expect} from "expect";
 import {string} from "./string.js";
 import {integer} from "./integer.js";
 import { envAlias } from "../sources/env/alias.js";
+import {String} from "@sinclair/typebox";
 
 describe('strings', function () {
   it('should be able to create a string schema', function () {
@@ -17,6 +18,15 @@ describe('strings', function () {
         type: 'string'
       },
     }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = string()
+
+    // Then
+    expect(schema.validationSchema).toEqual(String())
   })
 
   it('should be able to create a string without alias by default', function () {
@@ -52,7 +62,8 @@ describe('strings', function () {
     expect(schema).toEqual(expect.objectContaining({
       jsonSchema: {
         type: 'string',
-      }
+      },
+      validationSchema: String()
     }))
   })
 
@@ -68,7 +79,8 @@ describe('strings', function () {
       jsonSchema: {
         type: 'string',
         minLength: 2
-      }
+      },
+      validationSchema: String({ minLength: 2 })
     }))
   })
 
@@ -81,7 +93,8 @@ describe('strings', function () {
     expect(schema).toEqual(expect.objectContaining({
       jsonSchema: {
         type: 'string',
-      }
+      },
+      validationSchema: String()
     }))
   })
 
@@ -97,7 +110,8 @@ describe('strings', function () {
       jsonSchema: {
         type: 'string',
         maxLength: 10
-      }
+      },
+      validationSchema: String({ maxLength: 10 })
     }))
   })
 
