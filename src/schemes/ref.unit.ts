@@ -26,7 +26,7 @@ describe('ref', function () {
     }))
   })
 
-  it('should use the underlying schema\'s validation schema', function () {
+  it('should have a validation schema', function () {
     // Given
     // When
     const schema = ref({
@@ -37,7 +37,7 @@ describe('ref', function () {
 
     // Then
     expect(schema).toEqual(expect.objectContaining({
-      validationSchema: Integer()
+      validationSchema: String()
     }))
   })
 

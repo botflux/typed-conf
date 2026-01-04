@@ -1,17 +1,17 @@
 import type {Loadable, SingleValueLoader, LoadResult} from "../sources/source.js";
 import {type BaseSchema, kType} from "../schemes/base.js";
 import type {Prettify} from "../types.js";
-import {AjvValidator, getPreRefJsonSchema} from "../validation/validator.js";
 import {kOrigin, merge} from "../merging/merge.js";
-import {setOrigin} from "../merging/origin-utils.js";
+import {getOrigin, setOrigin} from "../merging/origin-utils.js";
 import {walk} from "../schemes/walk.js";
 import {isRef} from "../schemes/ref.js";
 import {getValueAtPath, setValueAtPath} from "../utils.js";
 import type {DefaultObjectSchema, DefaultSource, LoadOpts, ManagerOpts} from "./types.js";
+import { Compile, Validator } from 'typebox/compile'
 
 class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[]> {
   #opts: ManagerOpts<Schema, Sources>
-  #validator = new AjvValidator()
+  #typeboxValidator: Validator | undefined
 
   constructor(opts: ManagerOpts<Schema, Sources>) {
     this.#opts = opts;
@@ -39,11 +39,41 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
       merge(previous, setOrigin(this.#opts.schema.defaultValue, 'default'))
     }
 
-    this.#validator.validate(schema, getPreRefJsonSchema, previous)
+    const errors = this.#typebox.Errors(previous)
+
+    if (errors.length > 0) {
+      throw new AggregateError(errors.map(err => new Error(`${this.#getOrigin(previous, err.instancePath)} ${err.message}`)), 'config validation failed')
+    }
 
     await this.#resolveRefs(schema, previous, inject)
 
     return previous as Prettify<Schema[typeof kType]>
+  }
+
+  #getOrigin(previous: Record<string, unknown>, instancePath: string): string {
+    const chunks = instancePath.split('/')
+      .filter(chunk => chunk !== '')
+
+    const propName = chunks.at(-1)
+
+    if (propName === undefined) {
+      throw new Error("Not implemented at line 66 in manager.ts")
+    }
+
+    const parentPath = chunks.slice(0, chunks.length - 1)
+    const parent = getValueAtPath(previous, parentPath)
+
+    if (typeof parent !== 'object' || parent === null) {
+      throw new Error("Not implemented at line 67 in manager.ts")
+    }
+
+    const mOrigin = getOrigin(parent as Record<string, unknown>)[propName]
+
+    if (mOrigin === undefined) {
+      throw new Error(`Cannot find origin for path '${instancePath}'`)
+    }
+
+    return mOrigin
   }
 
   #isLoadable(source: DefaultSource): source is (DefaultSource & Loadable<unknown, unknown>) {
@@ -114,6 +144,13 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
 
     const lastKey = path[path.length - 1]!
     current[kOrigin][lastKey] = origin
+  }
+
+  get #typebox(): Validator {
+    if (!this.#typeboxValidator) {
+      this.#typeboxValidator = Compile(this.#opts.schema.validationSchema!)
+    }
+    return this.#typeboxValidator
   }
 }
 
