@@ -1,5 +1,6 @@
 import {type BaseSchema, kType} from "../base.js";
 import type {Alias} from "../../alias.js";
+import {String} from "@sinclair/typebox";
 
 export type IpV4Schema = BaseSchema<string> & {
   type: 'ipv4',
@@ -30,5 +31,8 @@ export function ipv4(opts: IpV4SchemaOpts = {}): IpV4Schema {
     [kType]: '',
     coerce,
     ...defaultValue !== undefined && {defaultValue},
+    validationSchema: String({
+      format: 'ipv4'
+    })
   }
 }

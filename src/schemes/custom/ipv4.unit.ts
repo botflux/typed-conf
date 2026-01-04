@@ -2,6 +2,7 @@ import {describe, it} from "node:test";
 import {expect} from "expect";
 import {envAlias} from "../../sources/env/alias.js";
 import {ipv4} from "./ipv4.js";
+import {String} from "@sinclair/typebox";
 
 describe('ipv4', function () {
   it('should be able to declare an ipv4', function () {
@@ -18,6 +19,15 @@ describe('ipv4', function () {
       },
       aliases: [],
     }))
+  })
+
+  it('should have a validation schema', function () {
+    // Given
+    // When
+    const schema = ipv4()
+
+    // Then
+    expect(schema.validationSchema).toEqual(String({ format: 'ipv4' }))
   })
 
   it('should be able to declare aliases', function () {
