@@ -285,7 +285,7 @@ describe('manager', function () {
       })
     })
 
-    it('should be able to validate config loaded by ref', { skip: true }, async function () {
+    it('should be able to validate config loaded by ref', async function () {
       // Given
       const fs = new FakeFileSystem()
         .addFile('/path/to/config.json', `{ "port": "foo" }`)
@@ -316,7 +316,7 @@ describe('manager', function () {
       assertAggregateError(() => {
         throw error
       }, 'config validation failed', [
-        new Error('env:HTTP_SERVER must be object')
+        new Error('port (/path/to/config.json) must be integer')
       ])
     })
   })
