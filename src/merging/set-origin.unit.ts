@@ -52,4 +52,18 @@ describe('setOrigin', function () {
       [kOrigin]: { foo: 'envs' }
     })
   })
+
+  it('should be able to attach metadata with property name', function () {
+    // Given
+    const obj = { foo: 1 }
+
+    // When
+    setOrigin(obj, 'config.json', true)
+
+    // Then
+    expect(obj).toEqual({
+      foo: 1,
+      [kOrigin]: { 'foo': 'foo (config.json)' }
+    })
+  })
 })

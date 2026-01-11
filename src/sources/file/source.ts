@@ -59,7 +59,7 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Single
 
     if (parse) {
       const parsed = this.#parseFile(content.toString(), file) as Record<string, unknown>
-      setOrigin(parsed, file)
+      setOrigin(parsed, file, true)
 
       return {
         type: 'mergeable',

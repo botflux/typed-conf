@@ -226,7 +226,7 @@ describe('manager', function () {
 
       // Then
       expect(config).toEqual({
-        httpServer: {port: 3111, [kOrigin]: {port: '/path/to/config.json'}},
+        httpServer: {port: 3111, [kOrigin]: {port: 'port (/path/to/config.json)'}},
         // TODO: I don't know if resolved refs should be in the origins like this.
         //       It is a bit weird.
         [kOrigin]: {
@@ -277,7 +277,7 @@ describe('manager', function () {
         httpServer: {
           port: 3111,
           ssl: 'my certificate',
-          [kOrigin]: {port: '/path/to/config.json', ssl: '/path/to/cert'}
+          [kOrigin]: {port: 'port (/path/to/config.json)', ssl: '/path/to/cert'}
         },
         [kOrigin]: {
           httpServer: 'env:HTTP_SERVER'

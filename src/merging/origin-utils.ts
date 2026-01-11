@@ -1,6 +1,6 @@
 import {kOrigin} from "./merge.js";
 
-export function setOrigin(obj: Record<string | symbol, unknown>, origin: string) {
+export function setOrigin(obj: Record<string | symbol, unknown>, origin: string, withPropertyName: boolean = false) {
   const originMap: Record<string, string | string[]> = {}
 
   for (const field in obj) {
@@ -18,7 +18,7 @@ export function setOrigin(obj: Record<string | symbol, unknown>, origin: string)
       continue
     }
 
-    originMap[field] = origin
+    originMap[field] = withPropertyName ? `${field} (${origin})` : origin
   }
 
   if (!(kOrigin in obj)) {

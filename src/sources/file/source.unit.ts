@@ -8,6 +8,7 @@ import toml from 'toml'
 import {kOrigin} from "../../merging/merge.js";
 import {fileSource} from "./source.js";
 import type {ParserFn} from "./types.js";
+import {getOrigin} from "../../merging/origin-utils.js";
 
 describe('fileSource', function () {
   describe('#load', function () {
@@ -199,7 +200,7 @@ describe('fileSource', function () {
       // Then
       expect(result).toEqual({
         type: 'mergeable',
-        value: { port: 3000, [kOrigin]: { port: 'nested.json' } }
+        value: { port: 3000, [kOrigin]: { port: 'port (nested.json)' } }
       })
     })
   })
