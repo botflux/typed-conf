@@ -12,7 +12,7 @@ import {expectTypeOf} from "expect-type";
 import {file} from "../sources/file/schemes.js";
 import {createManager} from "./manager.js";
 import type {InjectOpts, LoadOpts, SourceParams} from "./types.js";
-import type { Source } from '../sources/source.js';
+import type {Source} from '../sources/source.js';
 
 describe('manager', function () {
   it('should be able to load config', async function () {
@@ -103,7 +103,7 @@ describe('manager', function () {
         envs: {envs}
       },
       params: {
-        file: { files: ['config.json'] }
+        file: {files: ['config.json']}
       }
     })
 
@@ -175,9 +175,9 @@ describe('manager', function () {
       const config = await manager.load({
         inject: {
           envs: {
-            envs: { CERTIFICATE: '/path/to/cert' }
+            envs: {CERTIFICATE: '/path/to/cert'}
           },
-          file: { fs }
+          file: {fs}
         },
         params: {}
       })
@@ -218,15 +218,15 @@ describe('manager', function () {
       // When
       const config = await manager.load({
         inject: {
-          envs: { envs },
-          file: { fs }
+          envs: {envs},
+          file: {fs}
         },
         params: {}
       })
 
       // Then
       expect(config).toEqual({
-        httpServer: { port: 3111, [kOrigin]: { port: '/path/to/config.json'} },
+        httpServer: {port: 3111, [kOrigin]: {port: '/path/to/config.json'}},
         // TODO: I don't know if resolved refs should be in the origins like this.
         //       It is a bit weird.
         [kOrigin]: {
@@ -264,8 +264,8 @@ describe('manager', function () {
       // When
       const config = await manager.load({
         inject: {
-          envs: { envs },
-          file: { fs }
+          envs: {envs},
+          file: {fs}
         },
         params: {
           file: {}
@@ -274,11 +274,50 @@ describe('manager', function () {
 
       // Then
       expect(config).toEqual({
-        httpServer: { port: 3111, ssl: 'my certificate', [kOrigin]: { port: '/path/to/config.json', ssl: '/path/to/cert'} },
+        httpServer: {
+          port: 3111,
+          ssl: 'my certificate',
+          [kOrigin]: {port: '/path/to/config.json', ssl: '/path/to/cert'}
+        },
         [kOrigin]: {
           httpServer: 'env:HTTP_SERVER'
         },
       })
+    })
+
+    it('should be able to validate config loaded by ref', { skip: true }, async function () {
+      // Given
+      const fs = new FakeFileSystem()
+        .addFile('/path/to/config.json', `{ "port": "foo" }`)
+      const envs = {HTTP_SERVER: '/path/to/config.json'}
+
+      const manager = createManager({
+        schema: object({
+          httpServer: file({
+            encoding: 'utf8',
+            parseAs: object({
+              port: integer()
+            })
+          })
+        }),
+        sources: [
+          envSource(),
+          fileSource()
+        ],
+      })
+
+      // When
+      const error = await manager.load({
+        inject: {file: {fs}, envs: {envs}},
+        params: {}
+      }).catch(e => e)
+
+      // Then
+      assertAggregateError(() => {
+        throw error
+      }, 'config validation failed', [
+        new Error('env:HTTP_SERVER must be object')
+      ])
     })
   })
 
@@ -287,7 +326,7 @@ describe('manager', function () {
       // Given
       const manager = createManager({
         schema: object({
-          host: string({ defaultValue: '0.0.0.0' })
+          host: string({defaultValue: '0.0.0.0'})
         }),
         sources: [
           envSource()
@@ -298,7 +337,7 @@ describe('manager', function () {
       const config = await manager.load({
         inject: {
           envs: {
-            envs: { HOST: '127.0.0.1' }
+            envs: {HOST: '127.0.0.1'}
           }
         },
         params: {}
@@ -312,7 +351,7 @@ describe('manager', function () {
       // Given
       const manager = createManager({
         schema: object({
-          host: string({ defaultValue: '0.0.0.0' })
+          host: string({defaultValue: '0.0.0.0'})
         }),
         sources: [
           envSource()
@@ -412,3 +451,18 @@ describe('LoadOpts', function () {
     }>()
   })
 })
+
+function assertAggregateError(throws: () => unknown, msg: string, errors: Error[]) {
+  try {
+    const v = throws()
+    throw new Error(`should have throws, received ${v}`)
+  } catch (error) {
+    assertInstanceOfAggregateError(error)
+    expect(error.message).toEqual(msg)
+    expect(error.errors).toEqual(errors)
+  }
+}
+
+function assertInstanceOfAggregateError(error: unknown): asserts error is AggregateError {
+  expect(error).toBeInstanceOf(AggregateError)
+}

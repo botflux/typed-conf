@@ -117,6 +117,21 @@ class Manager<Schema extends DefaultObjectSchema, Sources extends DefaultSource[
       const result: LoadResult = await source.loadSingle(params, childSchema.refSchema, sourceInject, previous)
 
       setValueAtPath(previous, path as string[], result.value)
+      
+      if (result.type === 'mergeable') {
+        if (childSchema.refSchema.validationSchema === undefined) {
+          throw new Error("Shouldn't happen")
+        }
+
+        console.log('childSchema', childSchema, result.value)
+        const validator = Compile(childSchema.refSchema.validationSchema)
+        const errors = validator.Errors(result.value)
+
+        if (errors.length > 0) {
+          console.log('errors', errors)
+          throw new AggregateError(errors.map(err => new Error(`${this.#getOrigin(result.value, err.instancePath)} ${err.message}`)), 'config validation failed')
+        }
+      }
 
       if (result.type === 'non_mergeable') {
         this.#setOriginAtPath(previous, path as string[], result.origin)

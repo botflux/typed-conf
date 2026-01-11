@@ -4,8 +4,8 @@ import {integer} from "./integer.js";
 import {kType} from "./base.js";
 import {expectTypeOf} from "expect-type";
 import {ref} from "./ref.js";
-import { envAlias } from "../sources/env/alias.js";
-import {Integer} from "typebox";
+import {envAlias} from "../sources/env/alias.js";
+import {String} from 'typebox'
 
 describe('ref', function () {
   it('should be able to declare a ref', function () {
@@ -176,7 +176,7 @@ describe('ref', function () {
     // Then
     expect(schema).toEqual(expect.objectContaining({
       deprecated: true,
-      jsonSchema: expect.objectContaining({ deprecated: true }),
+      jsonSchema: expect.objectContaining({deprecated: true}),
     }))
   })
 

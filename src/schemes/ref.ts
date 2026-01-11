@@ -1,5 +1,6 @@
 import {type BaseSchema, kType} from "./base.js";
 import type {Alias} from "../alias.js";
+import {String} from "typebox";
 
 export type RefSchema<T> = BaseSchema<T> & {
   type: 'ref'
