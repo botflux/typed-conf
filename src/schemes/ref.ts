@@ -37,9 +37,7 @@ export function ref<S extends BaseSchema<unknown>>(opts: RefOpts<S>): RefSchema<
     refToSourceParams,
     coerce,
     deprecated,
-    ...opts.schema.validationSchema !== undefined && {
-      validationSchema: String(),
-    }
+    validationSchema: String(),
   }
 }
 

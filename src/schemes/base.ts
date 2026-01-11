@@ -18,7 +18,7 @@ export interface BaseSchema<T, U = unknown> {
   mapping?: Mapping<T, U>
   defaultValue?: T
   deprecated?: boolean
-  validationSchema?: TSchema
+  validationSchema: TSchema
 }
 
 

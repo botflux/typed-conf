@@ -25,9 +25,7 @@ export function optional<S extends BaseSchema<unknown>>(schema: S): OptionalSche
     [kType]: '' as unknown as (SchemaType<S> | undefined),
     aliases: [],
     coerce,
-    ...schema.validationSchema !== undefined && {
-      validationSchema: Optional(schema.validationSchema)
-    }
+    validationSchema: Optional(schema.validationSchema)
   }
 }
 

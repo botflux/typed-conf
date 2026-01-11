@@ -42,16 +42,14 @@ export function array<T>(opts: ArrayOpts<T>): ArraySchema<T[]> {
     [kType]: [] as T[],
     coerce,
     deprecated,
-    ...opts.item.validationSchema !== undefined && {
-      validationSchema: TypeBoxArray(opts.item.validationSchema, {
-        ...opts.minItems !== undefined && {
-          minItems: opts.minItems
-        },
-        ...opts.maxItems !== undefined && {
-          maxItems: opts.maxItems
-        }
-      })
-    }
+    validationSchema: TypeBoxArray(opts.item.validationSchema, {
+      ...opts.minItems !== undefined && {
+        minItems: opts.minItems
+      },
+      ...opts.maxItems !== undefined && {
+        maxItems: opts.maxItems
+      }
+    })
   }
 }
 

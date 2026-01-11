@@ -23,8 +23,6 @@ export function clear<S extends BaseSchema<unknown>>(schema: S): ClearSchema<S> 
     aliases: [],
     jsonSchema: schema.jsonSchema,
     coerce,
-    ...schema.validationSchema !== undefined && {
-      validationSchema: schema.validationSchema
-    }
+    validationSchema: schema.validationSchema,
   }
 }
