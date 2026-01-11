@@ -42,7 +42,7 @@ class FileSource<Name extends string> implements Source<Name, InjectOpts, Single
       }
 
       const parsed = this.#parseFile(content as string, file.file) as Record<string, unknown>
-      setOrigin(parsed, file.file)
+      setOrigin(parsed, file.file, true)
       configs.push(parsed as Record<string, unknown>)
     }
 

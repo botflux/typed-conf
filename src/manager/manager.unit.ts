@@ -113,7 +113,7 @@ describe('manager', function () {
       host: 'localhost',
       [kOrigin]: {
         port: 'env:PORT',
-        host: 'config.json'
+        host: 'host (config.json)'
       }
     })
   })

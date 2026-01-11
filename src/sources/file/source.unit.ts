@@ -27,7 +27,7 @@ describe('fileSource', function () {
       }, schema, {fs})
 
       // Then
-      expect(result).toEqual({ port: 3000, [kOrigin]: { port: 'file.json' } })
+      expect(result).toEqual({ port: 3000, [kOrigin]: { port: 'port (file.json)' } })
     })
 
     it('should be able to load a file optionally', async function () {
@@ -89,7 +89,7 @@ describe('fileSource', function () {
       // Then
       expect(result).toEqual({
         port: 3000,
-        [kOrigin]: { port: 'config.yml' }
+        [kOrigin]: { port: 'port (config.yml)' }
       })
     })
 
@@ -131,7 +131,7 @@ describe('fileSource', function () {
       // Then
       expect(result).toEqual({
         port: 3000,
-        [kOrigin]: { port: 'config.toml' }
+        [kOrigin]: { port: 'port (config.toml)' }
       })
     })
 
@@ -157,7 +157,7 @@ describe('fileSource', function () {
       expect(result).toEqual({
         host: "localhost",
         port: 3000,
-        [kOrigin]: { port: 'config.json', host: 'default.json' }
+        [kOrigin]: { port: 'port (config.json)', host: 'host (default.json)' }
       })
     })
   })
