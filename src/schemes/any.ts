@@ -21,6 +21,6 @@ export function any<T = any>(opts: AnyOpts = {}): AnySchema<T> {
     [kType]: '' as T,
     coerce,
     deprecated,
-    validationSchema: Any()
+    validationSchema: Any(),
   }
 }

@@ -24,5 +24,6 @@ export function clear<S extends BaseSchema<unknown>>(schema: S): ClearSchema<S> 
     jsonSchema: schema.jsonSchema,
     coerce,
     validationSchema: schema.validationSchema,
+    deprecated: schema.deprecated,
   }
 }
