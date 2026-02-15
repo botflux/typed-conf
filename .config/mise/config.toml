@@ -13,9 +13,13 @@ enter = [
 
 [tasks.pre-commit]
 description="Run the pre-commit hook"
-run = [
-    "env | grep STAGED",
-    "echo $STAGED",
-    #"pnpm biome lint --no-errors-on-unmatched --fix $STAGED",
-    #"pnpm biome format --no-errors-on-unmatched --fix $STAGED"
-]
+run = """
+# Filter for TS/TSX files from staged files
+ts_files=$(echo "$STAGED" | grep -E '.(ts|tsx)$' || true)
+
+if [ -n "$ts_files" ]; then
+  biome check --write $ts_files
+  # Re-stage files that biome may have modified
+  echo "$ts_files" | xargs git add
+fi
+"""
