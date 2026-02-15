@@ -13,4 +13,7 @@ enter = [
 
 [tasks.pre-commit]
 description="Run the pre-commit hook"
-run = "echo 'foo'"
+run = [
+    "pnpm biome lint --fix $STAGED",
+    "pnpm biome format --fix $STAGED"
+]
