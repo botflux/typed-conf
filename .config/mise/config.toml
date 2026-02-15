@@ -13,4 +13,4 @@ run = [
 
 [tasks.pre-commit]
 description = "Run before each commit"
-run = "npm run build"
+run = "exit 1"
