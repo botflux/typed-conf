@@ -4,12 +4,15 @@ NODE_ENV="production"
 [tools]
 node = "24"
 
-[tasks.setup]
-description = "Set up dev environment"
-run = [
-    "mise install",
-    "mise generate git-pre-commit --write",
-]
+[hooks]
+enter = "mise install && mise generate git-pre-commit --write"
+
+#[tasks.setup]
+#description = "Set up dev environment"
+#run = [
+#    "mise install",
+#    "mise generate git-pre-commit --write",
+#]
 
 [tasks.pre-commit]
 description = "Run before each commit"
