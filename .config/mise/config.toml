@@ -13,4 +13,4 @@ run = [
 
 [tasks.pre-commit]
 description = "Run before each commit"
-run = "exit 1"
+run = "echo 'foo' && exit 1"
