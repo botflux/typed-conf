@@ -10,3 +10,7 @@ enter = [
     "mise install",
     "mise generate git-pre-commit --write"
 ]
+
+[tasks.pre-commit]
+description="Run the pre-commit hook"
+run = "echo 'foo'"
