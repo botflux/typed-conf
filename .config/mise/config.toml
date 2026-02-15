@@ -18,7 +18,7 @@ run = """
 ts_files=$(echo "$STAGED" | grep -E '.(ts|tsx)$' || true)
 
 if [ -n "$ts_files" ]; then
-  biome check --write $ts_files
+  pnpm biome check --write $ts_files
   # Re-stage files that biome may have modified
   echo "$ts_files" | xargs git add
 fi
