@@ -1,0 +1,16 @@
+[env]
+NODE_ENV="production"
+
+[tools]
+node = "24"
+
+[tasks.setup]
+description = "Set up dev environment"
+run = [
+    "mise install",
+    "mise generate git-pre-commit --write",
+]
+
+[tasks.pre-commit]
+description = "Run before each commit"
+run = "npm run build"
