@@ -5,22 +5,73 @@ This document provides guidelines for AI coding agents working in this repositor
 ## Project Overview
 
 - **Name**: typed-conf
-- **Type**: TypeScript/Node.js ES modules library
+- **Type**: TypeScript/Node.js ES modules library (config loading)
 - **Package Manager**: pnpm (v10.29.3)
 - **Node Version**: 24.13.1 (managed via mise)
 
+## Development Workflow: Double TDD Loop
+
+This project follows a **double TDD loop** approach:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  OUTER LOOP: User Acceptance Test (UAT)                 │
+│  Write a failing UAT in src/tests/*.uat.ts              │
+│                                                         │
+│    ┌─────────────────────────────────────────────┐      │
+│    │  INNER LOOP: Unit/Integration TDD           │      │
+│    │  1. Write failing unit/integration test     │      │
+│    │  2. Write minimal code to pass              │      │
+│    │  3. Refactor                                │      │
+│    │  4. Repeat until UAT passes                 │      │
+│    └─────────────────────────────────────────────┘      │
+│                                                         │
+│  UAT passes → Feature complete                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Development Cycle
+
+1. **Define the capability** with a UAT (`src/tests/*.uat.ts`)
+2. **Implement using TDD** with unit and integration tests
+3. **UAT passes** → Feature is complete
+
+### Test Classification (Strict Rule)
+
+| Test Type   | File Pattern       | Criterion                                         |
+|-------------|--------------------|---------------------------------------------------|
+| Unit        | `*.unit.ts`        | **No IO** - fast, pure logic only                 |
+| Integration | `*.integration.ts` | **Any IO** - file system, network, env vars, etc. |
+| Acceptance  | `*.uat.ts`         | End-to-end capability verification                |
+
+**The only criterion is IO**: If a test touches any external resource, it's an integration test. Scope/size is
+irrelevant.
+
+## Agent Role and Boundaries
+
+**You are here to execute, not to architect.**
+
+- Do the tedious implementation work
+- Do NOT make architecture decisions autonomously
+- When facing an architecture choice, STOP and present to the human:
+    1. **The problem** - What needs to be decided?
+    2. **The options** - What are the possible approaches?
+    3. **The trade-offs** - Pros/cons of each option
+    4. **The problem model** - How does this fit into the larger design?
+- Wait for explicit approval before proceeding
+
 ## Build/Lint/Test Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm build` | Compile TypeScript (tsc) |
-| `pnpm typecheck` | Type check without emitting (tsc --noEmit) |
-| `pnpm lint` | Run Biome linter on src directory |
-| `pnpm lint:fix` | Run Biome linter with auto-fix |
-| `pnpm fmt` | Check formatting with Biome |
-| `pnpm fmt:fix` | Format code with Biome |
-| `pnpm test` | Run all tests once |
-| `pnpm test:watch` | Run tests in watch mode |
+| Command           | Description                                |
+|-------------------|--------------------------------------------|
+| `pnpm build`      | Compile TypeScript (tsc)                   |
+| `pnpm typecheck`  | Type check without emitting (tsc --noEmit) |
+| `pnpm lint`       | Run Biome linter on src directory          |
+| `pnpm lint:fix`   | Run Biome linter with auto-fix             |
+| `pnpm fmt`        | Check formatting with Biome                |
+| `pnpm fmt:fix`    | Format code with Biome                     |
+| `pnpm test`       | Run all tests once                         |
+| `pnpm test:watch` | Run tests in watch mode                    |
 
 ### Running a Single Test
 
@@ -41,37 +92,25 @@ pnpm test --project integration
 pnpm test --project acceptance
 ```
 
-## Test Structure
-
-Tests use Vitest and are organized by file naming convention:
-
-| Type | Pattern | Location |
-|------|---------|----------|
-| Unit tests | `*.unit.ts` | Colocated with source in `src/` |
-| Integration tests | `*.integration.ts` | Colocated with source in `src/` |
-| Acceptance tests | `*.uat.ts` | `src/tests/` directory |
-
-Integration tests may use `testcontainers` for container-based testing.
-
 ### Test Writing Pattern
 
 Use the **Given/When/Then** (AAA) pattern with explicit comments:
 
 ```typescript
-import { describe, expect, it } from "vitest";
-import { hello } from "./index.js";
+import {describe, expect, it} from "vitest";
+import {hello} from "./index.js";
 
 describe("hello", () => {
-    it("should be able to say hello", () => {
-        // Given
-        const name = "John";
+  it("should be able to say hello", () => {
+    // Given
+    const name = "John";
 
-        // When
-        const result = hello(name);
+    // When
+    const result = hello(name);
 
-        // Then
-        expect(result).toEqual("Hello John!");
-    });
+    // Then
+    expect(result).toEqual("Hello John!");
+  });
 });
 ```
 
@@ -90,24 +129,24 @@ Always run `pnpm fmt:fix` before committing.
 
 ```typescript
 // Use .js extension for local imports (required for NodeNext)
-import { hello } from "./index.js";
+import {hello} from "./index.js";
 
 // Use 'import type' for type-only imports (enforced by verbatimModuleSyntax)
-import type { Config } from "./types.js";
+import type {Config} from "./types.js";
 
 // Third-party imports - no extension needed
-import { describe, expect, it } from "vitest";
+import {describe, expect, it} from "vitest";
 ```
 
 ### Naming Conventions
 
-| Element | Convention | Example |
-|---------|------------|---------|
-| Files | kebab-case | `config-loader.ts` |
-| Functions | camelCase | `loadConfig()` |
-| Types/Interfaces | PascalCase | `ConfigOptions` |
-| Constants | camelCase or SCREAMING_SNAKE | `defaultTimeout` or `DEFAULT_TIMEOUT` |
-| Test files | `*.unit.ts`, `*.integration.ts`, `*.uat.ts` | `index.unit.ts` |
+| Element          | Convention                                  | Example            |
+|------------------|---------------------------------------------|--------------------|
+| Files            | kebab-case                                  | `config-loader.ts` |
+| Functions        | camelCase                                   | `loadConfig()`     |
+| Types/Interfaces | PascalCase                                  | `ConfigOptions`    |
+| Constants        | kCamelCase                                  | `kDefaultTimeout`  |
+| Test files       | `*.unit.ts`, `*.integration.ts`, `*.uat.ts` | `index.unit.ts`    |
 
 ### TypeScript Strictness
 
@@ -115,10 +154,10 @@ The project uses strict TypeScript with additional checks:
 
 ```json
 {
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "verbatimModuleSyntax": true
+  "strict": true,
+  "noUncheckedIndexedAccess": true,
+  "exactOptionalPropertyTypes": true,
+  "verbatimModuleSyntax": true
 }
 ```
 
@@ -181,16 +220,19 @@ All checks must pass before commits are accepted.
 ## Quick Reference for Agents
 
 ### Before Making Changes
+
 1. Understand existing patterns by reading related source files
 2. Check for existing tests to understand expected behavior
 
 ### After Making Changes
+
 1. Run `pnpm fmt:fix && pnpm lint:fix` to fix formatting/linting
 2. Run `pnpm typecheck` to verify types
 3. Run `pnpm test` to verify all tests pass
 4. For new features, add tests following the Given/When/Then pattern
 
 ### Common Issues
+
 - Missing `.js` extension in local imports → Add `.js` to import path
 - Type-only import without `type` keyword → Use `import type { ... }`
 - Unhandled `undefined` from index access → Add null check or assertion
