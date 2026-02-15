@@ -15,7 +15,7 @@ enter = [
 description="Run the pre-commit hook"
 run = [
     "env | grep STAGED",
-    "echo $STAGED"
+    "echo $STAGED",
     #"pnpm biome lint --no-errors-on-unmatched --fix $STAGED",
     #"pnpm biome format --no-errors-on-unmatched --fix $STAGED"
 ]
