@@ -22,4 +22,6 @@ if [ -n "$ts_files" ]; then
   # Re-stage files that biome may have modified
   echo "$ts_files" | xargs git add
 fi
+
+pnpm typecheck
 """
