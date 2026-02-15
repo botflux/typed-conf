@@ -24,4 +24,5 @@ if [ -n "$ts_files" ]; then
 fi
 
 pnpm typecheck
+pnpm test
 """
