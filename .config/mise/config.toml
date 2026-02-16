@@ -1,5 +1,6 @@
 [env]
 NODE_ENV="production"
+BIOME_CONFIG_PATH=".config/biome/biome.json"
 
 [tools]
 node = "24.13.1"
@@ -14,15 +15,7 @@ enter = [
 [tasks.pre-commit]
 description="Run the pre-commit hook"
 run = """
-# Filter for TS/TSX files from staged files
-ts_files=$(echo "$STAGED" | grep -E '.(ts|tsx)$' || true)
-
-if [ -n "$ts_files" ]; then
-  pnpm biome check --write $ts_files
-  # Re-stage files that biome may have modified
-  echo "$ts_files" | xargs git add
-fi
-
+pnpm biome check --write --no-errors-on-unmatched --changed --since HEAD
 pnpm typecheck
 pnpm test
 """
