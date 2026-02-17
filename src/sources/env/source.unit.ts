@@ -261,5 +261,43 @@ describe("env source", () => {
         expect(result).toEqual({serverHost: "localhost", db: {url: "postgres://localhost"}});
       })
     })
+
+    describe.skip('implicit env prefixing', function () {
+      it('should be able to prefix all the envs all the implicit envs', async function () {
+        // Given
+        const fakeEnvs = {'MYAPP_HOST': 'localhost', 'MYAPP_DB_URL': 'postgres://localhost'};
+        const source = envSource({mode: {type: 'implicit', prefix: 'MYAPP'}});
+        const schema = object({
+          host: string(),
+          db: object({
+            url: string()
+          }),
+        });
+
+        // When
+        const result = await source.loadFromSchema(schema, undefined, fakeEnvs);
+
+        // Then
+        expect(result).toEqual({host: "localhost", db: {url: "postgres://localhost"}});
+      })
+
+      it('should be able to use the configured separator between the prefix and the implicit env name', async function () {
+        // Given
+        const fakeEnvs = {'my-app.host': 'localhost', 'my-app.db.url': 'postgres://localhost'};
+        const source = envSource({mode: {type: 'implicit', prefix: 'my-app', separator: '.'}});
+        const schema = object({
+          host: string(),
+          db: object({
+            url: string()
+          }),
+        });
+
+        // When
+        const result = await source.loadFromSchema(schema, undefined, fakeEnvs);
+
+        // Then
+        expect(result).toEqual({host: "localhost", db: {url: "postgres://localhost"}});
+      })
+    })
   });
 });

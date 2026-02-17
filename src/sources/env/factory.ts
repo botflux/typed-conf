@@ -47,6 +47,8 @@ export type ImplicitModeOpts = {
 	 * @default "_"
 	 */
 	separator?: string
+
+	prefix?: string
 }
 
 export type EnvSourceOpts<Name extends string> = {
