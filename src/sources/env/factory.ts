@@ -1,6 +1,54 @@
 import { EnvSource } from "./source.js";
 import type { SomeRequired } from "../../types.js";
 
+export type ImplicitModeOpts = {
+	type: 'implicit'
+
+	/**
+	 * A function that transforms a camel case path chunk into the naming convention you want.
+	 *
+	 * The function will be called with each path chunk so if you have the following schema:
+	 *
+	 * ```typescript
+	 * const schema = object({
+	 *  db: object({
+	 *    url: string()
+	 *  })
+	 * })
+	 * ```
+	 *
+	 * Then, it'll be called twice, one time with `db`, and one time `url`.
+	 *
+	 * By default, the naming convention is SCREAMING_SNAKE_CASE.
+	 *
+	 * @param key
+	 * @default screamingSnakeCase
+	 */
+	namingConvention?: (key: string) => string
+
+	/**
+	 * The character that is used to separate chunks of an entry path.
+	 *
+	 * If you have the following schema:
+	 *
+	 * ```typescript
+	 * const schema = object({
+	 * 	db: object({
+	 * 		url: string()
+	 * 	})
+	 * })
+	 * ```
+	 *
+	 * Then, by default, the envs will be named `DB_URL`.
+	 * By changing the separator to `.`, the envs will be named `DB.URL`.
+	 *
+	 * Take a look at the `namingConvention` option to change the naming convention applied.
+	 *
+	 * @default "_"
+	 */
+	separator?: string
+}
+
 export type EnvSourceOpts<Name extends string> = {
 	/**
 	 * The name of the env source.
@@ -32,7 +80,7 @@ export type EnvSourceOpts<Name extends string> = {
 	 *
 	 * Note that aliases still work in implicit mode.
 	 */
-	mode?: "explicit" | "implicit";
+	mode?: "explicit" | "implicit" | ImplicitModeOpts;
 };
 
 export type EnvSourceRequiredFields = keyof Pick<
