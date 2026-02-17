@@ -24,6 +24,6 @@ describe('InjectOpts', function () {
     type Result = InjectOpts<[SourceAType, SourceBType]>
 
     // Then
-    expectTypeOf<Result>().toEqualTypeOf<{ file: { anotherDependency: string } }>()
+    expectTypeOf<Result>().toEqualTypeOf<{ envs?: { someDependency?: string }; file: { anotherDependency: string } }>()
   })
 })

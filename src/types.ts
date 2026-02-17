@@ -10,12 +10,33 @@ type AllOptional<T> = {
 	: false;
 
 /**
- * Maps a tuple of SourceTypes to an object where keys are source names
- * and values are their inject options. Sources with all-optional inject
- * properties are excluded from the result.
+ * Simplify/flatten an intersection type into a single object type.
  */
-export type InjectOpts<T extends AnySourceType[]> = {
+type Simplify<T> = { [K in keyof T]: T[K] };
+
+/**
+ * Extract source types where inject opts have all optional properties.
+ */
+type OptionalInjectSources<T extends AnySourceType[]> = {
+	[K in T[number] as AllOptional<K["Inject"]> extends true
+		? K["name"]
+		: never]?: K["Inject"];
+};
+
+/**
+ * Extract source types where inject opts have required properties.
+ */
+type RequiredInjectSources<T extends AnySourceType[]> = {
 	[K in T[number] as AllOptional<K["Inject"]> extends true
 		? never
 		: K["name"]]: K["Inject"];
-}
+};
+
+/**
+ * Maps a tuple of SourceTypes to an object where keys are source names
+ * and values are their inject options. If all inject properties are optional,
+ * the key itself becomes optional.
+ */
+export type InjectOpts<T extends AnySourceType[]> = Simplify<
+	OptionalInjectSources<T> & RequiredInjectSources<T>
+>;
