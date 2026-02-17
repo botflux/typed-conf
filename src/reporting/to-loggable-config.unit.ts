@@ -1,0 +1,42 @@
+import { describe, it, expect } from 'vitest'
+import {appendOrigin} from "../sources/origin.js";
+import {toLoggableConfig} from "./to-loggable-config.js";
+
+describe('toLoggableConfig', function () {
+  it('should be able to merge config value and their origin', function () {
+    // Given
+    const config = { port: 3000, host: 'localhost' }
+
+    appendOrigin(config, 'port', 'env:PORT')
+    appendOrigin(config, 'host', 'env:HOST')
+
+    // When
+    const loggableConfig = toLoggableConfig(config)
+
+    // Then
+    expect(loggableConfig).toEqual({ port: '3000 (env:PORT)', host: 'localhost (env:HOST)' })
+  })
+
+  it('should be able to merge config value and their origin even with nested configs', function () {
+    // Given
+    const db = { url: 'postgres://localhost' }
+    appendOrigin(db, 'url', 'env:DB_URL')
+
+    const config = { port: 3000, host: 'localhost', db }
+
+    appendOrigin(config, 'port', 'env:PORT')
+    appendOrigin(config, 'host', 'env:HOST')
+
+    // When
+    const loggableConfig = toLoggableConfig(config)
+
+    // Then
+    expect(loggableConfig).toEqual({
+      port: '3000 (env:PORT)',
+      host: 'localhost (env:HOST)',
+      db: {
+        url: 'postgres://localhost (env:DB_URL)'
+      }
+    })
+  })
+})
