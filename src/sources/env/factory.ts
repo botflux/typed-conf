@@ -48,6 +48,27 @@ export type ImplicitModeOpts = {
 	 */
 	separator?: string
 
+	/**
+	 * A string prepended to all implicit env names.
+	 *
+	 * If you have the following schema:
+	 *
+	 * ```typescript
+	 * const schema = object({
+	 *   host: string(),
+	 *   db: object({
+	 *     url: string()
+	 *   })
+	 * })
+	 * ```
+	 *
+	 * With `prefix: 'MYAPP'`, the source will look for `MYAPP_HOST` and `MYAPP_DB_URL`.
+	 *
+	 * The prefix is joined using the configured `separator` (underscore by default).
+	 * So with `prefix: 'my-app'` and `separator: '.'`, you'd get `my-app.host` and `my-app.db.url`.
+	 *
+	 * This is handy when your app's envs share a namespace with other tools or services.
+	 */
 	prefix?: string
 }
 
