@@ -1,5 +1,5 @@
-import { EnvSource } from "./source.js";
-import { screamingSnakeCase } from "../../naming/screaming-snake-case.js";
+import {EnvSource} from "./source.js";
+import {screamingSnakeCase} from "../../naming/screaming-snake-case.js";
 
 export type ImplicitModeOpts = {
 	type: 'implicit'
@@ -89,6 +89,7 @@ export type NormalizedImplicitModeOpts = {
 	type: "implicit";
 	namingConvention: (key: string) => string;
 	separator: string;
+	prefix?: string;
 };
 
 export type NormalizedEnvSourceOpts<Name extends string> = {
@@ -151,5 +152,6 @@ function normalizeMode(
 		type: "implicit",
 		namingConvention: mode.namingConvention ?? screamingSnakeCase,
 		separator: mode.separator ?? "_",
+		...mode.prefix !== undefined && {prefix: mode.prefix},
 	};
 }

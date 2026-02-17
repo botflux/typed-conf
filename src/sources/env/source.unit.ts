@@ -262,7 +262,7 @@ describe("env source", () => {
       })
     })
 
-    describe.skip('implicit env prefixing', function () {
+    describe('implicit env prefixing', function () {
       it('should be able to prefix all the envs all the implicit envs', async function () {
         // Given
         const fakeEnvs = {'MYAPP_HOST': 'localhost', 'MYAPP_DB_URL': 'postgres://localhost'};
@@ -284,7 +284,7 @@ describe("env source", () => {
       it('should be able to use the configured separator between the prefix and the implicit env name', async function () {
         // Given
         const fakeEnvs = {'my-app.host': 'localhost', 'my-app.db.url': 'postgres://localhost'};
-        const source = envSource({mode: {type: 'implicit', prefix: 'my-app', separator: '.'}});
+        const source = envSource({mode: {type: 'implicit', prefix: 'my-app', separator: '.', namingConvention: kebabCase}});
         const schema = object({
           host: string(),
           db: object({

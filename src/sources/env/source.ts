@@ -78,7 +78,11 @@ export class EnvSource<Name extends string>
 		if (mode === "explicit") {
 			throw new Error("pathToEnvName should not be called in explicit mode");
 		}
-		return path.map(mode.namingConvention).join(mode.separator);
+		const envName = path.map(mode.namingConvention).join(mode.separator);
+		if (mode.prefix !== undefined) {
+			return `${mode.prefix}${mode.separator}${envName}`;
+		}
+		return envName;
 	}
 
 	#collectSchemaEntries(
