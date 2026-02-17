@@ -5,7 +5,7 @@ import {string} from "../../schemes/string.js";
 import {getOrigin} from "../origin.js";
 import {AmbiguousEnvNameError} from "./ambiguous-env-name.error.js";
 
-describe.skip('env source', function () {
+describe('env source', function () {
   describe('load all from schema', function () {
     describe('base env sources tests and implicit loading', function () {
       it('should be able to load config from envs', async function () {
@@ -92,7 +92,7 @@ describe.skip('env source', function () {
      * This is useful when you are integrating the library within an existing codebase, you define your config schema
      * with aliases to make the old envs compatible with the schema.
      */
-    describe('aliases', function () {
+    describe.skip('aliases', function () {
       it('should be able to load aliases', async function () {
         // Given
         const fakeEnvs = {OLD_HOST_ENV: 'localhost'}
@@ -159,7 +159,7 @@ describe.skip('env source', function () {
      * That's the point where explicit loading comes in handy; since you are required to give a name to each env,
      * you can search them easily.
      */
-    describe('explicit loading', function () {
+    describe.skip('explicit loading', function () {
       it('should be able to disable implicit loading', async function () {
         // Given
         const fakeEnvs = {HOST: 'new.localhost', OLD_HOST_ENV: 'localhost'}
@@ -196,7 +196,7 @@ describe.skip('env source', function () {
     /**
      * It is important to keep track of which alias was used to load a config entry.
      */
-    describe('source tracking', function () {
+    describe.skip('source tracking', function () {
       it('should be able to track env\'s origin', async function () {
         // Given
         const fakeEnvs = {HOST: 'new.localhost', OLD_HOST_ENV: 'localhost'}
