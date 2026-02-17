@@ -6,6 +6,7 @@ export type NumberSchema = BaseSchema<number>
 export function number(): NumberSchema {
   return {
     type: 0,
-    schema: Number()
+    schema: Number(),
+    structure: { kind: "leaf" },
   }
 }

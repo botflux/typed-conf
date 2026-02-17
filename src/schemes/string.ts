@@ -8,6 +8,7 @@ export type StringSchema = BaseSchema<string>
 export function string(aliases: Alias<AnySourceType>[] = []): StringSchema {
   return {
     type: '',
-    schema: String()
+    schema: String(),
+    structure: { kind: "leaf" },
   }
 }

@@ -1,8 +1,7 @@
 import type {Alias, Source} from "../interfaces.js";
 import type {EnvSourceType} from "./types.js";
-import type {BaseSchema} from "../../schemes/base.js";
+import type {BaseSchema, Branch} from "../../schemes/base.js";
 import type {RequiredEnvSourceOpts} from "./factory.js";
-import type {ObjectSchema} from "../../schemes/object.js";
 import {AmbiguousEnvNameError} from "./ambiguous-env-name.error.js";
 
 type SchemaEntry = {
@@ -26,7 +25,7 @@ export class EnvSource<Name extends string> implements Source<EnvSourceType<Name
   }
 
   async loadFromSchema(schema: BaseSchema<unknown>, _opts: EnvSourceType<Name>["LoadFromSchema"], inject: EnvSourceType<Name>["Inject"]): Promise<Record<string, unknown>> {
-    if (!this.#isObjectSchema(schema)) {
+    if (!this.#isBranch(schema)) {
       return Promise.resolve({});
     }
 
@@ -62,13 +61,13 @@ export class EnvSource<Name extends string> implements Source<EnvSourceType<Name
     return path.map(this.#camelToScreamingSnake).join("_");
   }
 
-  #collectSchemaEntries(schema: ObjectSchema<Record<string, BaseSchema<unknown>>>, prefix: string[] = []): SchemaEntry[] {
+  #collectSchemaEntries(schema: BaseSchema<unknown> & { structure: Branch }, prefix: string[] = []): SchemaEntry[] {
     const entries: SchemaEntry[] = [];
 
-    for (const [key, childSchema] of Object.entries(schema.spec)) {
+    for (const [key, childSchema] of Object.entries(schema.structure.children)) {
       const path = [...prefix, key];
 
-      if (this.#isObjectSchema(childSchema)) {
+      if (this.#isBranch(childSchema)) {
         entries.push(...this.#collectSchemaEntries(childSchema, path));
       } else {
         entries.push({path, envName: this.#pathToEnvName(path)});
@@ -97,7 +96,7 @@ export class EnvSource<Name extends string> implements Source<EnvSourceType<Name
     current[lastKey] = value;
   }
 
-  #isObjectSchema(schema: BaseSchema<unknown>): schema is ObjectSchema<Record<string, BaseSchema<unknown>>> {
-    return "spec" in schema && typeof schema.spec === "object" && schema.spec !== null;
+  #isBranch(schema: BaseSchema<unknown>): schema is BaseSchema<unknown> & { structure: Branch } {
+    return schema.structure.kind === "branch";
   }
 }

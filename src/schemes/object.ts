@@ -1,8 +1,6 @@
 import type {BaseSchema} from "./base.js";
 
-export type ObjectSchema<Spec extends Record<string, BaseSchema<unknown>>> = BaseSchema<SpecToType<Spec>> & {
-  spec: Spec
-}
+export type ObjectSchema<Spec extends Record<string, BaseSchema<unknown>>> = BaseSchema<SpecToType<Spec>>
 
 export type SpecToType<Spec extends Record<string, BaseSchema<unknown>>> = {
   readonly [Key in keyof Spec]: Spec[Key]["type"]
@@ -12,7 +10,7 @@ export function object<Spec extends Record<string, BaseSchema<unknown>>>(spec: S
   return {
     type: {} as unknown as SpecToType<Spec>,
     schema: Object(specToTypeboxSpec(spec)),
-    spec,
+    structure: { kind: "branch", children: spec },
   }
 }
 
