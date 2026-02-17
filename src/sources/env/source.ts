@@ -103,9 +103,11 @@ export class EnvSource<Name extends string>
     entry: SchemaEntry,
     envs: Record<string, string | undefined>,
   ): string | undefined {
-    const implicitValue = envs[entry.envName];
-    if (implicitValue !== undefined) {
-      return implicitValue;
+    if (this.#opts.mode === "implicit") {
+      const implicitValue = envs[entry.envName];
+      if (implicitValue !== undefined) {
+        return implicitValue;
+      }
     }
 
     for (const alias of entry.aliases) {

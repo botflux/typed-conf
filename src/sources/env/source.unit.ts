@@ -168,7 +168,7 @@ describe("env source", function () {
 		 * That's the point where explicit loading comes in handy; since you are required to give a name to each env,
 		 * you can search them easily.
 		 */
-		describe.skip("explicit loading", function () {
+		describe("explicit loading", function () {
 			it("should be able to disable implicit loading", async function () {
 				// Given
 				const fakeEnvs = { HOST: "new.localhost", OLD_HOST_ENV: "localhost" };
