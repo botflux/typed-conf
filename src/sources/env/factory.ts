@@ -1,5 +1,5 @@
 import { EnvSource } from "./source.js";
-import type { SomeRequired } from "../../types.js";
+import { screamingSnakeCase } from "../../naming/screaming-snake-case.js";
 
 export type ImplicitModeOpts = {
 	type: 'implicit'
@@ -83,14 +83,16 @@ export type EnvSourceOpts<Name extends string> = {
 	mode?: "explicit" | "implicit" | ImplicitModeOpts;
 };
 
-export type EnvSourceRequiredFields = keyof Pick<
-	EnvSourceOpts<string>,
-	"name" | "mode"
->;
-export type RequiredEnvSourceOpts<Name extends string> = SomeRequired<
-	EnvSourceOpts<Name>,
-	EnvSourceRequiredFields
->;
+export type NormalizedImplicitModeOpts = {
+	type: "implicit";
+	namingConvention: (key: string) => string;
+	separator: string;
+};
+
+export type NormalizedEnvSourceOpts<Name extends string> = {
+	name: Name;
+	mode: "explicit" | NormalizedImplicitModeOpts;
+};
 
 /**
  * Create an env source.
@@ -119,21 +121,33 @@ export function envSource<Name extends string = "envs">(
 export function envSource<Name extends string = "envs">(
 	nameOrOpts?: Name | EnvSourceOpts<Name>,
 ): EnvSource<Name> {
-	const defaults = {
-		mode: "explicit" as const,
-		name: "envs" as Name,
-	} satisfies RequiredEnvSourceOpts<Name>;
+	const userOpts =
+		typeof nameOrOpts === "string" ? { name: nameOrOpts } : (nameOrOpts ?? {});
 
-	const opts =
-		typeof nameOrOpts === "string"
-			? ({
-					...defaults,
-					name: nameOrOpts,
-				} satisfies RequiredEnvSourceOpts<Name>)
-			: ({
-					...defaults,
-					...nameOrOpts,
-				} satisfies RequiredEnvSourceOpts<Name>);
+	const name = (userOpts.name ?? "envs") as Name;
+	const mode = normalizeMode(userOpts.mode);
 
-	return new EnvSource(opts);
+	return new EnvSource({ name, mode });
+}
+
+function normalizeMode(
+	mode: EnvSourceOpts<string>["mode"],
+): NormalizedEnvSourceOpts<string>["mode"] {
+	if (mode === undefined || mode === "explicit") {
+		return "explicit";
+	}
+
+	if (mode === "implicit") {
+		return {
+			type: "implicit",
+			namingConvention: screamingSnakeCase,
+			separator: "_",
+		};
+	}
+
+	return {
+		type: "implicit",
+		namingConvention: mode.namingConvention ?? screamingSnakeCase,
+		separator: mode.separator ?? "_",
+	};
 }

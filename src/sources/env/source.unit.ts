@@ -4,7 +4,7 @@ import {object} from "../../schemes/object.js";
 import {string} from "../../schemes/string.js";
 import {getOrigin} from "../origin.js";
 import {AmbiguousEnvNameError} from "./ambiguous-env-name.error.js";
-import {snakeCase} from "../../naming/snake-case.js";
+import {kebabCase} from "../../naming/kebab-case.js";
 
 describe("env source", () => {
   describe("load all from schema", () => {
@@ -236,14 +236,14 @@ describe("env source", () => {
       });
     });
 
-    describe.skip('implicit env naming convention', function () {
-      it('should be able to customize the naming convention of the implicit envs', async function () {
+    describe('implicit env naming convention', () => {
+      it('should be able to customize the naming convention of the implicit envs', async () => {
         // Given
         const fakeEnvs = {'server-host': 'localhost', 'db.url': 'postgres://localhost'};
         const source = envSource({
           mode: {
             type: 'implicit',
-            namingConvention: snakeCase,
+            namingConvention: kebabCase,
             separator: '.'
           }
         });

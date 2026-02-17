@@ -1,26 +1,25 @@
 import type { Alias, AnySourceType, Source } from "../interfaces.js";
 import type { EnvSourceType } from "./types.js";
 import type { BaseSchema, Branch, Leaf } from "../../schemes/base.js";
-import type { RequiredEnvSourceOpts } from "./factory.js";
+import type { NormalizedEnvSourceOpts } from "./factory.js";
 import { AmbiguousEnvNameError } from "./ambiguous-env-name.error.js";
 import { appendOrigin } from "../origin.js";
 
 type SchemaEntry = {
 	path: string[];
-	envName: string;
-	aliases: string[];
+	envNames: string[];
 };
 
 export class EnvSource<Name extends string>
 	implements Source<EnvSourceType<Name>>
 {
-	#opts: RequiredEnvSourceOpts<Name>;
+	#opts: NormalizedEnvSourceOpts<Name>;
 
 	get name(): Name {
 		return this.#opts.name;
 	}
 
-	constructor(opts: RequiredEnvSourceOpts<Name>) {
+	constructor(opts: NormalizedEnvSourceOpts<Name>) {
 		this.#opts = opts;
 	}
 
@@ -64,16 +63,22 @@ export class EnvSource<Name extends string>
 		const envNameToPath = new Map<string, string>();
 		for (const entry of entries) {
 			const pathStr = entry.path.join(".");
-			const existing = envNameToPath.get(entry.envName);
-			if (existing !== undefined) {
-				throw new AmbiguousEnvNameError(entry.envName, existing, pathStr);
+			for (const envName of entry.envNames) {
+				const existing = envNameToPath.get(envName);
+				if (existing !== undefined) {
+					throw new AmbiguousEnvNameError(envName, existing, pathStr);
+				}
+				envNameToPath.set(envName, pathStr);
 			}
-			envNameToPath.set(entry.envName, pathStr);
 		}
 	}
 
 	#pathToEnvName(path: string[]): string {
-		return path.map(this.#camelToScreamingSnake).join("_");
+		const mode = this.#opts.mode;
+		if (mode === "explicit") {
+			throw new Error("pathToEnvName should not be called in explicit mode");
+		}
+		return path.map(mode.namingConvention).join(mode.separator);
 	}
 
 	#collectSchemaEntries(
@@ -81,6 +86,7 @@ export class EnvSource<Name extends string>
 		prefix: string[] = [],
 	): SchemaEntry[] {
 		const entries: SchemaEntry[] = [];
+		const isImplicit = this.#opts.mode !== "explicit";
 
 		for (const [key, childSchema] of Object.entries(
 			schema.structure.children,
@@ -91,7 +97,10 @@ export class EnvSource<Name extends string>
 				entries.push(...this.#collectSchemaEntries(childSchema, path));
 			} else {
 				const aliases = this.#extractAliases(childSchema.structure as Leaf);
-				entries.push({ path, envName: this.#pathToEnvName(path), aliases });
+				const envNames = isImplicit
+					? [this.#pathToEnvName(path), ...aliases]
+					: aliases;
+				entries.push({ path, envNames });
 			}
 		}
 
@@ -114,25 +123,13 @@ export class EnvSource<Name extends string>
 		entry: SchemaEntry,
 		envs: Record<string, string | undefined>,
 	): { value: string; envKey: string } | undefined {
-		if (this.#opts.mode === "implicit") {
-			const implicitValue = envs[entry.envName];
-			if (implicitValue !== undefined) {
-				return { value: implicitValue, envKey: entry.envName };
+		for (const envName of entry.envNames) {
+			const value = envs[envName];
+			if (value !== undefined) {
+				return { value, envKey: envName };
 			}
 		}
-
-		for (const alias of entry.aliases) {
-			const aliasValue = envs[alias];
-			if (aliasValue !== undefined) {
-				return { value: aliasValue, envKey: alias };
-			}
-		}
-
 		return undefined;
-	}
-
-	#camelToScreamingSnake(str: string): string {
-		return str.replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase();
 	}
 
 	#setNestedValue(
