@@ -25,6 +25,16 @@ export default defineConfig({
 					include: ["src/tests/**/*.uat.ts"],
 				},
 			},
+			{
+				extends: true,
+				test: {
+					typecheck: {
+						enabled: true,
+					},
+					name: 'type',
+					include: ["src/**/*.test-d.ts"],
+				}
+			}
 		],
 	},
 });
