@@ -40,3 +40,26 @@ type RequiredInjectSources<T extends AnySourceType[]> = {
 export type InjectOpts<T extends AnySourceType[]> = Simplify<
 	OptionalInjectSources<T> & RequiredInjectSources<T>
 >;
+
+/**
+ * Checks if all sources in the tuple have all-optional inject opts.
+ */
+type AllSourcesOptional<T extends AnySourceType[]> =
+	(T[number] extends infer S
+		? S extends AnySourceType
+			? AllOptional<S["Inject"]> extends true
+				? true
+				: false
+			: never
+		: never) extends true
+		? true
+		: false;
+
+/**
+ * Maps a tuple of SourceTypes to load options.
+ * The inject property is optional if all sources have all-optional inject opts.
+ */
+export type LoadOpts<T extends AnySourceType[]> =
+	AllSourcesOptional<T> extends true
+		? { inject?: InjectOpts<T> }
+		: { inject: InjectOpts<T> };
