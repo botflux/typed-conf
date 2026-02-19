@@ -39,4 +39,26 @@ describe('toLoggableConfig', function () {
       }
     })
   })
+
+  it('should be able to skip undefined config value', function () {
+    // Given
+    const config = { url: undefined }
+
+    // When
+    const loggableConfig = toLoggableConfig(config)
+
+    // Then
+    expect(loggableConfig).toEqual({})
+  })
+
+  it('should be able to skip null config value', function () {
+    // Given
+    const config = { url: null }
+
+    // When
+    const loggableConfig = toLoggableConfig(config)
+
+    // Then
+    expect(loggableConfig).toEqual({})
+  })
 })
