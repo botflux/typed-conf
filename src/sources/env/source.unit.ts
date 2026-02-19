@@ -327,4 +327,28 @@ describe("env source", () => {
 			});
 		});
 	});
+
+	it('should be in explicit mode by default', async function () {
+		// Given
+		const fakeEnvs = { HOST: "localhost" };
+		const source = envSource();
+		const schema = object({
+			host: string(),
+		});
+
+		// When
+		const result = await source.loadFromSchema(schema, undefined, fakeEnvs);
+
+		// Then
+		expect(result).toEqual({});
+	})
+
+	it('should be able to customize the source\'s name', function () {
+		// Given
+		// When
+		const source = envSource({ name: "custom-source" });
+
+		// Then
+		expect(source.name).toEqual("custom-source");
+	})
 });
