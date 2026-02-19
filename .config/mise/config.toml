@@ -19,4 +19,5 @@ run = """
 pnpm biome check --write --no-errors-on-unmatched --changed --since HEAD
 pnpm typecheck
 pnpm test
+pnpm test:mutation
 """
