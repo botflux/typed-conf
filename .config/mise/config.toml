@@ -1,6 +1,7 @@
 [env]
 NODE_ENV="production"
 BIOME_CONFIG_PATH=".config/biome/biome.json"
+STRYKER_CONFIG_PATH=".config/stryker/stryker.config.json"
 
 [tools]
 node = "24.13.1"

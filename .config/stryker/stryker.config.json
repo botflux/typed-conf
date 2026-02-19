@@ -1,0 +1,25 @@
+{
+  "$schema": "../../node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "plugins": [
+    "@stryker-mutator/typescript-checker",
+    "@stryker-mutator/vitest-runner"
+  ],
+  "vitest": {
+    "related": false,
+    "configFile": ".config/vitest/vitest.config.ts"
+  },
+  "testRunner": "vitest",
+  "checkers": ["typescript"],
+  "tsconfigFile": "tsconfig.json",
+  "typescriptChecker": {
+    "prioritizePerformanceOverAccuracy": true
+  },
+  "ignorePatterns": [".agents", ".idea", ".opencode"],
+  "packageManager": "pnpm",
+  "mutate": ["src/**/*.ts", "!src/**/*.unit.ts", "!src/**/*.test-d.ts", "!src/**/*.integration.ts", "!src/**/*.uat.ts"],
+  "reporters": [
+    "json",
+    "html",
+    "progress"
+  ]
+}
