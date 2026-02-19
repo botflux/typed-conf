@@ -1,39 +1,26 @@
 import { describe, expect, it } from "vitest";
-
-function object(param: { port: any }) {}
-
-function number(param: any[]) {}
-
-function envSource() {
-	return {
-		alias(name: string) {
-			return name;
-		},
-	};
-}
-
-async function load(
-	schema: void,
-	param2: { inject: { envs: { PORT: string } } },
-) {}
+import { envSource } from "../sources/env/factory.js";
+import { object } from "../schemes/object.js";
+import { string } from "../schemes/string.js";
+import { load } from "../load.js";
 
 describe("load config from envs", () => {
-	it.skip("should load a number from an env variable", async () => {
+	it("should load a number from an env variable", async () => {
 		// Given
 		const envs = envSource();
 
 		const schema = object({
-			port: number([envs.alias("PORT")]),
+			host: string([envs.alias("HOST")]),
 		});
 
 		// When
 		const config = await load(schema, {
 			inject: {
-				envs: { PORT: "3000" },
+				envs: { HOST: "localhost" },
 			},
 		});
 
 		// Then
-		expect(config).toEqual({ port: 3000 });
+		expect(config).toEqual({ host: "localhost" });
 	});
 });
