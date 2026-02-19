@@ -18,9 +18,7 @@ export async function load<
 	schema: Schema,
 	opts: LoadOpts<UnwrapSourceType<UnwrapArray<Schema["sources"]>>>,
 ): Promise<Schema["type"]> {
-	const {
-		inject
-	} = opts
+	const { inject } = opts;
 
 	const source = schema.sources[0];
 

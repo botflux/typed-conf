@@ -1,6 +1,6 @@
+import { Number as TypeboxNumber } from "typebox";
 import type { Alias, AnySourceType, Source } from "../sources/interfaces.js";
 import type { BaseSchema } from "./base.js";
-import { Number as TypeboxNumber } from "typebox";
 
 export type NumberSchema<Sources extends Source<AnySourceType>> = BaseSchema<
 	number,

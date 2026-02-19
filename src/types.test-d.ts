@@ -1,6 +1,6 @@
-import type { InjectOpts, LoadOpts } from "./types.js";
-import { describe, it, expectTypeOf } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
 import type { SourceType } from "./sources/interfaces.js";
+import type { InjectOpts, LoadOpts } from "./types.js";
 
 describe("InjectOpts", () => {
 	it("should be able to map a list of sources to their inject options", () => {

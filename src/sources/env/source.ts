@@ -1,9 +1,9 @@
-import type { Alias, AnySourceType, Source } from "../interfaces.js";
-import type { EnvSourceType } from "./types.js";
 import type { BaseSchema, Branch, Leaf } from "../../schemes/base.js";
-import type { NormalizedEnvSourceOpts } from "./factory.js";
-import { AmbiguousEnvNameError } from "./ambiguous-env-name.error.js";
+import type { Alias, AnySourceType, Source } from "../interfaces.js";
 import { appendOrigin } from "../origin.js";
+import { AmbiguousEnvNameError } from "./ambiguous-env-name.error.js";
+import type { NormalizedEnvSourceOpts } from "./factory.js";
+import type { EnvSourceType } from "./types.js";
 
 type SchemaEntry = {
 	path: string[];

@@ -1,5 +1,5 @@
-import { EnvSource } from "./source.js";
 import { screamingSnakeCase } from "../../naming/screaming-snake-case.js";
+import { EnvSource } from "./source.js";
 
 export type ImplicitModeOpts = {
 	type: "implicit";

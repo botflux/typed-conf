@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { envSource } from "../sources/env/factory.js";
+import { load } from "../load.js";
 import { object } from "../schemes/object.js";
 import { string } from "../schemes/string.js";
-import { load } from "../load.js";
+import { envSource } from "../sources/env/factory.js";
 
 describe("load config from envs", () => {
 	it("should load a number from an env variable", async () => {

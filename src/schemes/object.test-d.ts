@@ -1,7 +1,7 @@
-import { describe, it, expectTypeOf } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
 import type { Source, SourceType } from "../sources/interfaces.js";
-import { string } from "./string.js";
 import { object } from "./object.js";
+import { string } from "./string.js";
 
 describe("string", () => {
 	it("should be able to infer the sources registered in the aliases", () => {
@@ -9,13 +9,13 @@ describe("string", () => {
 		type SourceType1 = SourceType<
 			"source1",
 			{ s1: string },
-			any,
+			unknown,
 			{ inject1: string }
 		>;
 		type SourceType2 = SourceType<
 			"source2",
 			{ s2: string },
-			any,
+			unknown,
 			{ inject2: string }
 		>;
 
@@ -36,7 +36,7 @@ describe("string", () => {
 		});
 
 		// Then
-		expectTypeOf(schema["sources"]).toEqualTypeOf<
+		expectTypeOf(schema.sources).toEqualTypeOf<
 			Array<Source<SourceType1> | Source<SourceType2>>
 		>();
 	});

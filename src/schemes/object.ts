@@ -1,5 +1,5 @@
-import type { BaseSchema } from "./base.js";
 import type { AnySourceType, Source } from "../sources/interfaces.js";
+import type { BaseSchema } from "./base.js";
 
 // Extract the Source type from a BaseSchema
 type ExtractSources<S> = S extends BaseSchema<unknown, infer Src> ? Src : never;

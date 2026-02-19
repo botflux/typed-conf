@@ -1,6 +1,6 @@
+import { fc, test } from "@fast-check/vitest";
 import { describe, expect, it } from "vitest";
 import { screamingSnakeCase } from "./screaming-snake-case.js";
-import { fc, test } from "@fast-check/vitest";
 
 describe("screamingSnakeCase", () => {
 	it("should be able to transform a simple name", () => {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { appendOrigin } from "../sources/origin.js";
 import { toLoggableConfig } from "./to-loggable-config.js";
 

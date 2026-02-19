@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { envSource } from "./factory.js";
+import { kebabCase } from "../../naming/kebab-case.js";
 import { object } from "../../schemes/object.js";
 import { string } from "../../schemes/string.js";
 import { getOrigin } from "../origin.js";
 import { AmbiguousEnvNameError } from "./ambiguous-env-name.error.js";
-import { kebabCase } from "../../naming/kebab-case.js";
+import { envSource } from "./factory.js";
 
 describe("env source", () => {
 	describe("load all from schema", () => {
@@ -328,7 +328,7 @@ describe("env source", () => {
 		});
 	});
 
-	it('should be in explicit mode by default', async function () {
+	it("should be in explicit mode by default", async () => {
 		// Given
 		const fakeEnvs = { HOST: "localhost" };
 		const source = envSource();
@@ -341,14 +341,14 @@ describe("env source", () => {
 
 		// Then
 		expect(result).toEqual({});
-	})
+	});
 
-	it('should be able to customize the source\'s name', function () {
+	it("should be able to customize the source's name", () => {
 		// Given
 		// When
 		const source = envSource({ name: "custom-source" });
 
 		// Then
 		expect(source.name).toEqual("custom-source");
-	})
+	});
 });

@@ -1,6 +1,6 @@
+import { String as TypeboxString } from "typebox";
 import type { Alias, AnySourceType, Source } from "../sources/interfaces.js";
 import type { BaseSchema } from "./base.js";
-import { String as TypeboxString } from "typebox";
 
 export type StringSchema<Sources extends Source<AnySourceType>> = BaseSchema<
 	string,
