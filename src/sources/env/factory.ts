@@ -1,8 +1,8 @@
-import {EnvSource} from "./source.js";
-import {screamingSnakeCase} from "../../naming/screaming-snake-case.js";
+import { EnvSource } from "./source.js";
+import { screamingSnakeCase } from "../../naming/screaming-snake-case.js";
 
 export type ImplicitModeOpts = {
-	type: 'implicit'
+	type: "implicit";
 
 	/**
 	 * A function that transforms a camel case path chunk into the naming convention you want.
@@ -24,7 +24,7 @@ export type ImplicitModeOpts = {
 	 * @param key
 	 * @default screamingSnakeCase
 	 */
-	namingConvention?: (key: string) => string
+	namingConvention?: (key: string) => string;
 
 	/**
 	 * The character that is used to separate chunks of an entry path.
@@ -46,7 +46,7 @@ export type ImplicitModeOpts = {
 	 *
 	 * @default "_"
 	 */
-	separator?: string
+	separator?: string;
 
 	/**
 	 * A string prepended to all implicit env names.
@@ -69,8 +69,8 @@ export type ImplicitModeOpts = {
 	 *
 	 * This is handy when your app's envs share a namespace with other tools or services.
 	 */
-	prefix?: string
-}
+	prefix?: string;
+};
 
 export type EnvSourceOpts<Name extends string> = {
 	/**
@@ -173,6 +173,6 @@ function normalizeMode(
 		type: "implicit",
 		namingConvention: mode.namingConvention ?? screamingSnakeCase,
 		separator: mode.separator ?? "_",
-		...mode.prefix !== undefined && {prefix: mode.prefix},
+		...(mode.prefix !== undefined && { prefix: mode.prefix }),
 	};
 }

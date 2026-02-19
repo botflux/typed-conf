@@ -1,61 +1,66 @@
-import {describe, it, expect} from 'vitest'
-import {fc, test} from '@fast-check/vitest'
-import {kebabCase} from './kebab-case.js'
+import { describe, it, expect } from "vitest";
+import { fc, test } from "@fast-check/vitest";
+import { kebabCase } from "./kebab-case.js";
 
-describe('kebabCase', function () {
-  it('should be able to transform a simple name', function () {
-    // Given
-    const name = 'serverHost'
+describe("kebabCase", () => {
+	it("should be able to transform a simple name", () => {
+		// Given
+		const name = "serverHost";
 
-    // When
-    const result = kebabCase(name)
+		// When
+		const result = kebabCase(name);
 
-    // Then
-    expect(result).toEqual('server-host')
-  })
+		// Then
+		expect(result).toEqual("server-host");
+	});
 
-  it('should be able to transform a name made of multiple case change', function () {
-    // Given
-    const name = 'myServerHost'
+	it("should be able to transform a name made of multiple case change", () => {
+		// Given
+		const name = "myServerHost";
 
-    // When
-    const result = kebabCase(name)
+		// When
+		const result = kebabCase(name);
 
-    // Then
-    expect(result).toEqual('my-server-host')
-  })
+		// Then
+		expect(result).toEqual("my-server-host");
+	});
 
-  it('should be able to lowercase acronyms', function () {
-    // Given
-    const name = 'myURL'
+	it("should be able to lowercase acronyms", () => {
+		// Given
+		const name = "myURL";
 
-    // When
-    const result = kebabCase(name)
+		// When
+		const result = kebabCase(name);
 
-    // Then
-    expect(result).toEqual('my-url')
-  })
+		// Then
+		expect(result).toEqual("my-url");
+	});
 
-  test.prop({
-    name: fc.string().filter(s => s.toLowerCase() === s)
-  })("should be able to not change string without uppercase character", ({name}) => {
-    // Given
-    // When
-    const result = kebabCase(name)
+	test.prop({
+		name: fc.string().filter((s) => s.toLowerCase() === s),
+	})(
+		"should be able to not change string without uppercase character",
+		({ name }) => {
+			// Given
+			// When
+			const result = kebabCase(name);
 
-    // Then
-    expect(result).toEqual(name)
-  })
+			// Then
+			expect(result).toEqual(name);
+		},
+	);
 
+	test.prop({
+		name: fc.string().filter((s) => s.toUpperCase() === s),
+	})(
+		"should be able to lowercase names that only contain uppercase characters",
+		({ name }) => {
+			// Given
+			// When
+			const result = kebabCase(name);
 
-  test.prop({
-    name: fc.string().filter(s => s.toUpperCase() === s)
-  })("should be able to lowercase names that only contain uppercase characters", ({name}) => {
-    // Given
-    // When
-    const result = kebabCase(name)
-
-    // Then
-    expect(result).toEqual(name.toLowerCase())
-  })
-})
+			// Then
+			expect(result).toEqual(name.toLowerCase());
+		},
+	);
+});

@@ -1,64 +1,67 @@
-import { describe, it, expect } from 'vitest'
-import {appendOrigin} from "../sources/origin.js";
-import {toLoggableConfig} from "./to-loggable-config.js";
+import { describe, it, expect } from "vitest";
+import { appendOrigin } from "../sources/origin.js";
+import { toLoggableConfig } from "./to-loggable-config.js";
 
-describe('toLoggableConfig', function () {
-  it('should be able to merge config value and their origin', function () {
-    // Given
-    const config = { port: 3000, host: 'localhost' }
+describe("toLoggableConfig", () => {
+	it("should be able to merge config value and their origin", () => {
+		// Given
+		const config = { port: 3000, host: "localhost" };
 
-    appendOrigin(config, 'port', 'env:PORT')
-    appendOrigin(config, 'host', 'env:HOST')
+		appendOrigin(config, "port", "env:PORT");
+		appendOrigin(config, "host", "env:HOST");
 
-    // When
-    const loggableConfig = toLoggableConfig(config)
+		// When
+		const loggableConfig = toLoggableConfig(config);
 
-    // Then
-    expect(loggableConfig).toEqual({ port: '3000 (env:PORT)', host: 'localhost (env:HOST)' })
-  })
+		// Then
+		expect(loggableConfig).toEqual({
+			port: "3000 (env:PORT)",
+			host: "localhost (env:HOST)",
+		});
+	});
 
-  it('should be able to merge config value and their origin even with nested configs', function () {
-    // Given
-    const db = { url: 'postgres://localhost' }
-    appendOrigin(db, 'url', 'env:DB_URL')
+	it("should be able to merge config value and their origin even with nested configs", () => {
+		// Given
+		const db = { url: "postgres://localhost" };
+		appendOrigin(db, "url", "env:DB_URL");
 
-    const config = { port: 3000, host: 'localhost', db }
+		const config = { port: 3000, host: "localhost", db };
 
-    appendOrigin(config, 'port', 'env:PORT')
-    appendOrigin(config, 'host', 'env:HOST')
+		appendOrigin(config, "port", "env:PORT");
+		appendOrigin(config, "host", "env:HOST");
 
-    // When
-    const loggableConfig = toLoggableConfig(config)
+		// When
+		const loggableConfig = toLoggableConfig(config);
 
-    // Then
-    expect(loggableConfig).toEqual({
-      port: '3000 (env:PORT)',
-      host: 'localhost (env:HOST)',
-      db: {
-        url: 'postgres://localhost (env:DB_URL)'
-      }
-    })
-  })
+		// Then
+		expect(loggableConfig).toEqual({
+			port: "3000 (env:PORT)",
+			host: "localhost (env:HOST)",
+			db: {
+				url: "postgres://localhost (env:DB_URL)",
+			},
+		});
+	});
 
-  it('should be able to skip undefined config value', function () {
-    // Given
-    const config = { url: undefined }
+	it("should be able to skip undefined config value", () => {
+		// Given
+		const config = { url: undefined };
 
-    // When
-    const loggableConfig = toLoggableConfig(config)
+		// When
+		const loggableConfig = toLoggableConfig(config);
 
-    // Then
-    expect(loggableConfig).toEqual({})
-  })
+		// Then
+		expect(loggableConfig).toEqual({});
+	});
 
-  it('should be able to skip null config value', function () {
-    // Given
-    const config = { url: null }
+	it("should be able to skip null config value", () => {
+		// Given
+		const config = { url: null };
 
-    // When
-    const loggableConfig = toLoggableConfig(config)
+		// When
+		const loggableConfig = toLoggableConfig(config);
 
-    // Then
-    expect(loggableConfig).toEqual({})
-  })
-})
+		// Then
+		expect(loggableConfig).toEqual({});
+	});
+});

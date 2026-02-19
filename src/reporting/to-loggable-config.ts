@@ -7,7 +7,6 @@ export function toLoggableConfig(
 	const result: Record<string, unknown> = {};
 
 	for (const [key, value] of Object.entries(config)) {
-
 		if (value !== null && typeof value === "object" && !Array.isArray(value)) {
 			result[key] = toLoggableConfig(value as Record<string, unknown>);
 		} else if (value !== null && value !== undefined) {
