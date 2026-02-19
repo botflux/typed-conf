@@ -28,7 +28,7 @@ export class EnvSource<Name extends string>
 	}
 
 	async loadFromSchema(
-		schema: BaseSchema<unknown>,
+		schema: BaseSchema<unknown, Source<AnySourceType>>,
 		_opts: EnvSourceType<Name>["LoadFromSchema"],
 		inject: EnvSourceType<Name>["Inject"],
 	): Promise<Record<string, unknown>> {
@@ -86,7 +86,7 @@ export class EnvSource<Name extends string>
 	}
 
 	#collectSchemaEntries(
-		schema: BaseSchema<unknown> & { structure: Branch },
+		schema: BaseSchema<unknown, Source<AnySourceType>> & { structure: Branch },
 		prefix: string[] = [],
 	): SchemaEntry[] {
 		const entries: SchemaEntry[] = [];
@@ -157,8 +157,10 @@ export class EnvSource<Name extends string>
 	}
 
 	#isBranch(
-		schema: BaseSchema<unknown>,
-	): schema is BaseSchema<unknown> & { structure: Branch } {
+		schema: BaseSchema<unknown, Source<AnySourceType>>,
+	): schema is BaseSchema<unknown, Source<AnySourceType>> & {
+		structure: Branch;
+	} {
 		return schema.structure.kind === "branch";
 	}
 }

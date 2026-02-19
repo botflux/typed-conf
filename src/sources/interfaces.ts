@@ -46,7 +46,7 @@ export type SourceType<
 /**
  * Just a type util to make type constrains easier.
  */
-export type AnySourceType = SourceType<string, any, any, any>;
+export type AnySourceType = SourceType<string, unknown, unknown, unknown>;
 
 /**
  * An alias is an explicit reference over a piece of configuration.
@@ -85,7 +85,7 @@ export interface Source<Type extends AnySourceType> {
 	 * @param inject
 	 */
 	loadFromSchema(
-		schema: BaseSchema<unknown>,
+		schema: BaseSchema<unknown, Source<AnySourceType>>,
 		opts: Type["LoadFromSchema"],
 		inject: Type["Inject"],
 	): Promise<Record<string, unknown>>;

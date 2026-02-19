@@ -1,13 +1,19 @@
-import type { Alias, AnySourceType } from "../sources/interfaces.js";
+import type { Alias, AnySourceType, Source } from "../sources/interfaces.js";
 import type { BaseSchema } from "./base.js";
-import { String } from "typebox";
+import { String as TypeboxString } from "typebox";
 
-export type StringSchema = BaseSchema<string>;
+export type StringSchema<Sources extends Source<AnySourceType>> = BaseSchema<
+	string,
+	Sources
+>;
 
-export function string(aliases: Alias<AnySourceType>[] = []): StringSchema {
+export function string<A extends Alias<AnySourceType>>(
+	aliases: A[] = [],
+): StringSchema<A["source"]> {
 	return {
 		type: "",
-		schema: String(),
+		schema: TypeboxString(),
 		structure: { kind: "leaf", aliases },
+		sources: aliases.map((alias) => alias.source),
 	};
 }
