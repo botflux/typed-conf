@@ -5,7 +5,7 @@ import { string } from "../schemes/string.js";
 import { envSource } from "../sources/env/factory.js";
 
 describe("load config from envs", () => {
-	it("should load a number from an env variable", async () => {
+	it("should load a string from an env variable", async () => {
 		// Given
 		const envs = envSource();
 

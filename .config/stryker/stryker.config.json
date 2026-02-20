@@ -9,14 +9,27 @@
     "configFile": ".config/vitest/vitest.config.ts"
   },
   "testRunner": "vitest",
-  "checkers": ["typescript"],
+  "checkers": [
+    "typescript"
+  ],
   "tsconfigFile": "tsconfig.json",
   "typescriptChecker": {
     "prioritizePerformanceOverAccuracy": true
   },
-  "ignorePatterns": [".agents", ".idea", ".opencode"],
+  "ignorePatterns": [
+    ".agents",
+    ".idea",
+    ".opencode"
+  ],
   "packageManager": "pnpm",
-  "mutate": ["src/**/*.ts", "!src/**/*.unit.ts", "!src/**/*.test-d.ts", "!src/**/*.integration.ts", "!src/**/*.uat.ts"],
+  "mutate": [
+    "src/**/*.ts",
+    "!src/**/*.unit.ts",
+    "!src/**/*.test-d.ts",
+    "!src/**/*.integration.ts",
+    "!src/**/*.uat.ts",
+    "!src/**/*.pbt.ts"
+  ],
   "reporters": [
     "json",
     "html",

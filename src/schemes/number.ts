@@ -1,4 +1,4 @@
-import { Number as TypeboxNumber } from "typebox";
+import { Number as TypeboxNumber, Codec } from "typebox";
 import type { Alias, AnySourceType, Source } from "../sources/interfaces.js";
 import type { BaseSchema } from "./base.js";
 

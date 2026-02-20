@@ -35,6 +35,13 @@ export default defineConfig({
 					name: 'type',
 					include: ["src/**/*.test-d.ts"],
 				}
+			},
+			{
+				extends: true,
+				test: {
+					name: 'pbt',
+					include: ["src/**/*.pbt.ts"],
+				}
 			}
 		],
 	},
