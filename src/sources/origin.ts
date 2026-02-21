@@ -31,3 +31,24 @@ export function origins(records: Record<string, string>) {
 		[kOrigin]: records,
 	};
 }
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+	return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+export function assignOriginToAllProperties(
+	obj: Record<string, unknown>,
+	origin: string,
+): void {
+	for (const [key, value] of Object.entries(obj)) {
+		if (value === undefined) {
+			continue;
+		}
+
+		if (isPlainObject(value)) {
+			assignOriginToAllProperties(value, origin);
+		} else {
+			appendOrigin(obj, key, origin);
+		}
+	}
+}

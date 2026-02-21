@@ -1,9 +1,14 @@
 import type { TSchema } from "typebox";
 import Value, { ParseError } from "typebox/value";
 import { inlineCatchSync } from "./inline-catch.js";
+import { mergeConfigs } from "./merge.js";
 import type { BaseSchema } from "./schemes/base.js";
 import type { AnySourceType, Source } from "./sources/interfaces.js";
-import { getOrigin, type Origin } from "./sources/origin.js";
+import {
+	assignOriginToAllProperties,
+	getOrigin,
+	type Origin,
+} from "./sources/origin.js";
 import type { LoadOpts } from "./types.js";
 import type { TLocalizedValidationError } from "typebox/error";
 
@@ -71,12 +76,21 @@ export async function load<
 	}
 
 	const sourceInject = inject?.[source.name as keyof typeof inject] as unknown;
-	const result = await source.loadFromSchema(schema, undefined, sourceInject);
+	const sourceConfig = await source.loadFromSchema(
+		schema,
+		undefined,
+		sourceInject,
+	);
 
-	const withDefaults = Value.Default(schema.schema, result) as Record<
+	// Build defaults config with origin metadata
+	const defaultsConfig = Value.Default(schema.schema, {}) as Record<
 		string,
 		unknown
 	>;
+	assignOriginToAllProperties(defaultsConfig, "default");
 
-	return parseWithOrigin<Schema["type"]>(schema.schema, withDefaults);
+	// Merge: source wins over defaults
+	const merged = mergeConfigs([sourceConfig, defaultsConfig]);
+
+	return parseWithOrigin<Schema["type"]>(schema.schema, merged);
 }
