@@ -1,3 +1,4 @@
+import { Object as TypeboxObject } from "typebox";
 import type { AnySourceType, Source } from "../sources/interfaces.js";
 import type { BaseSchema } from "./base.js";
 
@@ -24,7 +25,7 @@ export function object<
 >(spec: Spec): ObjectSchema<Spec> {
 	return {
 		type: {} as unknown as SpecToType<Spec>,
-		schema: Object(specToTypeboxSpec(spec)),
+		schema: TypeboxObject(specToTypeboxSpec(spec)),
 		structure: { kind: "branch", children: spec },
 		sources: Object.values(spec).flatMap(
 			(child) => child.sources,
