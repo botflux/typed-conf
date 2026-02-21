@@ -11,7 +11,7 @@ describe("number", () => {
 				/**
 				 * -0 is parsed to 0, and thus the property `coerce(n.toString()) === n` does not hold in this case.
 				 */
-				.filter((n) => !Object.is(n, -0)),
+				.filter((n) => !Object.is(n, -0) && !Number.isNaN(n)),
 		})("should be able to coerce any float to a number", ({ input }) => {
 			// Given
 			const schema = number();

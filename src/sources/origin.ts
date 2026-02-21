@@ -29,5 +29,5 @@ export function appendOrigin(obj: object, key: string, origin: string): void {
 export function origins(records: Record<string, string>) {
 	return {
 		[kOrigin]: records,
-	}
+	};
 }

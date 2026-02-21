@@ -58,7 +58,7 @@ describe("load", () => {
 			);
 		});
 
-		it("should be able to throw given a required property is missing", async function () {
+		it("should be able to throw given a required property is missing", async () => {
 			// Given
 			const config = { port: 3000 };
 			const source = new StubSource(config);
@@ -78,7 +78,7 @@ describe("load", () => {
 			);
 		});
 
-		it("should be able to throw multiple errors given multiple typebox errors", async function () {
+		it("should be able to throw multiple errors given multiple typebox errors", async () => {
 			// Given
 			const config = { port: "foo", anotherPort: "bar" };
 			appendOrigin(config, "port", "dummy:port");
