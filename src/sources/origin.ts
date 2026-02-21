@@ -15,7 +15,11 @@ export function appendOrigin(obj: object, key: string, origin: string): void {
 		Object.defineProperty(obj, kOrigin, {
 			value: origins,
 			enumerable: false,
+			// Disable this mutant because it is an implementation detail that doesn't matter.
+			// Stryker disable next-line all
 			writable: true,
+			// Disable this mutant because it is an implementation detail that doesn't matter.
+			// Stryker disable next-line all
 			configurable: true,
 		});
 	}

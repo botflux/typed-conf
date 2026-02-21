@@ -11,6 +11,8 @@ export function string<A extends Alias<AnySourceType>>(
 	aliases: A[] = [],
 ): StringSchema<A["source"]> {
 	return {
+		// This mutant can be ignored, because the value should never by used, only the type.
+		// Stryker disable next-line all
 		type: "",
 		schema: TypeboxString(),
 		structure: { kind: "leaf", aliases },
