@@ -22,9 +22,7 @@ describe("secrecy", () => {
 				const frozen = Object.freeze(schema);
 
 				// When / Then
-				expect(() => secret(frozen)).not.toThrow(
-					/object is not extensible/,
-				);
+				expect(() => secret(frozen)).not.toThrow(/object is not extensible/);
 			},
 		);
 	});
@@ -44,9 +42,7 @@ describe("secrecy", () => {
 				const frozen = Object.freeze(schema);
 
 				// When / Then
-				expect(() => clearText(frozen)).not.toThrow(
-					/object is not extensible/,
-				);
+				expect(() => clearText(frozen)).not.toThrow(/object is not extensible/);
 			},
 		);
 	});

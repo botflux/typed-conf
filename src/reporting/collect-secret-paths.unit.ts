@@ -93,20 +93,24 @@ describe("collectSecretPaths", () => {
 		expect(paths).toEqual(["database.connection.password"]);
 	});
 
-	it('should be able to disable secret when a branch is clear text', function () {
+	it("should be able to disable secret when a branch is clear text", () => {
 		// Given
-		const schema = secret(object({
-			username: string(),
-			password: string(),
-			options: clearText(object({
-				sslVersion: string()
-			}))
-		}))
+		const schema = secret(
+			object({
+				username: string(),
+				password: string(),
+				options: clearText(
+					object({
+						sslVersion: string(),
+					}),
+				),
+			}),
+		);
 
 		// When
-		const paths = collectSecretPaths(schema)
+		const paths = collectSecretPaths(schema);
 
 		// Then
-		expect(paths).toEqual(["username", "password"])
-	})
+		expect(paths).toEqual(["username", "password"]);
+	});
 });

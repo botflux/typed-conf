@@ -1,58 +1,13 @@
-import type { TSchema } from "typebox";
-import Value, { ParseError } from "typebox/value";
-import { inlineCatchSync } from "./inline-catch.js";
+import Value from "typebox/value";
 import { mergeConfigs } from "./merge.js";
 import type { BaseSchema } from "./schemes/base.js";
 import type { AnySourceType, Source } from "./sources/interfaces.js";
-import {
-	assignOriginToAllProperties,
-	getOrigin,
-	type Origin,
-} from "./sources/origin.js";
+import { assignOriginToAllProperties } from "./sources/origin.js";
 import type { LoadOpts } from "./types.js";
-import type { TLocalizedValidationError } from "typebox/error";
+import { validate } from "./validation.js";
 
 type UnwrapArray<T extends unknown[]> = T extends (infer U)[] ? U : never;
 type UnwrapSourceType<T> = T extends Source<infer U> ? U : never;
-
-function mapTypeboxValidationError(
-	error: TLocalizedValidationError,
-	origins?: Origin,
-) {
-	const propertyKey = error.instancePath.slice(1);
-	if (propertyKey === "") {
-		return new Error(error.message);
-	}
-	const origin = origins?.[propertyKey] ?? propertyKey;
-	return new Error(`${origin} ${error.message}`);
-}
-
-/**
- * Parse and validate a value against a schema, mapping errors to use origin metadata.
- */
-function parseWithOrigin<T>(
-	schema: TSchema,
-	value: Record<string, unknown>,
-): T {
-	const [parsed, caught] = inlineCatchSync(() => Value.Parse(schema, value));
-
-	if (caught) {
-		if (!(caught.error instanceof ParseError)) {
-			throw caught.error;
-		}
-
-		const errors = caught.error.cause.errors;
-		const origins = getOrigin(value);
-
-		const mappedErrors = errors.map((error) =>
-			mapTypeboxValidationError(error, origins),
-		);
-
-		throw new AggregateError(mappedErrors);
-	}
-
-	return parsed as T;
-}
 
 /**
  * Load configuration from sources based on a schema.
@@ -92,5 +47,5 @@ export async function load<
 	// Merge: source wins over defaults
 	const merged = mergeConfigs([sourceConfig, defaultsConfig]);
 
-	return parseWithOrigin<Schema["type"]>(schema.schema, merged);
+	return validate<Schema["type"]>(schema.schema, merged);
 }
