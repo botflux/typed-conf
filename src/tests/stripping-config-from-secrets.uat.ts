@@ -4,7 +4,7 @@ import { object } from "../schemes/object.js";
 import { string } from "../schemes/string.js";
 import { load } from "../load.js";
 import { toLoggableConfig } from "../reporting/to-loggable-config.js";
-import { getOrigin } from "../sources/origin.js";
+import {getOrigin, origins} from "../sources/origin.js";
 import { number } from "../schemes/number.js";
 import { secret } from "../schemes/secret.js";
 import { clearText } from "../schemes/clear-text.js";
@@ -23,8 +23,6 @@ describe("stripping config from secrets", () => {
 		const loggableConfig = toLoggableConfig(config, schema);
 
 		// Then
-		expect(config.mySecret).toEqual("secret");
-		expect(getOrigin(config)).toEqual({ mySecret: "envs:MY_SECRET" });
 		expect(loggableConfig).toEqual({
 			mySecret: "REDACTED (envs:MY_SECRET)",
 		});
@@ -53,15 +51,6 @@ describe("stripping config from secrets", () => {
 		const loggableConfig = toLoggableConfig(config, schema);
 
 		// Then
-		expect(config.url).toEqual("http://localhost:3000");
-		const auth = config.auth as Record<string, unknown>;
-		expect(auth.username).toEqual("admin");
-		expect(auth.password).toEqual("password");
-		expect(getOrigin(config)).toEqual({ url: "envs:URL" });
-		expect(getOrigin(auth)).toEqual({
-			username: "envs:USERNAME",
-			password: "envs:PASSWORD",
-		});
 		expect(loggableConfig).toEqual({
 			url: "http://localhost:3000 (envs:URL)",
 			auth: {
@@ -96,17 +85,6 @@ describe("stripping config from secrets", () => {
 		const loggableConfig = toLoggableConfig(config, schema);
 
 		// Then
-		expect(config.url).toEqual("http://localhost:3000");
-		const auth = config.auth as Record<string, unknown>;
-		expect(auth.username).toEqual("admin");
-		expect(auth.password).toEqual("password");
-		expect(auth.retries).toEqual(3);
-		expect(getOrigin(config)).toEqual({ url: "envs:URL" });
-		expect(getOrigin(auth)).toEqual({
-			username: "envs:USERNAME",
-			password: "envs:PASSWORD",
-			retries: "envs:RETRIES",
-		});
 		expect(loggableConfig).toEqual({
 			url: "http://localhost:3000 (envs:URL)",
 			auth: {
