@@ -4,8 +4,8 @@ import Value from "typebox/value";
 import { Object as TypeboxObject } from "typebox";
 
 describe("number", () => {
-	describe("default value", function () {
-		it("should have no default value by default", function () {
+	describe("default value", () => {
+		it("should have no default value by default", () => {
 			// Given
 			const schema = number();
 
@@ -21,7 +21,7 @@ describe("number", () => {
 			expect(result).toEqual({ value: undefined });
 		});
 
-		it("should be able to configure a default value", function () {
+		it("should be able to configure a default value", () => {
 			// Given
 			const schema = number({ default: 100 });
 

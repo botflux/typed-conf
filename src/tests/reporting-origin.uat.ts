@@ -21,7 +21,7 @@ describe("reporting origin", () => {
 		});
 
 		// When
-		const loggableConfig = toLoggableConfig(config);
+		const loggableConfig = toLoggableConfig(config, schema);
 
 		// Then
 		expect(loggableConfig).toEqual({
@@ -29,7 +29,7 @@ describe("reporting origin", () => {
 		});
 	});
 
-	it("should be able to report the origin of a default entry", async function () {
+	it("should be able to report the origin of a default entry", async () => {
 		// Given
 		const fakeEnvs = { HOST: "localhost" };
 		const source = envSource();
@@ -44,7 +44,7 @@ describe("reporting origin", () => {
 		});
 
 		// When
-		const loggableConfig = toLoggableConfig(config);
+		const loggableConfig = toLoggableConfig(config, schema);
 
 		// Then
 		expect(loggableConfig).toEqual({
