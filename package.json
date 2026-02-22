@@ -32,7 +32,6 @@
 		"vitest": "4.0.18"
 	},
 	"dependencies": {
-		"slow-redact": "0.3.2",
 		"typebox": "1.0.81"
 	}
 }

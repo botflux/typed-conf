@@ -1,48 +1,44 @@
-import type { BaseSchema } from "../schemes/base.js";
-import type { AnySourceType, Source } from "../sources/interfaces.js";
-import { getOrigin } from "../sources/origin.js";
-import { collectSecretPaths } from "./collect-secret-paths.js";
-import slowRedact from "slow-redact";
+import type {BaseSchema} from "../schemes/base.js";
+import type {AnySourceType, Source} from "../sources/interfaces.js";
+import {getOrigin} from "../sources/origin.js";
+import {collectSecretPaths} from "./collect-secret-paths.js";
 
 export function toLoggableConfig(
-	config: Record<string, unknown>,
-	schema: BaseSchema<unknown, Source<AnySourceType>>,
+  config: Record<string, unknown>,
+  schema: BaseSchema<unknown, Source<AnySourceType>>,
 ): Record<string, unknown> {
-	const secretPaths = collectSecretPaths(schema);
-	const redact = slowRedact({
-		paths: secretPaths,
-		censor: "REDACTED",
-		serialize: false,
-	});
-	const redactedConfig = redact(config) as Record<string, unknown> & {
-		restore?: () => unknown;
-	};
-
-	// Remove the restore function that slow-redact adds
-	delete redactedConfig.restore;
-
-	return formatConfig(config, redactedConfig);
+  const secretPaths = new Set(collectSecretPaths(schema));
+  return formatConfig(config, [], secretPaths);
 }
 
 function formatConfig(
-	originalConfig: Record<string, unknown>,
-	redactedConfig: Record<string, unknown>,
+  config: Record<string, unknown>,
+  currentPath: string[],
+  secretPaths: Set<string>,
 ): Record<string, unknown> {
-	const origins = getOrigin(originalConfig);
-	const result: Record<string, unknown> = {};
+  const origins = getOrigin(config);
+  const result: Record<string, unknown> = {};
 
-	for (const [key, value] of Object.entries(redactedConfig)) {
-		if (value !== null && typeof value === "object" && !Array.isArray(value)) {
-			const originalNested = originalConfig[key] as Record<string, unknown>;
-			result[key] = formatConfig(
-				originalNested,
-				value as Record<string, unknown>,
-			);
-		} else if (value !== null && value !== undefined) {
-			const origin = origins?.[key];
-			result[key] = origin ? `${value} (${origin})` : String(value);
-		}
-	}
+  for (const [key, value] of Object.entries(config)) {
+    const path = [...currentPath, key];
+    const pathString = path.join(".");
+    const isSecret = secretPaths.has(pathString);
 
-	return result;
+    if (isRecord(value)) {
+      result[key] = formatConfig(
+        value,
+        path,
+        secretPaths,
+      );
+    } else if (value !== null && value !== undefined) {
+      const origin = origins?.[key] ?? 'unknown'
+      result[key] = isSecret ? `REDACTED (${origin})` : `${value} (${origin})`;
+    }
+  }
+
+  return result;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
