@@ -1,4 +1,8 @@
-import { String as TypeboxString, type TStringOptions } from "typebox";
+import {
+	String as TypeboxString,
+	type TFormat,
+	type TStringOptions,
+} from "typebox";
 import type { Alias, AnySourceType, Source } from "../sources/interfaces.js";
 import type { BaseSchema } from "./base.js";
 
@@ -11,6 +15,7 @@ export type StringOpts<A extends Alias<AnySourceType>> = {
 	aliases?: A[];
 	minLength?: number;
 	maxLength?: number;
+	format?: TFormat;
 	default?: string;
 };
 
@@ -36,6 +41,9 @@ function buildTypeboxOptions(
 	}
 	if (opts.maxLength !== undefined) {
 		typeboxOpts.maxLength = opts.maxLength;
+	}
+	if (opts.format !== undefined) {
+		typeboxOpts.format = opts.format;
 	}
 	if (opts.default !== undefined) {
 		typeboxOpts.default = opts.default;

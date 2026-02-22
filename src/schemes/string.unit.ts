@@ -44,6 +44,25 @@ describe("string", () => {
 		});
 	});
 
+	describe("format", () => {
+		it("should be able to throw given the string does not match the format", () => {
+			// Given
+			const schema = TypeboxObject({
+				email: string({ format: "email" }).schema,
+			});
+			const value = { email: "not-an-email" };
+			appendOrigin(value, "email", "env:EMAIL");
+
+			// When
+			const act = () => validate(schema, value);
+
+			// Then
+			expect(act).toThrow(
+				new AggregateError([new Error('env:EMAIL must match format "email"')]),
+			);
+		});
+	});
+
 	describe("default value", () => {
 		it("should have no default value by default", () => {
 			// Given
