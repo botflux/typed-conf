@@ -51,12 +51,14 @@ jobs:
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: coverage
+          name: 'code-coverage'
 
       - name: Upload Stryker's report
         id: stryker-report
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: reports/mutation
+          name: 'stryker-report'
 
   publish-test-report:
     runs-on: ubuntu-latest
