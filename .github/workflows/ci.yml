@@ -45,3 +45,37 @@ jobs:
             ${{ runner.os }}-stryker-incremental-main
 
       - run: mise run commit-check
+
+      - name: Upload code coverage report
+        id: code-coverage
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: coverage
+
+      - name: Upload Stryker's report
+        id: stryker-report
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: reports/mutation/mutation.html
+
+  publish-test-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: 'code-coverage'
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: 'stryker-report'
+
