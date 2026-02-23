@@ -6,6 +6,23 @@ import { validate } from "../validation.js";
 import { appendOrigin } from "../sources/origin.js";
 
 describe("string", () => {
+	describe("type validation", () => {
+		it("should throw given a non-string value", () => {
+			// Given
+			const schema = TypeboxObject({ host: string().schema });
+			const value = { host: { foo: "bar" } };
+			appendOrigin(value, "host", "env:HOST");
+
+			// When
+			const act = () => validate(schema, value);
+
+			// Then
+			expect(act).toThrow(
+				new AggregateError([new Error("env:HOST must be string")]),
+			);
+		});
+	});
+
 	describe("minLength", () => {
 		it("should be able to throw given the string is too short", () => {
 			// Given

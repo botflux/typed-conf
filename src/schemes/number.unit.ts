@@ -6,6 +6,23 @@ import { validate } from "../validation.js";
 import { appendOrigin } from "../sources/origin.js";
 
 describe("number", () => {
+	describe("type validation", () => {
+		it("should throw given a non-number value", () => {
+			// Given
+			const schema = TypeboxObject({ port: number().schema });
+			const value = { port: "not-a-number" };
+			appendOrigin(value, "port", "env:PORT");
+
+			// When
+			const act = () => validate(schema, value);
+
+			// Then
+			expect(act).toThrow(
+				new AggregateError([new Error("env:PORT must be number")]),
+			);
+		});
+	});
+
 	describe("minimum", () => {
 		it("should be able to throw given the number is below minimum", () => {
 			// Given
