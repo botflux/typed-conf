@@ -46,19 +46,18 @@ jobs:
 
       - run: mise run commit-check
 
-      - name: Upload code coverage report
-        id: code-coverage
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
-        with:
-          path: coverage
-          name: 'code-coverage'
+      - name: Prepare artifacts
+        run: |
+          mkdir -p .reports
+          cp -r coverage .reports/coverage
+          cp -r reports/mutation .reports/stryker
 
-      - name: Upload Stryker's report
-        id: stryker-report
+      - name: Upload code coverage report
+        id: reports
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
-          path: reports/mutation
-          name: 'stryker-report'
+          path: .reports
+          name: 'reports'
 
   publish-test-report:
     runs-on: ubuntu-latest
@@ -75,10 +74,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
         with:
-          artifact_name: 'code-coverage'
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
-        with:
-          artifact_name: 'stryker-report'
+          artifact_name: 'reports'
 
