@@ -40,5 +40,5 @@ pnpm lint
 pnpm build
 pnpm test
 pnpm test:mutation
-pinact check
+pinact run --check
 """
