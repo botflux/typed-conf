@@ -18,9 +18,7 @@ describe("boolean", () => {
 
 			// Then
 			expect(act).toThrow(
-				new AggregateError([
-					new Error("env:ENABLED must be boolean"),
-				]),
+				new AggregateError([new Error("env:ENABLED must be boolean")]),
 			);
 		});
 	});
