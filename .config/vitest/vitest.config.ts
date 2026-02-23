@@ -4,6 +4,9 @@ export default defineConfig({
 	test: {
 		environment: "node",
 		exclude: [ ".stryker-tmp/**" ],
+		coverage: {
+			enabled: true,
+		},
 		projects: [
 			{
 				extends: true,
