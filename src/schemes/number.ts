@@ -33,9 +33,8 @@ function buildTypeboxOptions(
 ): TNumberOptions {
 	const typeboxOpts: TNumberOptions = {};
 
-	if (opts.default !== undefined) {
-		typeboxOpts.default = opts.default;
-	}
+	typeboxOpts.default = opts.default;
+
 	if (opts.minimum !== undefined) {
 		typeboxOpts.minimum = opts.minimum;
 	}

@@ -110,9 +110,7 @@ describe("load", () => {
 			const source = new StubSource({ port: "3000" });
 
 			// When
-			const config = await load(object({ port: number([source.alias({})]) }), {
-				inject: { source },
-			});
+			const config = await load(object({ port: number([source.alias({})]) }), {});
 
 			// Then
 			expect(config).toEqual({ port: 3000 });
