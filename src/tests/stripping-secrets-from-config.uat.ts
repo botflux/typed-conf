@@ -4,7 +4,6 @@ import { object } from "../schemes/object.js";
 import { string } from "../schemes/string.js";
 import { load } from "../load.js";
 import { toLoggableConfig } from "../reporting/to-loggable-config.js";
-import { getOrigin, origins } from "../sources/origin.js";
 import { number } from "../schemes/number.js";
 import { secret } from "../schemes/secret.js";
 import { clearText } from "../schemes/clear-text.js";

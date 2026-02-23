@@ -85,7 +85,7 @@ describe("toLoggableConfig", () => {
 		expect(loggableConfig).toEqual({});
 	});
 
-	it('should be able to return "unknown" given the origin is not specified', function () {
+	it('should be able to return "unknown" given the origin is not specified', () => {
 		const config = { host: "localhost" };
 		const schema = object({
 			host: string(),
@@ -98,5 +98,5 @@ describe("toLoggableConfig", () => {
 		expect(loggableConfig).toEqual({
 			host: "localhost (unknown)",
 		});
-	})
+	});
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect } from "vitest";
 import { number } from "./number.js";
 import { Value } from "typebox/value";
 import { fc, test } from "@fast-check/vitest";
