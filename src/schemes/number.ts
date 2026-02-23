@@ -1,4 +1,4 @@
-import { Number as TypeboxNumber } from "typebox";
+import { Number as TypeboxNumber, type TNumberOptions } from "typebox";
 import type { Alias, AnySourceType, Source } from "../sources/interfaces.js";
 import type { BaseSchema } from "./base.js";
 
@@ -10,6 +10,10 @@ export type NumberSchema<Sources extends Source<AnySourceType>> = BaseSchema<
 export type NumberOpts<A extends Alias<AnySourceType>> = {
 	aliases?: A[];
 	default?: number;
+	minimum?: number;
+	maximum?: number;
+	exclusiveMinimum?: number;
+	exclusiveMaximum?: number;
 };
 
 function normalizeOpts<A extends Alias<AnySourceType>>(
@@ -24,6 +28,30 @@ function normalizeOpts<A extends Alias<AnySourceType>>(
 	return aliasesOrOpts;
 }
 
+function buildTypeboxOptions(
+	opts: NumberOpts<Alias<AnySourceType>>,
+): TNumberOptions {
+	const typeboxOpts: TNumberOptions = {};
+
+	if (opts.default !== undefined) {
+		typeboxOpts.default = opts.default;
+	}
+	if (opts.minimum !== undefined) {
+		typeboxOpts.minimum = opts.minimum;
+	}
+	if (opts.maximum !== undefined) {
+		typeboxOpts.maximum = opts.maximum;
+	}
+	if (opts.exclusiveMinimum !== undefined) {
+		typeboxOpts.exclusiveMinimum = opts.exclusiveMinimum;
+	}
+	if (opts.exclusiveMaximum !== undefined) {
+		typeboxOpts.exclusiveMaximum = opts.exclusiveMaximum;
+	}
+
+	return typeboxOpts;
+}
+
 export function number<A extends Alias<AnySourceType>>(
 	aliasesOrOpts?: A[] | NumberOpts<A>,
 ): NumberSchema<A["source"]> {
@@ -32,10 +60,7 @@ export function number<A extends Alias<AnySourceType>>(
 
 	return {
 		type: 0,
-		schema:
-			opts.default !== undefined
-				? TypeboxNumber({ default: opts.default })
-				: TypeboxNumber(),
+		schema: TypeboxNumber(buildTypeboxOptions(opts)),
 		structure: { kind: "leaf", aliases },
 		sources: aliases.map((alias) => alias.source),
 	};
