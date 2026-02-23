@@ -21,11 +21,12 @@ pnpm biome check --write --no-errors-on-unmatched --changed --since HEAD
 pnpm typecheck
 pnpm test
 
-changed_actions=$(echo "$STAGED" | grep -E '(\\.github/workflows/.*\\.ya?ml|action\\.ya?ml)$')
+#changed_actions=$(echo "$STAGED" | grep -E '(\\.github/workflows/.*\\.ya?ml|action\\.ya?ml)$')
 
-if [[ -n "$changed_actions" ]]; then
-    pinact run $changed_actions
-fi
+#if [[ -n "$changed_actions" ]]; then
+#    echo "Found some changed github actions, running pinact..."
+#    pinact run $changed_actions
+#fi
 
 echo $STAGED | xargs git add
 """
@@ -33,6 +34,7 @@ echo $STAGED | xargs git add
 [tasks.commit-check]
 description = "Checks that verify the codebase is conform"
 run = """
+pnpm i
 pnpm fmt
 pnpm lint
 pnpm build
