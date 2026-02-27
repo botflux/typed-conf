@@ -4,3 +4,4 @@ dist
 .stryker-tmp
 reports
 coverage
+.tmp-dir
