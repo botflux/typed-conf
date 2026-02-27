@@ -5,6 +5,8 @@ This document provides guidelines for AI coding agents working in this repositor
 Use `pnpm`
 Respect `YAGNI`
 
+Run the build, test and lint scripts after every changes.
+
 ## Test structure
 
 Always add Given When Then comments 
