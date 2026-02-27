@@ -2,10 +2,10 @@
 
 This document provides guidelines for AI coding agents working in this repository.
 
-Use `pnpm`
-Respect `YAGNI`
+* Use `pnpm`
+* Respect `YAGNI`
+* Run `mise run commit-check` after each change
 
-Run the build, test and lint scripts after every changes.
 
 ## Test structure
 
