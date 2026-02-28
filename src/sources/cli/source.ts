@@ -9,9 +9,15 @@ import { AmbiguousCliArgError } from "./ambiguous-cli-arg.error.js";
 import type { NormalizedCliSourceOpts } from "./factory.js";
 import type { AliasOpts, Argv, CliSourceType } from "./types.js";
 
+type FlagEntry = {
+	long: string;
+	short?: string;
+};
+
 type SchemaEntry = {
 	path: string[];
-	flagNames: string[];
+	flags: FlagEntry[];
+	valueType: "string" | "boolean";
 };
 
 export class CliSource<Name extends string>
@@ -80,12 +86,12 @@ export class CliSource<Name extends string>
 		const flagNameToPath = new Map<string, string>();
 		for (const entry of entries) {
 			const pathStr = entry.path.join(".");
-			for (const flagName of entry.flagNames) {
-				const existing = flagNameToPath.get(flagName);
+			for (const flag of entry.flags) {
+				const existing = flagNameToPath.get(flag.long);
 				if (existing !== undefined) {
-					throw new AmbiguousCliArgError(`--${flagName}`, existing, pathStr);
+					throw new AmbiguousCliArgError(`--${flag.long}`, existing, pathStr);
 				}
-				flagNameToPath.set(flagName, pathStr);
+				flagNameToPath.set(flag.long, pathStr);
 			}
 		}
 	}
@@ -106,22 +112,31 @@ export class CliSource<Name extends string>
 				entries.push(...this.#collectSchemaEntries(childSchema, path));
 			} else {
 				const aliases = this.#extractAliases(childSchema.structure as Leaf);
-				const flagNames = isImplicit
-					? [this.#pathToFlagName(path), ...aliases]
+				const flags: FlagEntry[] = isImplicit
+					? [{ long: this.#pathToFlagName(path) }, ...aliases]
 					: aliases;
-				entries.push({ path, flagNames });
+				const schemaType = (childSchema.schema as { type?: string }).type;
+				const valueType = schemaType === "boolean" ? "boolean" : "string";
+				entries.push({ path, flags, valueType });
 			}
 		}
 
 		return entries;
 	}
 
-	#extractAliases(structure: Leaf): string[] {
+	#extractAliases(structure: Leaf): FlagEntry[] {
 		return structure.aliases
 			.filter((alias) => this.#isCliAlias(alias))
 			.map((alias) => {
 				const opts = alias.aliasOpts;
-				return typeof opts === "string" ? opts : opts.long;
+				if (typeof opts === "string") {
+					return { long: opts };
+				}
+				const entry: FlagEntry = { long: opts.long };
+				if (opts.short !== undefined) {
+					entry.short = opts.short;
+				}
+				return entry;
 			});
 	}
 
@@ -133,18 +148,22 @@ export class CliSource<Name extends string>
 
 	#buildParseArgsOptions(
 		entries: SchemaEntry[],
-	): Record<string, { type: "string"; short?: string }> {
-		const options: Record<string, { type: "string"; short?: string }> = {};
+	): Record<string, { type: "string" | "boolean"; short?: string }> {
+		const options: Record<
+			string,
+			{ type: "string" | "boolean"; short?: string }
+		> = {};
 
 		for (const entry of entries) {
-			for (const flagName of entry.flagNames) {
-				options[flagName] = { type: "string" };
+			for (const flag of entry.flags) {
+				const opt: { type: "string" | "boolean"; short?: string } = {
+					type: entry.valueType,
+				};
+				if (flag.short !== undefined) {
+					opt.short = flag.short;
+				}
+				options[flag.long] = opt;
 			}
-		}
-
-		// Add short aliases from explicit aliases
-		if (this.#opts.mode === "explicit") {
-			return options;
 		}
 
 		return options;
@@ -153,11 +172,11 @@ export class CliSource<Name extends string>
 	#resolveCliValue(
 		entry: SchemaEntry,
 		values: Record<string, unknown>,
-	): { value: string; flagName: string } | undefined {
-		for (const flagName of entry.flagNames) {
-			const value = values[flagName];
-			if (typeof value === "string") {
-				return { value, flagName };
+	): { value: string | boolean; flagName: string } | undefined {
+		for (const flag of entry.flags) {
+			const value = values[flag.long];
+			if (typeof value === "string" || typeof value === "boolean") {
+				return { value, flagName: flag.long };
 			}
 		}
 		return undefined;
