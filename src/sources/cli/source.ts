@@ -1,7 +1,10 @@
 import { parseArgs } from "node:util";
 import type { BaseSchema, Branch, Leaf } from "../../schemes/base.js";
 import type { Alias, AnySourceType, Source } from "../interfaces.js";
-import { appendOrigin } from "../origin.js";
+import {
+	mapKeyValueToObject,
+	type KeyValue,
+} from "../mapping/key-value-to-object.js";
 import { AmbiguousCliArgError } from "./ambiguous-cli-arg.error.js";
 import type { NormalizedCliSourceOpts } from "./factory.js";
 import type { AliasOpts, Argv, CliSourceType } from "./types.js";
@@ -49,23 +52,20 @@ export class CliSource<Name extends string>
 			allowPositionals: true,
 		});
 
-		const result: Record<string, unknown> = {};
+		const keyValues: KeyValue[] = [];
 
 		for (const entry of entries) {
 			const resolved = this.#resolveCliValue(entry, values);
 			if (resolved !== undefined) {
-				const target = this.#setNestedValue(result, entry.path, resolved.value);
-				if (target !== undefined) {
-					appendOrigin(
-						target.parent,
-						target.key,
-						`${this.#opts.name}:--${resolved.flagName}`,
-					);
-				}
+				keyValues.push([
+					entry.path,
+					resolved.value,
+					`${this.#opts.name}:--${resolved.flagName}`,
+				]);
 			}
 		}
 
-		return result;
+		return mapKeyValueToObject(keyValues);
 	}
 
 	#pathToFlagName(path: string[]): string {
@@ -161,26 +161,6 @@ export class CliSource<Name extends string>
 			}
 		}
 		return undefined;
-	}
-
-	#setNestedValue(
-		obj: Record<string, unknown>,
-		path: string[],
-		value: unknown,
-	): { parent: Record<string, unknown>; key: string } | undefined {
-		let current = obj;
-		for (let i = 0; i < path.length - 1; i++) {
-			const key = path[i];
-			if (key === undefined) continue;
-			if (!(key in current)) {
-				current[key] = {};
-			}
-			current = current[key] as Record<string, unknown>;
-		}
-		const lastKey = path[path.length - 1];
-		if (lastKey === undefined) return undefined;
-		current[lastKey] = value;
-		return { parent: current, key: lastKey };
 	}
 
 	#isBranch(
