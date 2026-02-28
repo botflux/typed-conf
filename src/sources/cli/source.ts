@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
-import type { BaseSchema, Branch, Leaf } from "../../schemes/base.js";
-import { isBranch } from "../../schemes/utils.js";
+import type { BaseSchema, Leaf } from "../../schemes/base.js";
+import { type BranchSchema, isBranch } from "../../schemes/utils.js";
 import type { Alias, AnySourceType, Source } from "../interfaces.js";
 import {
 	mapKeyValueToObject,
@@ -9,6 +9,7 @@ import {
 import { AmbiguousCliArgError } from "./ambiguous-cli-arg.error.js";
 import type { NormalizedCliSourceOpts } from "./factory.js";
 import type { AliasOpts, Argv, CliSourceType } from "./types.js";
+import type { TBoolean, TSchema } from "typebox";
 
 type FlagEntry = {
 	long: string;
@@ -97,32 +98,41 @@ export class CliSource<Name extends string>
 		}
 	}
 
+	#isTypeboxBoolean(schema: TSchema): schema is TBoolean {
+		return (
+			typeof schema === "object" &&
+			schema !== null &&
+			"type" in schema &&
+			schema.type === "boolean"
+		);
+	}
+
 	#collectSchemaEntries(
-		schema: BaseSchema<unknown, Source<AnySourceType>> & { structure: Branch },
+		schema: BranchSchema,
 		prefix: string[] = [],
 	): SchemaEntry[] {
-		const entries: SchemaEntry[] = [];
 		const isImplicit = this.#opts.mode !== "explicit";
 
-		for (const [key, childSchema] of Object.entries(
-			schema.structure.children,
-		)) {
-			const path = [...prefix, key];
+		return Object.entries(schema.structure.children).flatMap(
+			([key, childSchema]) => {
+				const path = [...prefix, key];
 
-			if (isBranch(childSchema)) {
-				entries.push(...this.#collectSchemaEntries(childSchema, path));
-			} else {
+				if (isBranch(childSchema))
+					return this.#collectSchemaEntries(childSchema, path);
+
 				const aliases = this.#extractAliases(childSchema.structure as Leaf);
-				const flags: FlagEntry[] = isImplicit
+
+				const flags = isImplicit
 					? [{ long: this.#pathToFlagName(path) }, ...aliases]
 					: aliases;
-				const schemaType = (childSchema.schema as { type?: string }).type;
-				const valueType = schemaType === "boolean" ? "boolean" : "string";
-				entries.push({ path, flags, valueType });
-			}
-		}
 
-		return entries;
+				const valueType = this.#isTypeboxBoolean(childSchema.schema)
+					? "boolean"
+					: "string";
+
+				return [{ path, flags, valueType }];
+			},
+		);
 	}
 
 	#extractAliases(structure: Leaf): FlagEntry[] {
