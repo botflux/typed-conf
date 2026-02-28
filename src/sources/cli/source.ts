@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
 import type { BaseSchema, Branch, Leaf } from "../../schemes/base.js";
+import { isBranch } from "../../schemes/utils.js";
 import type { Alias, AnySourceType, Source } from "../interfaces.js";
 import {
 	mapKeyValueToObject,
@@ -42,7 +43,7 @@ export class CliSource<Name extends string>
 		_opts: undefined,
 		inject: Argv,
 	): Promise<Record<string, unknown>> {
-		if (!this.#isBranch(schema)) {
+		if (!isBranch(schema)) {
 			return {};
 		}
 
@@ -108,7 +109,7 @@ export class CliSource<Name extends string>
 		)) {
 			const path = [...prefix, key];
 
-			if (this.#isBranch(childSchema)) {
+			if (isBranch(childSchema)) {
 				entries.push(...this.#collectSchemaEntries(childSchema, path));
 			} else {
 				const aliases = this.#extractAliases(childSchema.structure as Leaf);
@@ -128,7 +129,7 @@ export class CliSource<Name extends string>
 		return structure.aliases
 			.filter((alias) => this.#isCliAlias(alias))
 			.map((alias) => {
-				const { aliasOpts } = alias
+				const { aliasOpts } = alias;
 
 				if (typeof aliasOpts === "string") {
 					return { long: aliasOpts };
@@ -177,13 +178,5 @@ export class CliSource<Name extends string>
 			}
 		}
 		return undefined;
-	}
-
-	#isBranch(
-		schema: BaseSchema<unknown, Source<AnySourceType>>,
-	): schema is BaseSchema<unknown, Source<AnySourceType>> & {
-		structure: Branch;
-	} {
-		return schema.structure.kind === "branch";
 	}
 }

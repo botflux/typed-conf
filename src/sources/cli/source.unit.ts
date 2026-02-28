@@ -171,24 +171,38 @@ describe("cli source", () => {
 					expect(result).toEqual({ host: "localhost" });
 				});
 
-				it('should be able to pick the implicitly named arg first', async function () {
+				it("should be able to pick the implicitly named arg first", async function () {
 					// Given
-					const fakeArgv = ["--my-host", "localhost", "--host", "new.localhost"];
+					const fakeArgv = [
+						"--my-host",
+						"localhost",
+						"--host",
+						"new.localhost",
+					];
 					const source = cliSource({ mode: "implicit" });
 					const schema = object({
 						host: string([source.alias("my-host")]),
 					});
 
 					// When
-					const result = await source.loadFromSchema(schema, undefined, fakeArgv);
+					const result = await source.loadFromSchema(
+						schema,
+						undefined,
+						fakeArgv,
+					);
 
 					// Then
 					expect(result).toEqual({ host: "new.localhost" });
-				})
+				});
 
-				it('should be able to load aliases in order', async function () {
+				it("should be able to load aliases in order", async function () {
 					// Given
-					const fakeArgv = ["--my-host", "localhost", "--second-my-host", "old.localhost"];
+					const fakeArgv = [
+						"--my-host",
+						"localhost",
+						"--second-my-host",
+						"old.localhost",
+					];
 					const source = cliSource({ mode: "implicit" });
 					const schema = object({
 						host: string([
@@ -198,11 +212,15 @@ describe("cli source", () => {
 					});
 
 					// When
-					const result = await source.loadFromSchema(schema, undefined, fakeArgv);
+					const result = await source.loadFromSchema(
+						schema,
+						undefined,
+						fakeArgv,
+					);
 
 					// Then
-					expect(result).toEqual({ host: 'old.localhost' })
-				})
+					expect(result).toEqual({ host: "old.localhost" });
+				});
 			});
 		});
 	});

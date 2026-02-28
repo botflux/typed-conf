@@ -1,4 +1,5 @@
 import type { BaseSchema, Branch, Leaf } from "../../schemes/base.js";
+import { isBranch } from "../../schemes/utils.js";
 import type { Alias, AnySourceType, Source } from "../interfaces.js";
 import { appendOrigin } from "../origin.js";
 import { AmbiguousEnvNameError } from "./ambiguous-env-name.error.js";
@@ -32,7 +33,7 @@ export class EnvSource<Name extends string>
 		_opts: EnvSourceType<Name>["LoadFromSchema"],
 		inject: EnvSourceType<Name>["Inject"],
 	): Promise<Record<string, unknown>> {
-		if (!this.#isBranch(schema)) {
+		if (!isBranch(schema)) {
 			return Promise.resolve({});
 		}
 
@@ -97,7 +98,7 @@ export class EnvSource<Name extends string>
 		)) {
 			const path = [...prefix, key];
 
-			if (this.#isBranch(childSchema)) {
+			if (isBranch(childSchema)) {
 				entries.push(...this.#collectSchemaEntries(childSchema, path));
 			} else {
 				const aliases = this.#extractAliases(childSchema.structure as Leaf);
@@ -154,13 +155,5 @@ export class EnvSource<Name extends string>
 		if (lastKey === undefined) return undefined;
 		current[lastKey] = value;
 		return { parent: current, key: lastKey };
-	}
-
-	#isBranch(
-		schema: BaseSchema<unknown, Source<AnySourceType>>,
-	): schema is BaseSchema<unknown, Source<AnySourceType>> & {
-		structure: Branch;
-	} {
-		return schema.structure.kind === "branch";
 	}
 }
