@@ -326,29 +326,29 @@ describe("env source", () => {
 				});
 			});
 		});
-	});
 
-	it("should be in explicit mode by default", async () => {
-		// Given
-		const fakeEnvs = { HOST: "localhost" };
-		const source = envSource();
-		const schema = object({
-			host: string(),
+		it("should be in explicit mode by default", async () => {
+			// Given
+			const fakeEnvs = { HOST: "localhost" };
+			const source = envSource();
+			const schema = object({
+				host: string(),
+			});
+
+			// When
+			const result = await source.loadFromSchema(schema, undefined, fakeEnvs);
+
+			// Then
+			expect(result).toEqual({});
 		});
 
-		// When
-		const result = await source.loadFromSchema(schema, undefined, fakeEnvs);
+		it("should be able to customize the source's name", () => {
+			// Given
+			// When
+			const source = envSource({ name: "custom-source" });
 
-		// Then
-		expect(result).toEqual({});
-	});
-
-	it("should be able to customize the source's name", () => {
-		// Given
-		// When
-		const source = envSource({ name: "custom-source" });
-
-		// Then
-		expect(source.name).toEqual("custom-source");
+			// Then
+			expect(source.name).toEqual("custom-source");
+		});
 	});
 });
