@@ -128,15 +128,12 @@ export class CliSource<Name extends string>
 		return structure.aliases
 			.filter((alias) => this.#isCliAlias(alias))
 			.map((alias) => {
-				const opts = alias.aliasOpts;
-				if (typeof opts === "string") {
-					return { long: opts };
+				const { aliasOpts } = alias
+
+				if (typeof aliasOpts === "string") {
+					return { long: aliasOpts };
 				}
-				const entry: FlagEntry = { long: opts.long };
-				if (opts.short !== undefined) {
-					entry.short = opts.short;
-				}
-				return entry;
+				return aliasOpts;
 			});
 	}
 
