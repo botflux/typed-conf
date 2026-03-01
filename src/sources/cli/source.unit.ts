@@ -4,6 +4,7 @@ import { object } from "../../schemes/object.js";
 import { AmbiguousCliArgError } from "./ambiguous-cli-arg.error.js";
 import { cliSource } from "./factory.js";
 import { boolean } from "../../schemes/boolean.js";
+import { getOrigin } from "../origin.js";
 
 describe("cli source", () => {
 	describe("load all from schema", () => {
@@ -220,6 +221,117 @@ describe("cli source", () => {
 
 					// Then
 					expect(result).toEqual({ host: "old.localhost" });
+				});
+			});
+
+			describe("explicit loading", function () {
+				it("should be able to disable implicit loading", async function () {
+					// Given
+					const fakeArgv = [
+						"--my-host",
+						"localhost",
+						"--host",
+						"new.localhost",
+					];
+					const source = cliSource({ mode: "explicit" });
+					const schema = object({
+						host: string([source.alias("my-host")]),
+					});
+
+					// When
+					const result = await source.loadFromSchema(
+						schema,
+						undefined,
+						fakeArgv,
+					);
+
+					// Then
+					expect(result).toEqual({ host: "localhost" });
+				});
+
+				it("should be able to not load anything given no alias is configured", async function () {
+					// Given
+					const fakeArgv = ["--host", "new.localhost"];
+					const source = cliSource({ mode: "explicit" });
+					const schema = object({
+						host: string(),
+					});
+
+					// When
+					const result = await source.loadFromSchema(
+						schema,
+						undefined,
+						fakeArgv,
+					);
+
+					// Then
+					expect(result).toEqual({});
+				});
+			});
+
+			describe("source tracking", function () {
+				it("should be able to track the cli args origin", async function () {
+					// Given
+					const fakeArgv = ["--host", "new.localhost"];
+					const source = cliSource({ mode: "implicit" });
+					const schema = object({ host: string() });
+
+					// When
+					const result = await source.loadFromSchema(
+						schema,
+						undefined,
+						fakeArgv,
+					);
+
+					// Then
+					expect(getOrigin(result)).toEqual({
+						host: "cli:--host",
+					});
+				});
+
+				it("should be able to track cli alias origin", async function () {
+					// Given
+					const fakeArgv = ["--my-host", "localhost"];
+					const source = cliSource({ mode: "implicit" });
+					const schema = object({ host: string([source.alias("my-host")]) });
+
+					// When
+					const result = await source.loadFromSchema(
+						schema,
+						undefined,
+						fakeArgv,
+					);
+
+					// Then
+					expect(getOrigin(result)).toEqual({
+						host: "cli:--my-host",
+					});
+				});
+			});
+
+			describe("implicit cli arg naming convention", function () {
+				it("should be able to customize the naming convention", async function () {
+					// Given
+					const fakeArgv = ["--myHost", "localhost"];
+					const source = cliSource({
+						mode: {
+							type: "implicit",
+							namingConvention: (n) => n,
+						},
+					});
+					const schema = object({ myHost: string() });
+
+					// When
+					const result = await source.loadFromSchema(
+						schema,
+						undefined,
+						fakeArgv,
+					);
+
+					// Then
+					expect(result).toEqual({
+						myHost: "localhost",
+					});
 				});
 			});
 		});

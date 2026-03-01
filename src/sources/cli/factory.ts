@@ -1,11 +1,16 @@
 import { kebabCase } from "../../naming/kebab-case.js";
 import { CliSource } from "./source.js";
 
+export type ImplicitModeOpts = {
+	type: "implicit";
+	namingConvention?: (key: string) => string;
+};
+
 export type CliSourceFactoryOpts<Name extends string> = {
 	/**
 	 * @default 'explicit'
 	 */
-	mode?: "implicit" | "explicit";
+	mode?: "implicit" | "explicit" | ImplicitModeOpts;
 
 	/**
 	 * @default 'cli'
@@ -15,9 +20,7 @@ export type CliSourceFactoryOpts<Name extends string> = {
 
 export type NormalizedCliSourceOpts<Name extends string> = {
 	name: Name;
-	mode:
-		| "explicit"
-		| { type: "implicit"; namingConvention: (key: string) => string };
+	mode: "explicit" | Required<ImplicitModeOpts>;
 };
 
 export function cliSource<Name extends string = "cli">(
@@ -29,8 +32,13 @@ export function cliSource<Name extends string = "cli">(
 	const name = (userOpts.name ?? "cli") as Name;
 	const mode =
 		userOpts.mode === "implicit"
-			? { type: "implicit" as const, namingConvention: kebabCase }
-			: "explicit";
+			? ({
+					type: "implicit" as const,
+					namingConvention: kebabCase,
+				} as Required<ImplicitModeOpts>)
+			: typeof userOpts.mode === "object" && userOpts.mode.type === "implicit"
+				? { namingConvention: kebabCase, ...userOpts.mode }
+				: "explicit";
 
 	return new CliSource({ name, mode });
 }
