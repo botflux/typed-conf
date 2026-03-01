@@ -10,6 +10,9 @@ import { AmbiguousCliArgError } from "./ambiguous-cli-arg.error.js";
 import type { NormalizedCliSourceOpts } from "./factory.js";
 import type { AliasOpts, Argv, CliSourceType } from "./types.js";
 import type { TBoolean, TSchema } from "typebox";
+import type { ParseArgsConfig } from "node:util";
+
+type ParsedValues = ReturnType<typeof parseArgs>;
 
 type FlagEntry = {
 	long: string;
@@ -60,20 +63,31 @@ export class CliSource<Name extends string>
 			allowPositionals: true,
 		});
 
+		const keyValues = this.#extractKeyValues(
+			entries,
+			values as unknown as ParsedValues,
+		);
+
+		return mapKeyValueToObject(keyValues);
+	}
+
+	#extractKeyValues(entries: SchemaEntry[], values: ParsedValues) {
 		const keyValues: KeyValue[] = [];
 
 		for (const entry of entries) {
 			const resolved = this.#resolveCliValue(entry, values);
-			if (resolved !== undefined) {
-				keyValues.push([
-					entry.path,
-					resolved.value,
-					`${this.#opts.name}:--${resolved.flagName}`,
-				]);
-			}
-		}
 
-		return mapKeyValueToObject(keyValues);
+			if (resolved === undefined) {
+				continue;
+			}
+
+			keyValues.push([
+				entry.path,
+				resolved.value,
+				`${this.#opts.name}:--${resolved.flagName}`,
+			]);
+		}
+		return keyValues;
 	}
 
 	#pathToFlagName(path: string[]): string {
@@ -154,27 +168,23 @@ export class CliSource<Name extends string>
 		return alias.source === this;
 	}
 
-	#buildParseArgsOptions(
-		entries: SchemaEntry[],
-	): Record<string, { type: "string" | "boolean"; short?: string }> {
-		const options: Record<
-			string,
-			{ type: "string" | "boolean"; short?: string }
-		> = {};
-
-		for (const entry of entries) {
-			for (const flag of entry.flags) {
-				const opt: { type: "string" | "boolean"; short?: string } = {
-					type: entry.valueType,
-				};
-				if (flag.short !== undefined) {
-					opt.short = flag.short;
-				}
-				options[flag.long] = opt;
-			}
-		}
-
-		return options;
+	#buildParseArgsOptions(entries: SchemaEntry[]): ParseArgsConfig["options"] {
+		return entries
+			.flatMap((entry) =>
+				entry.flags.map((flag) => [flag, entry.valueType] as const),
+			)
+			.reduce(
+				(acc, [flag, type]) => ({
+					...acc,
+					[flag.long]: {
+						type,
+						...(flag.short !== undefined && {
+							short: flag.short,
+						}),
+					},
+				}),
+				{} as ParseArgsConfig["options"],
+			);
 	}
 
 	#resolveCliValue(
